@@ -12,13 +12,15 @@
 
 #include "create-and-destroy.h"
 
+#include "environment.h"
+
 extern LISP_VALUE * globalNullValue;
 extern LISP_VALUE * globalTrueValue;
 
 /* Function prototypes */
 
-LISP_VALUE * lookupVariableInEnvironment(LISP_VAR * var, LISP_ENV * env);
-void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value);
+/* LISP_VALUE * lookupVariableInEnvironment(LISP_VAR * var, LISP_ENV * env);
+void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value); */
 
 /* Forward references */
 

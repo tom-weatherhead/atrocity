@@ -439,4 +439,47 @@ LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
 	return result;
 }
 
+/* Misc DOM functions */
+
+/* BOOL isValueCallable(LISP_VALUE * value) {
+	return value->type == lispValueType_PrimitiveOperator || value->type == lispValueType_Closure;
+} */
+
+void printValue(LISP_VALUE * value) {
+
+	switch (value->type) {
+		case lispValueType_Number:
+			printf("Number: %d", value->value);
+			break;
+
+		case lispValueType_String:
+			printf("String: '%s'", value->name);
+			break;
+
+		case lispValueType_PrimitiveOperator:
+			printf("PrimitiveOperator: '%s'", value->name);
+			break;
+
+		case lispValueType_Closure:
+			printf("<closure>");
+			break;
+
+		case lispValueType_Pair:
+			printf("Pair: (");
+			printValue(value->pair->head);
+			printf(" ");
+			printValue(value->pair->tail);
+			printf(")");
+			break;
+
+		case lispValueType_Null:
+			printf("Null");
+			break;
+
+		default:
+			printf("<invalidValue>");
+			break;
+	}
+}
+
 /* **** The End **** */

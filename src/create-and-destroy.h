@@ -18,4 +18,6 @@ void freeValue(LISP_VALUE * value);
 void freeVariable(LISP_VAR * var);
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
 
+void printValue(LISP_VALUE * value);
+
 /* **** The End **** */
