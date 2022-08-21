@@ -10,6 +10,7 @@ LISP_VALUE * createNumericValue(int value);
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail);
 LISP_VALUE * createPrimitiveOperator(char * value);
 LISP_VALUE * createStringValue(char * value);
+LISP_VALUE * createSymbolValue(char * value);
 LISP_VAR * createVariable(char * name);
 
 LISP_VALUE * cloneValue(LISP_VALUE * value);
@@ -21,10 +22,11 @@ LISP_EXPR * createUndefinedExpression();
 LISP_EXPR * createExpressionFromVariable(LISP_VAR * var);
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value);
 
+void freeValue(LISP_VALUE * value);
+
 void freeEnvironment(LISP_ENV * env);
 void freeExpression(LISP_EXPR * expr);
 void freeExpressionList(LISP_EXPR_LIST_ELEMENT * exprList);
-void freeValue(LISP_VALUE * value);
 void freeVariable(LISP_VAR * var);
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
 

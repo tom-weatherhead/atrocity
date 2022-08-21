@@ -8,15 +8,11 @@
 
 #include "types.h"
 
-#include "char-source.h"
-
 #include "create-and-destroy.h"
-#include "parser.h"
-#include "evaluate.h"
 
 /* Functions */
 
-LISP_VALUE * lookupVariableInNameValueList(LISP_VAR * var, LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
+static LISP_VALUE * lookupVariableInNameValueList(LISP_VAR * var, LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
 
 	while (nvle != NULL) {
 		/* printf("  Comparing var name '%s' to '%s'...\n", var->name, nvle->name); */
@@ -61,7 +57,7 @@ LISP_VALUE * lookupVariableInEnvironment(LISP_VAR * var, LISP_ENV * env) {
 	return value;
 }
 
-BOOL updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR * var, LISP_VALUE * value) {
+static BOOL updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR * var, LISP_VALUE * value) {
 
 	while (nvle != NULL) {
 
@@ -76,7 +72,7 @@ BOOL updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR 
 	return FALSE;
 }
 
-BOOL updateIfFoundInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
+static BOOL updateIfFoundInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 
 
 	while (env != NULL) {
@@ -108,7 +104,7 @@ void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 	}
 }
 
-void printEnvironment(LISP_ENV * env) {
+/* void printEnvironment(LISP_ENV * env) {
 	int i = 0;
 
 	printf("printEnvironment:\n");
@@ -130,6 +126,6 @@ void printEnvironment(LISP_ENV * env) {
 	}
 
 	printf("End of printEnvironment\n");
-}
+} */
 
 /* **** The End **** */

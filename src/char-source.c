@@ -49,15 +49,15 @@ void rewindOneChar(CharSource * cs) {
 	}
 }
 
-BOOL isEOF(CharSource * cs) {
+static BOOL isEOF(CharSource * cs) {
 	return cs->i >= cs->len;
 }
 
-BOOL isWhiteSpace(char c) {
+static BOOL isWhiteSpace(char c) {
 	return c == ' ' || c == '\t' ? TRUE : FALSE;
 }
 
-void skipWhiteSpace(CharSource * cs) {
+static void skipWhiteSpace(CharSource * cs) {
 
 	while (cs->i < cs->len && isWhiteSpace(cs->str[cs->i])) {
 		++cs->i;

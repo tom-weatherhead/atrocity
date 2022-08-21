@@ -8,13 +8,11 @@
 
 #include "types.h"
 
-#include "char-source.h"
-
 #include "create-and-destroy.h"
 
 // **** Value struct creation functions ****
 
-LISP_VALUE * createUndefinedValue() {
+static LISP_VALUE * createUndefinedValue() {
 	LISP_VALUE * result = (LISP_VALUE *)malloc(sizeof(LISP_VALUE));
 
 	result->type = lispValueType_Undefined;
@@ -50,6 +48,21 @@ LISP_VALUE * createStringValue(char * value) {
 	return result;
 }
 
+LISP_VALUE * createSymbolValue(char * value) {
+
+	if (strlen(value) >= maxStringValueLength) {
+		fprintf(stderr, "The string '%s' is too long to be a string value.", value);
+		return NULL;
+	}
+
+	LISP_VALUE * result = createUndefinedValue();
+
+	result->type = lispValueType_Symbol;
+	strcpy(result->name, value);
+
+	return result;
+}
+
 LISP_VALUE * createPrimitiveOperator(char * value) {
 	LISP_VALUE * result = createUndefinedValue();
 
@@ -74,7 +87,7 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 	return result;
 }
 
-void freeClosure(LISP_CLOSURE * closure) {
+static void freeClosure(LISP_CLOSURE * closure) {
 
 	/* if (closure->args != NULL) {
 		freeVariableList(closure->args);
@@ -108,7 +121,7 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	return result;
 }
 
-void freePair(LISP_PAIR * pair) {
+static void freePair(LISP_PAIR * pair) {
 
 	if (pair->head != NULL) {
 		freeValue(pair->head);
@@ -338,8 +351,6 @@ void freeExpressionList(LISP_EXPR_LIST_ELEMENT * exprList) {
 		exprList = exprList->next;
 	}
 }
-
-// **** Create and Free functions ****
 
 /* A variable is an Expression but not a Value. */
 
