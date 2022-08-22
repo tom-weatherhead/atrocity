@@ -26,6 +26,8 @@ struct LISP_EXPR_LIST_ELEMENT_STRUCT;
 /* Every expression can be evaluated to a value. */
 
 typedef struct {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	int type;
 	/* TODO: Use a union */
 	int value;
@@ -40,43 +42,59 @@ typedef struct {
 /* The NameValueList is a crude dictionary of values. */
 
 typedef struct LISP_NAME_VALUE_LIST_ELEMENT_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	char * name;
 	LISP_VALUE * value;
 	struct LISP_NAME_VALUE_LIST_ELEMENT_STRUCT * next;
 } LISP_NAME_VALUE_LIST_ELEMENT;
 
 typedef struct LISP_ENV_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	LISP_NAME_VALUE_LIST_ELEMENT * nameValueList;
 	struct LISP_ENV_STRUCT * next;
 } LISP_ENV;
 
 typedef struct LISP_PAIR_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	LISP_VALUE * head;
 	LISP_VALUE * tail;
 } LISP_PAIR; /* A value. */
 
 typedef struct LISP_CLOSURE_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	struct LISP_VAR_LIST_ELEMENT_STRUCT * args;
 	struct LISP_EXPR_STRUCT * body;
 	struct LISP_ENV_STRUCT * env;
 } LISP_CLOSURE; /* A value. Closures are part of Scheme, not LISP. */
 
 typedef struct {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	char name[maxStringValueLength];
 } LISP_VAR; /* An expression */
 
 typedef struct LISP_VAR_LIST_ELEMENT_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	LISP_VAR * var;
 	struct LISP_VAR_LIST_ELEMENT_STRUCT * next;
 } LISP_VAR_LIST_ELEMENT;
 
 typedef struct LISP_VAR_EXPR_PAIR_LIST_ELEMENT_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	LISP_VAR * var;
 	struct LISP_EXPR_STRUCT * expr;
 	struct LISP_VAR_EXPR_PAIR_LIST_ELEMENT_STRUCT * next;
 } LISP_VAR_EXPR_PAIR_LIST_ELEMENT;
 
 typedef struct LISP_EXPR_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	int type;
 	LISP_VALUE * value;
 	LISP_VAR * var;
@@ -89,16 +107,22 @@ typedef struct LISP_EXPR_STRUCT {
 } LISP_EXPR;
 
 typedef struct LISP_EXPR_LIST_ELEMENT_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	LISP_EXPR * expr;
 	struct LISP_EXPR_LIST_ELEMENT_STRUCT * next;
 } LISP_EXPR_LIST_ELEMENT;
 
 typedef struct LISP_LAMBDA_EXPR_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	LISP_VAR_LIST_ELEMENT * args;
 	LISP_EXPR * body;
 } LISP_LAMBDA_EXPR; /* An expression */
 
 typedef struct LISP_FUNCTION_CALL_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
 	LISP_EXPR * firstExpr;
 	LISP_EXPR_LIST_ELEMENT * actualParamExprs;
 } LISP_FUNCTION_CALL; /* An expression */

@@ -7,7 +7,6 @@
 /* To remove all build products: $ make clean */
 
 /* TODO: create domain-object-model.c */
-/* TODO: create memory-manager.c ; Use a reference-counting scheme? */
 
 #include <stdlib.h>
 #include <stdio.h>
