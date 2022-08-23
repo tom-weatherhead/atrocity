@@ -1,5 +1,7 @@
 /* atrocity/src/memory-manager.c */
 
+/* A mark-and-sweep garbage collector. */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,6 +26,15 @@ typedef struct {
 /* E.g.: */
 POINTER_LIST_ELEMENT * lispValues = NULL;
 
+POINTER_LIST_ELEMENT * addPointerToList(POINTER_LIST_ELEMENT * list, void * ptr) {
+	POINTER_LIST_ELEMENT * ple = (POINTER_LIST_ELEMENT *)malloc(sizeof(POINTER_LIST_ELEMENT));
+
+	ple->ptr = ptr;
+	ple->next = list;
+
+	return ple;
+}
+
 /*
 void clearMarks() {
 
@@ -35,6 +46,12 @@ void clearMarks() {
  */
 
 /*
+registerValueWithMemoryManager(LISP_VALUE * value) {
+	Add value to the list lispValues;
+	lispValues = addPointerToList(lispValues, value);
+}
+
+
 pair
 void setMarksIn() {
 	;
@@ -98,6 +115,12 @@ void setMarksInLispEnv(LISP_ENV * env) {
 
 void setMarks(LISP_ENV * globalEnv) {
 	setMarksInLispEnv(globalEnv);
+}
+
+void collectGarbage(LISP_ENV * globalEnv) {
+	clearMarks();
+	setMarks(globalEnv);
+	freeUnmarkedStructs();
 }
  */
 

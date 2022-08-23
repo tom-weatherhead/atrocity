@@ -21,6 +21,8 @@ static LISP_VALUE * createUndefinedValue() {
 	result->pair = NULL;
 	result->closure = NULL;
 
+	/* registerValueWithMemoryManager(result); */
+
 	return result;
 }
 
