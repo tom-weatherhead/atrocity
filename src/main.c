@@ -8,6 +8,24 @@
 
 /* TODO: create domain-object-model.c */
 
+/* TODO: Add this stuff:
+while
+cond
+letrec
+list
+list? (the is-list predicate)
+String literals
+string?
+floor
+random
+Apostrophe (e.g. for '() or '(1 2 3))
+QuoteKeyword (e.g. for (quote 1 2 3))
+rplaca
+rplacd
+Dot (i.e. '.')
+call/cc
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
