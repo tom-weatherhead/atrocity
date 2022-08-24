@@ -9,7 +9,6 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-while
 cond
 letrec
 list
@@ -215,6 +214,14 @@ void runTests() {
 
 	parseAndEvaluateStringList(strs2);
 
+	char * strs3[] = {
+		"(set! n 1)",
+		"(while (<= n 5) (begin (print n) (set! n (+ n 1))))",
+		NULL
+	};
+
+	parseAndEvaluateStringList(strs3);
+
 	/* char * strs[] = {, NULL}; */
 
 	/* TODO: letrec print call/cc */
@@ -228,7 +235,7 @@ void runTests() {
 	testGetIdentifier("(((a b) c) d)");
 	/ * testGetIdentifier(""); */
 
-	printf("\nDone.\n\n");
+	printf("\nDone.\n");
 }
 
 /* **** The Main MoFo **** */

@@ -146,8 +146,9 @@ enum {
 	lispExpressionType_LetStar,
 	lispExpressionType_Letrec,
 	lispExpressionType_Begin,
-	lispExpressionType_Print,
+	lispExpressionType_While,
 	lispExpressionType_Cons,
+	lispExpressionType_Cond,
 	lispExpressionType_Car,
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC

@@ -319,6 +319,34 @@ LISP_EXPR * parseBeginExpression(CharSource * cs) {
 	return result;
 }
 
+LISP_EXPR * parseWhileExpression(CharSource * cs) {
+	LISP_EXPR * condition = parseExpression(cs);
+	LISP_EXPR * body = parseExpression(cs);
+
+	/* Consume ) */
+	const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize];
+
+	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
+		fprintf(stderr, "parseCdrExpression() : Error : Expected ), found EOF\n");
+		return NULL;
+	} else if (strcmp(dstBuf, ")")) {
+		fprintf(stderr, "parseCdrExpression() : Error : Expected ), found '%s'\n", dstBuf);
+		return NULL;
+	}
+
+	LISP_EXPR * result = createUndefinedExpression();
+
+	result->type = lispExpressionType_While;
+	result->expr = condition;
+	result->expr2 = body;
+
+	return result;
+}
+
+/* LISP_EXPR * parseCondExpression(CharSource * cs) {
+} */
+
 /* LISP_EXPR * parseCallCCExpression(CharSource * cs) {
 } */
 
@@ -347,7 +375,11 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return parseCdrExpression(cs);
 	} else if (!strcmp(dstBuf, "begin")) {
 		return parseBeginExpression(cs);
-	} /* else if (!strcmp(dstBuf, "call/cc")) {
+	} else if (!strcmp(dstBuf, "while")) {
+		return parseWhileExpression(cs);
+	} /* else if (!strcmp(dstBuf, "cond")) {
+		return parseCondExpression(cs);
+	} else if (!strcmp(dstBuf, "call/cc")) {
 		return parseCallCCExpression(cs);
 	} */ else if (!strcmp(dstBuf, "let")) {
 		return parseLetExpression(cs, lispExpressionType_Let);
@@ -434,6 +466,7 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "pair?") ||
 		!strcmp(dstBuf, "primop?") ||
 		!strcmp(dstBuf, "closure?") ||
+		!strcmp(dstBuf, "print") ||
 		/* Not yet implemented: */
 		!strcmp(dstBuf, "cons") ||
 		!strcmp(dstBuf, "car") ||

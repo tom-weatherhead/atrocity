@@ -88,6 +88,13 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_PrimitiveOperator);
 		} else if (!strcmp(op, "closure?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Closure);
+		} else if (!strcmp(op, "print")) {
+			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+
+			printValue(operand1Value);
+			printf("\n");
+
+			return operand1Value;
 		}
 
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
@@ -364,7 +371,23 @@ LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-/* LISP_VALUE * evaluatePrintExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
+LISP_VALUE * evaluateWhileExpression(LISP_EXPR * expr, LISP_ENV * env) {
+	LISP_VALUE * result = NULL;
+
+	for (;;) {
+		result = evaluate(expr->expr, env);
+
+		if (result->type == lispValueType_Null) {
+			break;
+		}
+
+		evaluate(expr->expr2, env);
+	}
+
+	return result;
+}
+
+/* LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
 
 /* LISP_VALUE * evaluateCallCCExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
 
@@ -409,10 +432,13 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 		case lispExpressionType_Begin:
 			return evaluateBeginExpression(expr, env);
 
-		/* case lispExpressionType_Print:
-			return evaluatePrintExpression(expr, env); */
+		case lispExpressionType_While:
+			return evaluateWhileExpression(expr, env);
 
-		/* case lispExpressionType_CallCC:
+		/* case lispExpressionType_Cond:
+			return evaluateCondExpression(expr, env);
+
+		case lispExpressionType_CallCC:
 			return evaluateCallCCExpression(expr, env); */
 
 		default:
