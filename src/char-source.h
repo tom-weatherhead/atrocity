@@ -11,5 +11,6 @@ void freeCharSource(CharSource * cs);
 int getNextChar(CharSource * cs);
 void rewindOneChar(CharSource * cs);
 int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize);
+BOOL consumeStr(CharSource * cs, char * str);
 
 /* **** The End **** */

@@ -243,7 +243,7 @@ LISP_EXPR * parseConsExpression(CharSource * cs) {
 	/* Parse tail expression */
 	LISP_EXPR * tail = parseExpression(cs);
 
-	/* Consume ) */
+	/* Consume )
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
@@ -253,7 +253,9 @@ LISP_EXPR * parseConsExpression(CharSource * cs) {
 	} else if (strcmp(dstBuf, ")")) {
 		fprintf(stderr, "parseConsExpression() : Error : Expected ), found '%s'\n", dstBuf);
 		return NULL;
-	}
+	} */
+
+	consumeStr(cs, ")");
 
 	LISP_EXPR * result = createUndefinedExpression();
 
