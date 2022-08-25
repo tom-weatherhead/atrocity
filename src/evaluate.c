@@ -181,14 +181,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 }
 
 LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	/* printf("BEGIN evaluateClosureCall()\n");
-	printf("closure->env = %ld\n", (long)closure->env); */
-
-	/* LISP_ENV * newEnv = createEnvironment(env); */
 	LISP_ENV * newEnv = createEnvironment(closure->env);
-	/* LISP_ENV * newEnv = createEnvironment(NULL); */
-
-	/* printf("Just after createEnvironment: newEnv = %ld\n", (long)newEnv); */
 
 	LISP_VAR_LIST_ELEMENT * np = closure->args;
 	LISP_EXPR_LIST_ELEMENT * ep = actualParamExprs;
@@ -204,29 +197,11 @@ LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT 
 
 		LISP_VALUE * value = evaluate(ep->expr, env);
 
-		/* printf("evaluateClosureCall() : Associating the variable '%s' with the value: ", np->var->name);
-		printValue(value);
-		printf("...\n"); */
-
 		newEnv->nameValueList = createNameValueListElement(np->var->name, value, newEnv->nameValueList);
 		/* freeValue(value); */
 		np = np->next;
 		ep = ep->next;
 	}
-
-	/* if (closure->env == newEnv) {
-		fprintf(stderr, "AAAARGH! evaluateClosureCall: closure->env == newEnv\n");
-		printf("closure->env = %ld\n", (long)closure->env);
-		printf("newEnv = %ld\n", (long)newEnv);
-		return NULL;
-	}
-
-	if (env->next == env) {
-		fprintf(stderr, "AAAARGH! evaluateClosureCall: env->next == env\n");
-		return NULL;
-	} */
-
-	/* newEnv->next = closure->env; */
 
 	LISP_VALUE * result = evaluate(closure->body, newEnv);
 
@@ -358,7 +333,22 @@ LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-/* LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
+/* LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
+	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList = expr->varExprPairList;
+
+	while (varExprPairList != NULL) {
+		LISP_ENV * newEnv = createEnvironment(env);
+
+		...
+
+		env = newEnv;
+		varExprPairList = varExprPairList->next;
+	}
+
+	LISP_VALUE * result = evaluate(expr->expr, env);
+
+	return result;
+} */
 
 LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * result = NULL;
@@ -411,7 +401,6 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 			return cloneValue(expr->value);
 
 		case lispExpressionType_Variable:
-			/* printf("evaluate() : Evaluating the variable named '%s'\n", expr->var->name); */
 			return cloneValue(lookupVariableInEnvironment(expr->var, env));
 
 		case lispExpressionType_FunctionCall:

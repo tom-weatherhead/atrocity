@@ -86,16 +86,8 @@ LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 }
 
 LISP_EXPR * parseLambdaExpression(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
 
-	/* Consume ( */
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseLambdaExpression() : Error : Expected (, found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, "(")) {
-		fprintf(stderr, "parseLambdaExpression() : Error : Expected (, found '%s'\n", dstBuf);
+	if (!consumeStr(cs, "(")) {
 		return NULL;
 	}
 
@@ -105,13 +97,7 @@ LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
 
-	/* Consume ) */
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseLambdaExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseLambdaExpression() : Error : Expected ), found '%s'\n", dstBuf);
+	if (!consumeStr(cs, ")")) {
 		return NULL;
 	}
 
@@ -140,13 +126,7 @@ LISP_EXPR * parseSetExpression(CharSource * cs) {
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
 
-	/* Consume ) */
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected ), found '%s'\n", dstBuf);
+	if (!consumeStr(cs, ")")) {
 		return NULL;
 	}
 
@@ -177,13 +157,7 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
 
-	/* Consume ) */
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected ), found '%s'\n", dstBuf);
+	if (!consumeStr(cs, ")")) {
 		return NULL;
 	}
 
@@ -198,10 +172,7 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 }
 
 LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize]; */
 
-	/* Consume ( */
 	if (!consumeStr(cs, "(")) {
 		return NULL;
 	}
@@ -244,7 +215,9 @@ LISP_EXPR * parseConsExpression(CharSource * cs) {
 		return NULL;
 	} */
 
-	consumeStr(cs, ")");
+	if (!consumeStr(cs, ")")) {
+		return NULL;
+	}
 
 	LISP_EXPR * result = createUndefinedExpression();
 
@@ -258,15 +231,7 @@ LISP_EXPR * parseConsExpression(CharSource * cs) {
 LISP_EXPR * parseCarExpression(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
-	/* Consume ) */
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseCarExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseCarExpression() : Error : Expected ), found '%s'\n", dstBuf);
+	if (!consumeStr(cs, ")")) {
 		return NULL;
 	}
 
@@ -281,15 +246,7 @@ LISP_EXPR * parseCarExpression(CharSource * cs) {
 LISP_EXPR * parseCdrExpression(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
-	/* Consume ) */
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseCdrExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseCdrExpression() : Error : Expected ), found '%s'\n", dstBuf);
+	if (!consumeStr(cs, ")")) {
 		return NULL;
 	}
 
@@ -418,14 +375,12 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 
 	const int csRewindPoint = cs->i;
 
-	/* if (c < 0) { */
 	const int c = getNextChar(cs);
 
 	if (c == EOF) {
 		fprintf(stderr, "parseExpressionList() : Error : Expected an expression list, found EOF\n");
 		return NULL;
 	}
-	/* } */
 
 	if (c == ')') {
 		return NULL; /* End of the list */
@@ -447,11 +402,6 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 /* Parse an expression */
 
 LISP_EXPR * parseExpression(CharSource * cs) {
-
-	/* if (c >= 0) {
-		rewindOneChar(cs);
-	} */
-
 	/* Be careful to not assume that sizeof(char) is always 1. */
 	const int dstBufSize = 8;
 	char dstBuf[dstBufSize];
