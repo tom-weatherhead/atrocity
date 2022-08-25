@@ -206,6 +206,7 @@ LISP_EXPR * createUndefinedExpression() {
 	result->expr = NULL;
 	result->expr2 = NULL;
 	result->varExprPairList = NULL;
+	result->exprPairList = NULL;
 
 	return result;
 }
@@ -235,6 +236,39 @@ void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
 		}
 
 		free(varList);
+	}
+}
+
+LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next) {
+	LISP_EXPR_PAIR_LIST_ELEMENT * result = (LISP_EXPR_PAIR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_PAIR_LIST_ELEMENT));
+
+	result->expr = expr;
+	result->expr2 = expr2;
+	result->next = next;
+
+	return result;
+}
+
+void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
+
+	if (exprPairList != NULL) {
+
+		if (exprPairList->expr != NULL) {
+			freeExpression(exprPairList->expr);
+			exprPairList->expr = NULL;
+		}
+
+		if (exprPairList->expr2 != NULL) {
+			freeExpression(exprPairList->expr2);
+			exprPairList->expr2 = NULL;
+		}
+
+		if (exprPairList->next != NULL) {
+			freeExpressionPairList(exprPairList->next);
+			exprPairList->next = NULL;
+		}
+
+		free(exprPairList);
 	}
 }
 
@@ -329,6 +363,11 @@ void freeExpression(LISP_EXPR * expr) {
 	/* if (expr->varExprPairList != NULL) {
 		freeVarExprPairList(expr->varExprPairList);
 		expr->varExprPairList = NULL;
+	} */
+
+	/* if (expr->exprPairList != NULL) {
+		freeExprPairList(expr->exprPairList);
+		expr->exprPairList = NULL;
 	} */
 
 	free(expr);

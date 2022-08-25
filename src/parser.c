@@ -198,16 +198,11 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 }
 
 LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
+	/* const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize]; */
 
 	/* Consume ( */
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseLetExpression() : Error : Expected (, found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, "(")) {
-		fprintf(stderr, "parseLetExpression() : Error : Expected (, found '%s'\n", dstBuf);
+	if (!consumeStr(cs, "(")) {
 		return NULL;
 	}
 
@@ -217,13 +212,7 @@ LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
 
-	/* Consume ) */
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseLetExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseLetExpression() : Error : Expected ), found '%s'\n", dstBuf);
+	if (!consumeStr(cs, ")")) {
 		return NULL;
 	}
 
@@ -325,15 +314,7 @@ LISP_EXPR * parseWhileExpression(CharSource * cs) {
 	LISP_EXPR * condition = parseExpression(cs);
 	LISP_EXPR * body = parseExpression(cs);
 
-	/* Consume ) */
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseCdrExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseCdrExpression() : Error : Expected ), found '%s'\n", dstBuf);
+	if (!consumeStr(cs, ")")) {
 		return NULL;
 	}
 
@@ -346,7 +327,42 @@ LISP_EXPR * parseWhileExpression(CharSource * cs) {
 	return result;
 }
 
+LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
+	const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize];
+
+	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
+		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found EOF\n");
+		return NULL;
+	} else if (!strcmp(dstBuf, ")")) {
+		return NULL; /* End of list */
+	} else if (strcmp(dstBuf, "(")) {
+		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found '%s'\n", dstBuf);
+		return NULL;
+	}
+
+	LISP_EXPR * expr = parseExpression(cs);
+	LISP_EXPR * expr2 = parseExpression(cs);
+	LISP_EXPR_PAIR_LIST_ELEMENT * next = parseExpressionPairList(cs);
+
+	return createExpressionPairListElement(expr, expr2, next);
+}
+
 /* LISP_EXPR * parseCondExpression(CharSource * cs) {
+
+	if (!consumeStr(cs, "(")) {
+		return NULL;
+	}
+
+	/ * No: We need a list of expression-expression pairs * /
+	LISP_VAR_EXPR_LIST_ELEMENT * varExprList = parseVariableExpressionList(cs);
+
+	LISP_EXPR * result = createUndefinedExpression();
+
+	result->type = lispExpressionType_Cond;
+	result->varExprList = varExprList;
+
+	return result;
 } */
 
 /* LISP_EXPR * parseCallCCExpression(CharSource * cs) {

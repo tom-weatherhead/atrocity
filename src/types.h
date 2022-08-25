@@ -84,6 +84,14 @@ typedef struct LISP_VAR_LIST_ELEMENT_STRUCT {
 	struct LISP_VAR_LIST_ELEMENT_STRUCT * next;
 } LISP_VAR_LIST_ELEMENT;
 
+typedef struct LISP_EXPR_PAIR_LIST_ELEMENT_STRUCT {
+	int mark; /* All dynamically allocated structs must have this member */
+
+	struct LISP_EXPR_STRUCT * expr;
+	struct LISP_EXPR_STRUCT * expr2;
+	struct LISP_EXPR_PAIR_LIST_ELEMENT_STRUCT * next;
+} LISP_EXPR_PAIR_LIST_ELEMENT;
+
 typedef struct LISP_VAR_EXPR_PAIR_LIST_ELEMENT_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -104,6 +112,7 @@ typedef struct LISP_EXPR_STRUCT {
 	struct LISP_EXPR_STRUCT * expr; /* For e.g. set! */
 	struct LISP_EXPR_STRUCT * expr2; /* For e.g. cons */
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList; /* For let, let*, letrec */
+	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList;
 } LISP_EXPR;
 
 typedef struct LISP_EXPR_LIST_ELEMENT_STRUCT {

@@ -1,6 +1,7 @@
 /* atrocity/src/create-and-destroy.h */
 
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next);
+LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next);
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env);
 LISP_ENV * createEnvironment(LISP_ENV * next);
@@ -27,6 +28,7 @@ void freeValue(LISP_VALUE * value);
 void freeEnvironment(LISP_ENV * env);
 void freeExpression(LISP_EXPR * expr);
 void freeExpressionList(LISP_EXPR_LIST_ELEMENT * exprList);
+void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList);
 void freeVariable(LISP_VAR * var);
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
 
