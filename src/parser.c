@@ -343,27 +343,26 @@ LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 
 	LISP_EXPR * expr = parseExpression(cs);
 	LISP_EXPR * expr2 = parseExpression(cs);
+
+	if (!consumeStr(cs, ")")) {
+		return NULL;
+	}
+
 	LISP_EXPR_PAIR_LIST_ELEMENT * next = parseExpressionPairList(cs);
 
 	return createExpressionPairListElement(expr, expr2, next);
 }
 
-/* LISP_EXPR * parseCondExpression(CharSource * cs) {
-
-	if (!consumeStr(cs, "(")) {
-		return NULL;
-	}
-
-	/ * No: We need a list of expression-expression pairs * /
-	LISP_VAR_EXPR_LIST_ELEMENT * varExprList = parseVariableExpressionList(cs);
+LISP_EXPR * parseCondExpression(CharSource * cs) {
+	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList = parseExpressionPairList(cs);
 
 	LISP_EXPR * result = createUndefinedExpression();
 
 	result->type = lispExpressionType_Cond;
-	result->varExprList = varExprList;
+	result->exprPairList = exprPairList;
 
 	return result;
-} */
+}
 
 /* LISP_EXPR * parseCallCCExpression(CharSource * cs) {
 } */
@@ -395,9 +394,9 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return parseBeginExpression(cs);
 	} else if (!strcmp(dstBuf, "while")) {
 		return parseWhileExpression(cs);
-	} /* else if (!strcmp(dstBuf, "cond")) {
+	} else if (!strcmp(dstBuf, "cond")) {
 		return parseCondExpression(cs);
-	} else if (!strcmp(dstBuf, "call/cc")) {
+	} /* else if (!strcmp(dstBuf, "call/cc")) {
 		return parseCallCCExpression(cs);
 	} */ else if (!strcmp(dstBuf, "let")) {
 		return parseLetExpression(cs, lispExpressionType_Let);
@@ -482,6 +481,7 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "string?") ||
 		!strcmp(dstBuf, "symbol?") ||
 		!strcmp(dstBuf, "pair?") ||
+		!strcmp(dstBuf, "list?") ||
 		!strcmp(dstBuf, "primop?") ||
 		!strcmp(dstBuf, "closure?") ||
 		!strcmp(dstBuf, "print") ||
@@ -489,10 +489,14 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "cons") ||
 		!strcmp(dstBuf, "car") ||
 		!strcmp(dstBuf, "cdr") ||
+		!strcmp(dstBuf, "list") ||
+		!strcmp(dstBuf, "rplaca") ||
+		!strcmp(dstBuf, "rplacd") ||
+		!strcmp(dstBuf, "quote") ||
+		!strcmp(dstBuf, "floor") ||
+		!strcmp(dstBuf, "random") ||
 		!strcmp(dstBuf, "call/cc")
 	) {
-		/* TODO: print call/cc */
-		/* printf("parseExpression() : Creating expression from PrimitiveOperator '%s'\n", dstBuf); */
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "(")) {
 		return parseBracketedExpression(cs);
@@ -500,7 +504,6 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		fprintf(stderr, "parseExpression() : Error: Unexpected ')'\n");
 		return NULL;
 	} else {
-		/* printf("parseExpression() : Creating the variable '%s'\n", dstBuf); */
 		return createExpressionFromVariable(createVariable(dstBuf));
 	}
 }

@@ -387,7 +387,19 @@ LISP_VALUE * evaluateWhileExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-/* LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
+LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
+	LISP_EXPR_PAIR_LIST_ELEMENT * exprPair;
+
+	for (exprPair = expr->exprPairList; exprPair != NULL; exprPair = exprPair->next) {
+		LISP_VALUE * conditionValue = evaluate(exprPair->expr, env);
+
+		if (conditionValue->type != lispValueType_Null) {
+			return evaluate(exprPair->expr2, env);
+		}
+	}
+
+	return globalNullValue;
+}
 
 /* LISP_VALUE * evaluateCallCCExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
 
@@ -435,10 +447,10 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 		case lispExpressionType_While:
 			return evaluateWhileExpression(expr, env);
 
-		/* case lispExpressionType_Cond:
+		case lispExpressionType_Cond:
 			return evaluateCondExpression(expr, env);
 
-		case lispExpressionType_CallCC:
+		/* case lispExpressionType_CallCC:
 			return evaluateCallCCExpression(expr, env); */
 
 		default:

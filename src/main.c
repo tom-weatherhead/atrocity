@@ -9,7 +9,6 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-cond
 letrec
 list
 list? (the is-list predicate)
@@ -221,6 +220,18 @@ void runTests() {
 	};
 
 	parseAndEvaluateStringList(strs3);
+
+	/* cond test */
+	char * strs4[] = {
+		/* "(set! n 1)", */
+		"(set! n 2)",
+		/* "(set! n 3)", */
+		/* "(set! n 4)", */
+		"(cond ((= n 1) 111) ((= n 2) 222) ((= n 3) 333) (1 777))",
+		NULL
+	};
+
+	parseAndEvaluateStringList(strs4);
 
 	/* char * strs[] = {, NULL}; */
 
