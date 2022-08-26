@@ -258,6 +258,8 @@ void execScriptInFile(char * filename) {
 		return;
 	}
 
+	printf("\nExecuting script...\n\n");
+
 	char * str = (char *)malloc(256 * sizeof(char));
 	int i = 0;
 
@@ -282,7 +284,17 @@ void execScriptInFile(char * filename) {
 
 		char c = (char)cn;
 
+		/* printf("Char: '%c' (int %d)\n", c, cn);
+		printf("str: '%s'\n", str); */
+
 		if (c == '\n') {
+
+			if (strlen(str) == 0) {
+				continue;
+			}
+
+			/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); */
+
 			CharSource * cs = createCharSource(str);
 
 			LISP_EXPR * parseTree = parseExpression(cs);
@@ -317,6 +329,8 @@ void execScriptInFile(char * filename) {
 	globalNullValue = NULL;
 
 	free(str);
+
+	printf("\nScript execution complete.\n");
 }
 
 /* **** The Main MoFo **** */
