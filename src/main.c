@@ -3,8 +3,9 @@
 /* ThAW: Started on 2022-08-15 */
 
 /* To compile and link: $ make */
-/* To run: $ ./atrocity */
+/* To run: $ ./atrocity -t */
 /* To remove all build products: $ make clean */
+/* To do all of the above: $ make clean && make && ./atrocity -t */
 
 /* TODO: create domain-object-model.c */
 
@@ -249,10 +250,105 @@ void runTests() {
 	printf("\nDone.\n");
 }
 
+void execScriptInFile(char * filename) {
+	FILE * fp = fopen(filename, "r");
+
+	if (fp == NULL) {
+		fprintf(stderr, "execScriptInFile: Failed to open the file '%s'\n", filename);
+		return;
+	}
+
+	char * str = (char *)malloc(256 * sizeof(char));
+	int i = 0;
+
+	memset(str, 0, 256 * sizeof(char));
+
+	globalNullValue = createNull();
+	globalTrueValue = createStringValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+
+	LISP_ENV * globalEnv = createEnvironment(NULL);
+
+	/* BEGIN: Predefined variables in the global environment */
+	LISP_VAR * varNull = createVariable("null");
+
+	addToEnvironment(globalEnv, varNull, globalNullValue);
+
+	for (;;) {
+		int cn = fgetc(fp);
+
+		if (cn == EOF) {
+			break;
+		}
+
+		char c = (char)cn;
+
+		if (c == '\n') {
+			CharSource * cs = createCharSource(str);
+
+			LISP_EXPR * parseTree = parseExpression(cs);
+
+			LISP_VALUE * value = evaluate(parseTree, globalEnv);
+
+			printf("Output: ");
+			printValue(value);
+			printf("\n");
+
+			freeCharSource(cs);
+
+			memset(str, 0, 256 * sizeof(char));
+			i = 0;
+		} else {
+			str[i++] = c;
+
+			if (i >= 256) {
+				fprintf(stderr, "execScriptInFile: Text buffer overflow\n");
+				break;
+			}
+		}
+	}
+
+	fclose(fp);
+
+	freeVariable(varNull);
+	freeEnvironment(globalEnv);
+
+	freeValue(globalTrueValue);
+	freeValue(globalNullValue);
+	globalNullValue = NULL;
+
+	free(str);
+}
+
 /* **** The Main MoFo **** */
 
 int main(int argc, char * argv[]) {
-	runTests();
+	/* TODO: Implement an REPL (a read-evaluate-print loop) */
+	/* TODO: Implement the execution of a script in a file */
+
+	BOOL enableTests = FALSE;
+	BOOL enableVersion = FALSE;
+	char * filename = NULL;
+	int i;
+
+	for (i = 1; i < argc; ++i) {
+		/* printf("argv[%d] = %s\n", i, argv[i]); */
+
+		if (!strcmp(argv[i], "-t")) {
+			enableTests = TRUE;
+		} else if (!strcmp(argv[i], "-v")) {
+			enableVersion = TRUE;
+		} else if (filename == NULL && argv[i][0] != '-') {
+			filename = argv[i];
+		}
+	}
+
+	if (enableVersion) {
+		printf("\nAtrocity version 0.0.0\n");
+	} else if (enableTests) {
+		runTests();
+	} else if (filename != NULL) {
+		execScriptInFile(filename);
+	}
 
 	return 0; /* Zero (as a Unix exit code) means success. */
 }
