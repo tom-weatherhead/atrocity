@@ -333,6 +333,78 @@ void execScriptInFile(char * filename) {
 	printf("\nScript execution complete.\n");
 }
 
+void readEvalPrintLoop() {
+	const int bufsize = 1024;
+	const int bufsizeInBytes = bufsize * sizeof(char);
+	char * buf = (char *)malloc(bufsizeInBytes);
+	int i;
+
+	globalNullValue = createNull();
+	globalTrueValue = createStringValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+
+	LISP_ENV * globalEnv = createEnvironment(NULL);
+
+	/* BEGIN: Predefined variables in the global environment */
+	LISP_VAR * varNull = createVariable("null");
+
+	addToEnvironment(globalEnv, varNull, globalNullValue);
+
+	printf("\nStarting the read-eval-print loop...\n\n");
+
+	for (i = 0; i < 5; ++i) {
+		memset(buf, 0, bufsizeInBytes);
+		printf("%d > ", i);
+		/* scanf("%s", buf); */
+		gets(buf); /* This is unsafe as fsck. Buffer overflow city. */
+
+		int len = strlen(buf);
+
+		if (len > 0 && buf[len - 1] == '\n') {
+			printf("Trimming newline...\n");
+			buf[len - 1] = '\0';
+		}
+
+		printf("strlen(buf) is: %lu\n", strlen(buf));
+		printf("buf is: '%s'\n", buf);
+
+		if (strlen(buf) == 0) {
+			printf("buf is empty.\n\n");
+			continue;
+		} else if (!strcmp(buf, "help") || !strcmp(buf, "?")) {
+			printf("This is the help information (TODO).\n\n");
+			continue;
+		} else if (!strcmp(buf, "exit") || !strcmp(buf, "quit") || !strcmp(buf, "bye")) {
+			printf("Exiting...\n");
+			break;
+		}
+
+		/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); */
+
+		CharSource * cs = createCharSource(buf);
+
+		LISP_EXPR * parseTree = parseExpression(cs);
+
+		LISP_VALUE * value = evaluate(parseTree, globalEnv);
+
+		printf("Output: ");
+		printValue(value);
+		printf("\n\n");
+
+		freeCharSource(cs);
+	}
+
+	freeVariable(varNull);
+	freeEnvironment(globalEnv);
+
+	freeValue(globalTrueValue);
+	freeValue(globalNullValue);
+	globalNullValue = NULL;
+
+	free(buf);
+
+	printf("\nREPL complete.\n");
+}
+
 /* **** The Main MoFo **** */
 
 int main(int argc, char * argv[]) {
@@ -362,6 +434,8 @@ int main(int argc, char * argv[]) {
 		runTests();
 	} else if (filename != NULL) {
 		execScriptInFile(filename);
+	} else {
+		readEvalPrintLoop();
 	}
 
 	return 0; /* Zero (as a Unix exit code) means success. */
