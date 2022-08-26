@@ -497,11 +497,44 @@ LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
 	return value->type == lispValueType_PrimitiveOperator || value->type == lispValueType_Closure;
 } */
 
+BOOL isList(LISP_VALUE * value) {
+
+	switch (value->type) {
+		case lispValueType_Null:
+			return TRUE;
+
+		case lispValueType_Pair:
+			return isList(value->pair->tail);
+
+		default:
+			break;
+	}
+
+	return FALSE;
+}
+
 void printValue(LISP_VALUE * value) {
+
+	if (isList(value)) {
+		char separator = '\0';
+
+		printf("List: (");
+
+		while (value->type != lispValueType_Null) {
+			printf("%c", separator);
+			printValue(value->pair->head);
+			separator = ' ';
+			value = value->pair->tail;
+		}
+
+		printf(")");
+
+		return;
+	}
 
 	switch (value->type) {
 		case lispValueType_Number:
-			printf("Number: %d", value->value);
+			printf("%d", value->value);
 			break;
 
 		case lispValueType_String:
@@ -519,7 +552,7 @@ void printValue(LISP_VALUE * value) {
 		case lispValueType_Pair:
 			printf("Pair: (");
 			printValue(value->pair->head);
-			printf(" ");
+			printf(" . ");
 			printValue(value->pair->tail);
 			printf(")");
 			break;
