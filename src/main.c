@@ -11,14 +11,11 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-letrec
 list
 list? (the is-list predicate)
 String literals
 string?
 floor
-random
-Apostrophe (e.g. for '() or '(1 2 3))
 QuoteKeyword (e.g. for (quote 1 2 3))
 rplaca
 rplacd
@@ -31,6 +28,7 @@ call/cc
 #include <string.h>
 /* #include <ctype.h> */
 /* #include <assert.h> */
+#include <time.h>
 
 #include "types.h"
 
@@ -163,6 +161,7 @@ void runTests() {
 	parseAndEvaluate("(/ 100 7)");
 	parseAndEvaluate("(% 100 7)");
 	parseAndEvaluate("(null? null)");
+	parseAndEvaluate("(null? '())");
 	parseAndEvaluate("(null? 13)");
 	parseAndEvaluate("(lambda (x) x)"); /* The identity function */
 	parseAndEvaluate("(lambda (x) 1)"); /* A constant function */
@@ -442,6 +441,8 @@ int main(int argc, char * argv[]) {
 	BOOL enableVersion = FALSE;
 	char * filename = NULL;
 	int i;
+
+	srand(time(NULL));
 
 	for (i = 1; i < argc; ++i) {
 		/* printf("argv[%d] = %s\n", i, argv[i]); */

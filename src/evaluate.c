@@ -82,7 +82,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_String);
 		} else if (!strcmp(op, "symbol?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Symbol);
-		} else if (!strcmp(op, "pair?")) {
+		} else if (!strcmp(op, "pair?") || !strcmp(op, "list?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Pair);
 		} else if (!strcmp(op, "primop?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_PrimitiveOperator);
@@ -95,6 +95,15 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			printf("\n");
 
 			return operand1Value;
+		} else if (!strcmp(op, "random")) {
+			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+
+			if (operand1Value->type != lispValueType_Number || operand1Value->value <= 0) {
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : random : Bad parameter\n");
+				return NULL;
+			}
+
+			return createNumericValue(rand() % operand1Value->value);
 		}
 
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
