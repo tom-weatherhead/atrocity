@@ -6,6 +6,7 @@
 /* To run: $ ./atrocity -t */
 /* To remove all build products: $ make clean */
 /* To do all of the above: $ make clean && make && ./atrocity -t */
+/* To run a script: E.g. $ ./atrocity ../scripts/test001.scm */
 
 /* TODO: create domain-object-model.c */
 
@@ -197,6 +198,23 @@ void runTests() {
 	parseAndEvaluate("(let* ((a 7)) a)");
 	parseAndEvaluate("(let* ((a 7) (b (+ a 1))) b)");
 
+	/* letrec */
+	/* From thaw-grammar: 'LL(1) Scheme letrec test' */
+	/* '(letrec ' +
+		'((countones (lambda (l) ' +
+		'(if (null? l) 0 ' +
+		'(if (= (car l) 1) (+ 1 (countones (cdr l))) ' +
+		'(countones (cdr l))))))) ' +
+		"(countones '(1 2 3 1 0 1 1 5)))",
+	The result should be '4' */
+	/* char * strs5[] = {
+		"(letrec ((countones (lambda (l) (if (null? l) 0 (if (= (car l) 1) (+ 1 (countones (cdr l))) (countones (cdr l))))))) (countones '(1 2 3 1 0 1 1 5)))",
+		NULL
+	}; */
+
+	/* TODO: Support the apostrophe. Then try thiis test again: */
+	/* parseAndEvaluateStringList(strs5); */
+
 	/* begin */
 	parseAndEvaluate("(begin 1 2 4 3)");
 	parseAndEvaluate("(begin (set! n 2) (+ n 3))");
@@ -260,10 +278,13 @@ void execScriptInFile(char * filename) {
 
 	printf("\nExecuting script...\n\n");
 
-	char * str = (char *)malloc(256 * sizeof(char));
+	const int bufSize = 1024;
+	const int bufSizeInBytes = bufSize * sizeof(char);
+	char * str = (char *)malloc(bufSizeInBytes);
 	int i = 0;
+	int bracketDepth = 0;
 
-	memset(str, 0, 256 * sizeof(char));
+	memset(str, 0, bufSizeInBytes);
 
 	globalNullValue = createNull();
 	globalTrueValue = createStringValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
@@ -287,6 +308,10 @@ void execScriptInFile(char * filename) {
 		/* printf("Char: '%c' (int %d)\n", c, cn);
 		printf("str: '%s'\n", str); */
 
+		if (c == '\n' && bracketDepth != 0) {
+			c = ' ';
+		}
+
 		if (c == '\n') {
 
 			if (strlen(str) == 0) {
@@ -307,12 +332,24 @@ void execScriptInFile(char * filename) {
 
 			freeCharSource(cs);
 
-			memset(str, 0, 256 * sizeof(char));
+			memset(str, 0, bufSizeInBytes);
 			i = 0;
 		} else {
+
+			if (c == '(') {
+				++bracketDepth;
+			} else if (c == ')') {
+				--bracketDepth;
+
+				if (bracketDepth < 0) {
+					fprintf(stderr, "execScriptInFile: More ) than (\n");
+					break;
+				}
+			}
+
 			str[i++] = c;
 
-			if (i >= 256) {
+			if (i >= bufSize) {
 				fprintf(stderr, "execScriptInFile: Text buffer overflow\n");
 				break;
 			}

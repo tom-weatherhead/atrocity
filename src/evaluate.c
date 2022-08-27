@@ -333,22 +333,49 @@ LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-/* LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
-	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList = expr->varExprPairList;
+/* letrec:
+public evaluate(
+	globalInfo: IGlobalInfo<T>,
+	localEnvironment?: IEnvironmentFrame<T>,
+	options?: unknown
+): T {
+	const newEnvFrame = new EnvironmentFrame<T>(localEnvironment);
 
-	while (varExprPairList != NULL) {
-		LISP_ENV * newEnv = createEnvironment(env);
+	// for (const [v, expr] of this.bindings) {
+	for (const binding of this.bindings) {
+		const v = binding[0];
 
-		...
-
-		env = newEnv;
-		varExprPairList = varExprPairList->next;
+		// Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop.
+		newEnvFrame.add(v, globalInfo.falseValue);
 	}
 
-	LISP_VALUE * result = evaluate(expr->expr, env);
+	for (const [v, expr] of this.bindings) {
+		newEnvFrame.add(v, expr.evaluate(globalInfo, newEnvFrame));
+	}
 
-	return result;
-} */
+	return this.expression.evaluate(globalInfo, newEnvFrame);
+}
+*/
+
+LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
+	LISP_ENV * newEnv = createEnvironment(env);
+	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList = expr->varExprPairList;
+
+	for (; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
+		/* Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop. */
+		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, globalNullValue, newEnv->nameValueList); */
+		/* TODO: Use addToEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) */
+		addToEnvironment(newEnv, varExprPairList->var, globalNullValue);
+	}
+
+	for (varExprPairList = expr->varExprPairList; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
+		/* newEnvFrame.add(varExprPairList->var->name, evaluate(varExprPairList->expr, newEnv)); */
+		/* TODO: Use updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR * var, LISP_VALUE * value) */
+		updateIfFoundInNameValueList(newEnv->nameValueList, varExprPairList->var, evaluate(varExprPairList->expr, newEnv));
+	}
+
+	return evaluate(expr->expr, newEnv);
+}
 
 LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * result = NULL;
@@ -418,8 +445,8 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 		case lispExpressionType_LetStar:
 			return evaluateLetStarExpression(expr, env);
 
-		/* case lispExpressionType_Letrec:
-			return evaluateLetrecExpression(expr, env); */
+		case lispExpressionType_Letrec:
+			return evaluateLetrecExpression(expr, env);
 
 		case lispExpressionType_Cons:
 			return evaluateConsExpression(expr, env);
