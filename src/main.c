@@ -200,20 +200,13 @@ void runTests() {
 
 	/* letrec */
 	/* From thaw-grammar: 'LL(1) Scheme letrec test' */
-	/* '(letrec ' +
-		'((countones (lambda (l) ' +
-		'(if (null? l) 0 ' +
-		'(if (= (car l) 1) (+ 1 (countones (cdr l))) ' +
-		'(countones (cdr l))))))) ' +
-		"(countones '(1 2 3 1 0 1 1 5)))",
-	The result should be '4' */
-	/* char * strs5[] = {
+	/* The result should be 4 */
+	char * strs5[] = {
 		"(letrec ((countones (lambda (l) (if (null? l) 0 (if (= (car l) 1) (+ 1 (countones (cdr l))) (countones (cdr l))))))) (countones '(1 2 3 1 0 1 1 5)))",
 		NULL
-	}; */
+	};
 
-	/* TODO: Support the apostrophe. Then try thiis test again: */
-	/* parseAndEvaluateStringList(strs5); */
+	parseAndEvaluateStringList(strs5);
 
 	/* begin */
 	parseAndEvaluate("(begin 1 2 4 3)");

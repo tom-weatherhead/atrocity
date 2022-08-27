@@ -17,7 +17,7 @@ static LISP_VALUE * createUndefinedValue() {
 
 	result->type = lispValueType_Undefined;
 	result->value = 0;
-	memset(result->name, 0, maxStringValueLength);
+	memset(result->name, 0, maxStringValueLength * sizeof(char));
 	result->pair = NULL;
 	result->closure = NULL;
 
@@ -126,12 +126,12 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 static void freePair(LISP_PAIR * pair) {
 
 	if (pair->head != NULL) {
-		freeValue(pair->head);
+		/* freeValue(pair->head); */
 		pair->head = NULL;
 	}
 
 	if (pair->tail != NULL) {
-		freeValue(pair->tail);
+		/* freeValue(pair->tail); */
 		pair->tail = NULL;
 	}
 

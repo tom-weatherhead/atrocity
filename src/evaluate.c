@@ -121,6 +121,11 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 				LISP_VALUE * operand2Value = evaluate(operand2Expr, env);
 
 				if (!strcmp(op, "=")) {
+					/* printf("= : operand1Value is ");
+					printValue(operand1Value);
+					printf("\n= : operand2Value is ");
+					printValue(operand2Value);
+					printf("\n"); */
 					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));

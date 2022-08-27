@@ -454,7 +454,13 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
 	} else if (!strcmp(dstBuf, "'")) {
-		return createExpressionFromValue(createQuotedValue(cs));
+		LISP_VALUE * v = createQuotedValue(cs);
+
+		printf("QuotedValue: ");
+		printValue(v);
+		printf("\n");
+
+		return createExpressionFromValue(v);
 	} else if (
 		!strcmp(dstBuf, "+") ||
 		!strcmp(dstBuf, "-") ||
