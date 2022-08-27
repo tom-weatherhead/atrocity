@@ -48,6 +48,8 @@ call/cc
 LISP_VALUE * globalNullValue = NULL;
 LISP_VALUE * globalTrueValue = NULL;
 
+static char commentChar = ';';
+
 /* Functions */
 
 void parseAndEvaluate(char * str) {
@@ -260,6 +262,20 @@ void runTests() {
 	printf("\nDone.\n");
 }
 
+static BOOL isStringAllWhitespace(char * str) {
+	const int len = strlen(str);
+	int i;
+
+	for (i = 0; i < len; ++i) {
+
+		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n') {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 void execScriptInFile(char * filename) {
 	FILE * fp = fopen(filename, "r");
 
@@ -300,6 +316,23 @@ void execScriptInFile(char * filename) {
 		/* printf("Char: '%c' (int %d)\n", c, cn);
 		printf("str: '%s'\n", str); */
 
+		if (c == commentChar) {
+
+			do {
+				cn = fgetc(fp);
+
+				if (cn == EOF) {
+					break;
+				}
+
+				c = (char)cn;
+			} while (c != '\n');
+
+			if (cn == EOF) {
+				break;
+			}
+		}
+
 		if (c == '\n' && bracketDepth != 0) {
 			c = ' ';
 		}
@@ -307,6 +340,10 @@ void execScriptInFile(char * filename) {
 		if (c == '\n') {
 
 			if (strlen(str) == 0) {
+				continue;
+			} else if (isStringAllWhitespace(str)) {
+				memset(str, 0, bufSizeInBytes);
+				i = 0;
 				continue;
 			}
 
