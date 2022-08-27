@@ -20,6 +20,7 @@
 /* Forward references */
 
 static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs);
+static LISP_VALUE * createQuotedList(CharSource * cs);
 
 /* Functions */
 
@@ -67,7 +68,7 @@ LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 }
 
 LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
-	const int dstBufSize = 8;
+	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
@@ -329,7 +330,7 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 	 * and maybe: print call/cc
 	 */
 
-	const int dstBufSize = 8;
+	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 	const int csRewindPoint = cs->i;
 
@@ -399,11 +400,50 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 	return result;
 }
 
+static LISP_VALUE * createQuotedValue(CharSource * cs) {
+	const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize];
+	int dstBufAsInt = 0;
+
+	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
+		fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found EOF\n");
+		return NULL;
+	} else if (safeAtoi(dstBuf, &dstBufAsInt)) {
+		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
+		return createNumericValue(dstBufAsInt);
+	} else if (!strcmp(dstBuf, "(")) {
+		return createQuotedList(cs);
+	} else {
+		fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found '%s'\n", dstBuf);
+		return NULL;
+	}
+}
+
+static LISP_VALUE * createQuotedList(CharSource * cs) {
+	const int csRewindPoint = cs->i;
+	const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize];
+
+	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
+		fprintf(stderr, "createQuotedList() : Error : Expected a literal value, found EOF\n");
+		return NULL;
+	} else if (!strcmp(dstBuf, ")")) {
+		return createNull();
+	} else {
+		cs->i = csRewindPoint;
+
+		LISP_VALUE * head = createQuotedValue(cs);
+		LISP_VALUE * tail = createQuotedList(cs);
+
+		return createPair(head, tail);
+	}
+}
+
 /* Parse an expression */
 
 LISP_EXPR * parseExpression(CharSource * cs) {
 	/* Be careful to not assume that sizeof(char) is always 1. */
-	const int dstBufSize = 8;
+	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 	int dstBufAsInt = 0;
 
@@ -413,6 +453,8 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 	} else if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
+	} else if (!strcmp(dstBuf, "'")) {
+		return createExpressionFromValue(createQuotedValue(cs));
 	} else if (
 		!strcmp(dstBuf, "+") ||
 		!strcmp(dstBuf, "-") ||

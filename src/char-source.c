@@ -73,7 +73,7 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize) {
 		return 0;
 	}
 
-	if (cs->str[cs->i] == '(' || cs->str[cs->i] == ')') {
+	if (cs->str[cs->i] == '(' || cs->str[cs->i] == ')' || cs->str[cs->i] == '\'') {
 		memcpy(dstBuf, &cs->str[cs->i++], 1);
 		return 1;
 	}
