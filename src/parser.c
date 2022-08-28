@@ -1,6 +1,6 @@
 /* atrocity/src/parser.c */
 
-// **** Parsing (recursive descent - a real half-assed parser) ****
+/* **** Parsing (recursive descent - a real half-assed parser) **** */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -78,7 +78,7 @@ LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 		return NULL; /* End of list */
 	}
 
-	printf("parseVariableList() : Creating the variable '%s'\n", dstBuf);
+	/* printf("parseVariableList() : Creating the variable '%s'\n", dstBuf); */
 
 	LISP_VAR * var = createVariable(dstBuf);
 	LISP_VAR_LIST_ELEMENT * next = parseVariableList(cs);
@@ -106,6 +106,8 @@ LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 }
 
 LISP_EXPR * parseSetExpression(CharSource * cs) {
+	/* printf("parseSetExpression() : begin\n"); */
+
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
@@ -128,8 +130,11 @@ LISP_EXPR * parseSetExpression(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
+		fprintf(stderr, "parseSetExpression() : Error : Expected ')'\n");
 		return NULL;
 	}
+
+	/* printf("Calling createSetExpression()...\n"); */
 
 	return createSetExpression(var, expr);
 }
@@ -339,7 +344,7 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return NULL;
 	} else if (!strcmp(dstBuf, "lambda")) {
 		return parseLambdaExpression(cs);
-	} else if (!strcmp(dstBuf, "set!")) {
+	} else if (!strcmp(dstBuf, "set!") || !strcmp(dstBuf, "set")) {
 		return parseSetExpression(cs);
 	} else if (!strcmp(dstBuf, "cons")) {
 		/* Should cons, car, and cdr be implemented as primops? */
@@ -408,14 +413,17 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found EOF\n");
 		return NULL;
+	} else if (!strcmp(dstBuf, "(")) {
+		return createQuotedList(cs);
 	} else if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
 		return createNumericValue(dstBufAsInt);
-	} else if (!strcmp(dstBuf, "(")) {
-		return createQuotedList(cs);
 	} else {
-		fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found '%s'\n", dstBuf);
-		return NULL;
+		/* fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found '%s'\n", dstBuf);
+		return NULL; */
+		/* printf("createSymbolValue: '%s'\n", dstBuf); */
+
+		return createSymbolValue(dstBuf);
 	}
 }
 
@@ -456,9 +464,9 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 	} else if (!strcmp(dstBuf, "'")) {
 		LISP_VALUE * v = createQuotedValue(cs);
 
-		printf("QuotedValue: ");
+		/* printf("QuotedValue: ");
 		printValue(v);
-		printf("\n");
+		printf("\n"); */
 
 		return createExpressionFromValue(v);
 	} else if (

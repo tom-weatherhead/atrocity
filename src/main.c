@@ -11,16 +11,20 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-list
+list (for Labyrinth)
 list? (the is-list predicate)
-String literals
-string?
+String literals (for Labyrinth)
+string? (for Labyrinth)
+listtostring
+Real (i.e. floating-point) numbers?
 floor
 QuoteKeyword (e.g. for (quote 1 2 3))
 rplaca
 rplacd
-Dot (i.e. '.')
+Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
 call/cc
+throw (for Labyrinth)
+print (for Labyrinth)
 */
 
 #include <stdlib.h>
@@ -56,7 +60,7 @@ void parseAndEvaluate(char * str) {
 	printf("\nInput: '%s'\n", str);
 
 	globalNullValue = createNull();
-	globalTrueValue = createStringValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+	globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
 
 	CharSource * cs = createCharSource(str);
 
@@ -93,7 +97,7 @@ void parseAndEvaluateStringList(char * strs[]) {
 	int i = 0;
 
 	globalNullValue = createNull();
-	globalTrueValue = createStringValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+	globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
@@ -295,7 +299,7 @@ void execScriptInFile(char * filename) {
 	memset(str, 0, bufSizeInBytes);
 
 	globalNullValue = createNull();
-	globalTrueValue = createStringValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+	globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
@@ -347,11 +351,27 @@ void execScriptInFile(char * filename) {
 				continue;
 			}
 
-			/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); */
+			printf("Parsing '%s' (length %lu)...\n", str, strlen(str));
 
 			CharSource * cs = createCharSource(str);
 
 			LISP_EXPR * parseTree = parseExpression(cs);
+
+			/* printf("parseTree is %lu\n", parseTree);
+			printf("parseTree->type is %d\n", parseTree->type);
+			printf("lispExpressionType_SetExpr is %d\n", lispExpressionType_SetExpr);
+
+			if (/ * parseTree->type == lispExpressionType_SetExpr && * / parseTree->expr == NULL) {
+				fprintf(stderr, "set: parseTree->expr is f'n NULL!\n");
+				break;
+			}
+
+			printf("parseTree->expr is %lu\n", parseTree->expr);
+			printf("parseTree->expr->type is %d\n", parseTree->expr->type);
+			printf("globalEnv is %lu\n", globalEnv);
+			printf("printEnvironment...\n"); */
+			printEnvironment(globalEnv);
+			printf("Evaluating...\n");
 
 			LISP_VALUE * value = evaluate(parseTree, globalEnv);
 
@@ -399,6 +419,22 @@ void execScriptInFile(char * filename) {
 	printf("\nScript execution complete.\n");
 }
 
+static char * fgets_wrapper(char * buffer, size_t buflen, FILE * fp) {
+	/* From https://stackoverflow.com/questions/1694036/why-is-the-gets-function-so-dangerous-that-it-should-not-be-used */
+
+	if (fgets(buffer, buflen, fp) != 0) {
+		size_t len = strlen(buffer);
+
+		if (len > 0 && buffer[len - 1] == '\n') {
+			buffer[len - 1] = '\0';
+		}
+
+		return buffer;
+	}
+
+	return 0;
+}
+
 void readEvalPrintLoop() {
 	const int bufsize = 1024;
 	const int bufsizeInBytes = bufsize * sizeof(char);
@@ -406,7 +442,7 @@ void readEvalPrintLoop() {
 	int i;
 
 	globalNullValue = createNull();
-	globalTrueValue = createStringValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+	globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
@@ -417,11 +453,13 @@ void readEvalPrintLoop() {
 
 	printf("\nStarting the read-eval-print loop...\n\n");
 
-	for (i = 0; i < 5; ++i) {
+	for (i = 0; ; ++i) {
 		memset(buf, 0, bufsizeInBytes);
 		printf("%d > ", i);
+
 		/* scanf("%s", buf); */
-		gets(buf); /* This is unsafe as fsck. Buffer overflow city. */
+		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
+		fgets_wrapper(buf, bufsize, stdin);
 
 		int len = strlen(buf);
 
@@ -430,8 +468,8 @@ void readEvalPrintLoop() {
 			buf[len - 1] = '\0';
 		}
 
-		printf("strlen(buf) is: %lu\n", strlen(buf));
-		printf("buf is: '%s'\n", buf);
+		/* printf("strlen(buf) is: %lu\n", strlen(buf));
+		printf("buf is: '%s'\n", buf); */
 
 		if (strlen(buf) == 0) {
 			printf("buf is empty.\n\n");
@@ -440,7 +478,7 @@ void readEvalPrintLoop() {
 			printf("This is the help information (TODO).\n\n");
 			continue;
 		} else if (!strcmp(buf, "exit") || !strcmp(buf, "quit") || !strcmp(buf, "bye")) {
-			printf("Exiting...\n");
+			printf("\nExiting...\n");
 			break;
 		}
 
@@ -452,7 +490,7 @@ void readEvalPrintLoop() {
 
 		LISP_VALUE * value = evaluate(parseTree, globalEnv);
 
-		printf("Output: ");
+		/* printf("Output: "); */
 		printValue(value);
 		printf("\n\n");
 
@@ -468,7 +506,7 @@ void readEvalPrintLoop() {
 
 	free(buf);
 
-	printf("\nREPL complete.\n");
+	printf("REPL complete.\n");
 }
 
 /* **** The Main MoFo **** */

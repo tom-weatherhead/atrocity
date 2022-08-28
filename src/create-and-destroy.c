@@ -10,7 +10,7 @@
 
 #include "create-and-destroy.h"
 
-// **** Value struct creation functions ****
+/* **** Value struct creation functions **** */
 
 static LISP_VALUE * createUndefinedValue() {
 	LISP_VALUE * result = (LISP_VALUE *)malloc(sizeof(LISP_VALUE));
@@ -159,6 +159,9 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 		case lispValueType_String:
 			return createStringValue(value->name);
 
+		case lispValueType_Symbol:
+			return createSymbolValue(value->name);
+
 		case lispValueType_PrimitiveOperator:
 			return createPrimitiveOperator(value->name);
 
@@ -225,7 +228,7 @@ void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
 	if (varList != NULL) {
 
 		if (varList->var != NULL) {
-			printf("freeVariableList() : Freeing a variable named '%s'\n", varList->var->name);
+			/* printf("freeVariableList() : Freeing a variable named '%s'\n", varList->var->name); */
 			freeVariable(varList->var);
 			varList->var = NULL;
 		}
@@ -287,7 +290,7 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 }
 
 void freeLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr) {
-	printf("Freeing LambdaExpression...\n");
+	/* printf("Freeing LambdaExpression...\n"); */
 
 	if (lambdaExpr->args != NULL) {
 		freeVariableList(lambdaExpr->args);
@@ -539,6 +542,10 @@ void printValue(LISP_VALUE * value) {
 
 		case lispValueType_String:
 			printf("String: '%s'", value->name);
+			break;
+
+		case lispValueType_Symbol:
+			printf("Symbol: '%s'", value->name);
 			break;
 
 		case lispValueType_PrimitiveOperator:

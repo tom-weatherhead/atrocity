@@ -104,7 +104,7 @@ void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 	}
 }
 
-/* void printEnvironment(LISP_ENV * env) {
+void printEnvironment(LISP_ENV * env) {
 	int i = 0;
 
 	printf("printEnvironment:\n");
@@ -126,6 +126,6 @@ void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 	}
 
 	printf("End of printEnvironment\n");
-} */
+}
 
 /* **** The End **** */

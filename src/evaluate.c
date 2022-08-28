@@ -254,9 +254,20 @@ LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 		return NULL;
 	}
 
+	/* printf("evaluate()...\n");
+	printf("env is %lu\n", env);
+	printf("setExpr is %lu\n", setExpr);
+	printf("setExpr->expr is %lu\n", setExpr->expr); */
+
 	LISP_VALUE * value = evaluate(setExpr->expr, env);
 
+	/* printf("setValueInEnvironment()...\n"); */
+
 	setValueInEnvironment(env, setExpr->var, value);
+
+	/* printf("Set var '%s' to value ", setExpr->var->name);
+	printValue(value);
+	printf("\n"); */
 
 	return value;
 }
