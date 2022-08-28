@@ -145,6 +145,7 @@ enum {
 	lispValueType_Closure,
 	lispValueType_Pair,
 	lispValueType_Null,
+	/* lispValueType_Exception, */
 	lispExpressionType_Undefined,
 	lispExpressionType_Value,
 	lispExpressionType_Variable,

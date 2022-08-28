@@ -83,16 +83,36 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize) {
 		return 1;
 	}
 
+	const BOOL isString = (cs->str[cs->i] == '"') ? TRUE : FALSE;
+	BOOL isStringClosed = FALSE;
+
 	const int start = cs->i;
+
+	if (isString) {
+		++cs->i;
+	}
 
 	while (cs->i < cs->len) {
 		const char c = cs->str[cs->i];
 
-		if (isWhiteSpace(c) || c == '(' || c == ')' /* || c == '\0' */) {
+		if (isString) {
+
+			if (c == '"') {
+				isStringClosed = TRUE;
+				++cs->i;
+				break;
+			}
+		} else if (isWhiteSpace(c) || c == '(' || c == ')' /* || c == '\0' */) {
 			break;
 		}
 
 		++cs->i;
+	}
+
+	if (isString && !isStringClosed) {
+		fprintf(stderr, "getIdentifier() : String opened but not closed\n");
+		fatalError("getIdentifier() : String opened but not closed");
+		return 0;
 	}
 
 	const int end = cs->i;

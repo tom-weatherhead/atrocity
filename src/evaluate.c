@@ -82,6 +82,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 	/* printf("evaluateFunctionCall() : Operator is '%s'\n", op); */
 
 	if (!strcmp(op, "list")) {
+		/* 'list' can take any number of args, including zero. */
 		return exprListToListValue(actualParamExprs, env);
 	}
 
@@ -140,6 +141,31 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			}
 
 			return operand1Value->pair->tail;
+		} else if (!strcmp(op, "throw")) {
+			fprintf(stderr, "An exception has been thrown.\n");
+
+			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+
+			if (operand1Value->type == lispValueType_String || operand1Value->type == lispValueType_Symbol) {
+				fprintf(stderr, "    Message: '%s'\n", operand1Value->name);
+			}
+
+			fatalError("An exception has been thrown.");
+		} else if (!strcmp(op, "call/cc")) {
+			/* Call with current continuation */
+			/* The arg must be a lambda expr that takes exactly one arg. */
+			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+
+			if (operand1Value->type != lispValueType_Closure) {
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure\n");
+				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure");
+			} else if (operand1Value->closure->args == NULL || operand1Value->closure->args->next != NULL) {
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument\n");
+				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
+			}
+
+			fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete\n");
+			fatalError("evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete");
 		}
 
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
@@ -312,53 +338,6 @@ LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 	return value;
 }
 
-/* LISP_VALUE * evaluateConsExpression(LISP_EXPR * expr, LISP_ENV * env) {
-
-	if (expr->type != lispExpressionType_Cons) {
-		fprintf(stderr, "evaluateConsExpression() : Expression is not a Cons expression\n");
-		return NULL;
-	}
-
-	LISP_VALUE * head = evaluate(expr->expr, env);
-	LISP_VALUE * tail = evaluate(expr->expr2, env);
-
-	return createPair(head, tail);
-}
-
-LISP_VALUE * evaluateCarExpression(LISP_EXPR * expr, LISP_ENV * env) {
-
-	if (expr->type != lispExpressionType_Car) {
-		fprintf(stderr, "evaluateCarExpression() : Expression is not a Car expression\n");
-		return NULL;
-	}
-
-	LISP_VALUE * value = evaluate(expr->expr, env);
-
-	if (value->type != lispValueType_Pair || value->pair == NULL) {
-		fprintf(stderr, "evaluateCarExpression() : Argument value is not a pair.\n");
-		return NULL;
-	}
-
-	return cloneValue(value->pair->head);
-}
-
-LISP_VALUE * evaluateCdrExpression(LISP_EXPR * expr, LISP_ENV * env) {
-
-	if (expr->type != lispExpressionType_Cdr) {
-		fprintf(stderr, "evaluateCdrExpression() : Expression is not a Cdr expression\n");
-		return NULL;
-	}
-
-	LISP_VALUE * value = evaluate(expr->expr, env);
-
-	if (value->type != lispValueType_Pair || value->pair == NULL) {
-		fprintf(stderr, "evaluateCdrExpression() : Argument value is not a pair.\n");
-		return NULL;
-	}
-
-	return cloneValue(value->pair->tail);
-} */
-
 LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(NULL);
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList;
@@ -397,30 +376,6 @@ LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 	return result;
 }
-
-/* letrec:
-public evaluate(
-	globalInfo: IGlobalInfo<T>,
-	localEnvironment?: IEnvironmentFrame<T>,
-	options?: unknown
-): T {
-	const newEnvFrame = new EnvironmentFrame<T>(localEnvironment);
-
-	// for (const [v, expr] of this.bindings) {
-	for (const binding of this.bindings) {
-		const v = binding[0];
-
-		// Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop.
-		newEnvFrame.add(v, globalInfo.falseValue);
-	}
-
-	for (const [v, expr] of this.bindings) {
-		newEnvFrame.add(v, expr.evaluate(globalInfo, newEnvFrame));
-	}
-
-	return this.expression.evaluate(globalInfo, newEnvFrame);
-}
-*/
 
 LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(env);
@@ -512,15 +467,6 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 
 		case lispExpressionType_Letrec:
 			return evaluateLetrecExpression(expr, env);
-
-		/* case lispExpressionType_Cons:
-			return evaluateConsExpression(expr, env);
-
-		case lispExpressionType_Car:
-			return evaluateCarExpression(expr, env);
-
-		case lispExpressionType_Cdr:
-			return evaluateCdrExpression(expr, env); */
 
 		case lispExpressionType_Begin:
 			return evaluateBeginExpression(expr, env);

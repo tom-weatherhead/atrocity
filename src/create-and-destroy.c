@@ -39,17 +39,27 @@ LISP_VALUE * createNumericValue(int value) {
 	return result;
 }
 
-LISP_VALUE * createStringValue(char * value) {
+LISP_VALUE * createStringValue(char * str) {
+	int len = strlen(str);
 
-	if (strlen(value) >= maxStringValueLength) {
-		fprintf(stderr, "The string '%s' is too long to be a string value.", value);
+	if (len > 0 && str[0] == '"') {
+		++str;
+		--len;
+	}
+
+	if (len > 0 && str[len - 1] == '"') {
+		--len;
+	}
+
+	if (len >= maxStringValueLength) {
+		fprintf(stderr, "The string '%s' is too long to be a string value.", str);
 		fatalError("createStringValue() : String too long");
 	}
 
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_String;
-	strcpy(result->name, value);
+	memcpy(result->name, str, len * sizeof(char));
 
 	return result;
 }

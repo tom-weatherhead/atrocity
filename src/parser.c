@@ -210,54 +210,6 @@ LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 	return result;
 }
 
-/* LISP_EXPR * parseConsExpression(CharSource * cs) {
-	LISP_EXPR * head = parseExpression(cs);
-
-	LISP_EXPR * tail = parseExpression(cs);
-
-	if (!consumeStr(cs, ")")) {
-		fatalError("parseConsExpression() : Expected )");
-	}
-
-	LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Cons;
-	result->expr = head;
-	result->expr2 = tail;
-
-	return result;
-}
-
-LISP_EXPR * parseCarExpression(CharSource * cs) {
-	LISP_EXPR * expr = parseExpression(cs);
-
-	if (!consumeStr(cs, ")")) {
-		fatalError("parseCarExpression() : Expected )");
-	}
-
-	LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Car;
-	result->expr = expr;
-
-	return result;
-}
-
-LISP_EXPR * parseCdrExpression(CharSource * cs) {
-	LISP_EXPR * expr = parseExpression(cs);
-
-	if (!consumeStr(cs, ")")) {
-		fatalError("parseCdrExpression() : Expected )");
-	}
-
-	LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Cdr;
-	result->expr = expr;
-
-	return result;
-} */
-
 LISP_EXPR * parseBeginExpression(CharSource * cs) {
 	LISP_EXPR * result = createUndefinedExpression();
 
@@ -321,13 +273,8 @@ LISP_EXPR * parseCondExpression(CharSource * cs) {
 	return result;
 }
 
-/* LISP_EXPR * parseCallCCExpression(CharSource * cs) {
-} */
-
 LISP_EXPR * parseBracketedExpression(CharSource * cs) {
-	/* TODO: letrec
-	 * and maybe: print call/cc
-	 */
+	/* TODO: call/cc ? */
 
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
@@ -340,13 +287,7 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return parseLambdaExpression(cs);
 	} else if (!strcmp(dstBuf, "set!") || !strcmp(dstBuf, "set")) {
 		return parseSetExpression(cs);
-	} /* else if (!strcmp(dstBuf, "cons")) {
-		return parseConsExpression(cs);
-	} else if (!strcmp(dstBuf, "car")) {
-		return parseCarExpression(cs);
-	} else if (!strcmp(dstBuf, "cdr")) {
-		return parseCdrExpression(cs);
-	} */ else if (!strcmp(dstBuf, "begin")) {
+	} else if (!strcmp(dstBuf, "begin")) {
 		return parseBeginExpression(cs);
 	} else if (!strcmp(dstBuf, "while")) {
 		return parseWhileExpression(cs);
@@ -454,19 +395,14 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		return NULL;
 	}
 
-	printf("parseExpression() : dstBuf is '%s'\n", dstBuf);
+	/* printf("parseExpression() : dstBuf is '%s'\n", dstBuf); */
 
 	if (safeAtoi(dstBuf, &dstBufAsInt)) {
-		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
 	} else if (!strcmp(dstBuf, "'")) {
-		LISP_VALUE * v = createQuotedValue(cs);
-
-		/* printf("QuotedValue: ");
-		printValue(v);
-		printf("\n"); */
-
-		return createExpressionFromValue(v);
+		return createExpressionFromValue(createQuotedValue(cs));
+	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
+		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (
 		!strcmp(dstBuf, "+") ||
 		!strcmp(dstBuf, "-") ||
@@ -493,13 +429,14 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "random") ||
 		!strcmp(dstBuf, "cons") ||
 		!strcmp(dstBuf, "car") ||
-		!strcmp(dstBuf, "cdr")
+		!strcmp(dstBuf, "cdr") ||
+		!strcmp(dstBuf, "throw") ||
+		!strcmp(dstBuf, "call/cc")
 		/* Not yet implemented: */
 		/* || !strcmp(dstBuf, "rplaca") ||
 		!strcmp(dstBuf, "rplacd") ||
 		!strcmp(dstBuf, "quote") ||
-		!strcmp(dstBuf, "floor") ||
-		!strcmp(dstBuf, "call/cc") */
+		!strcmp(dstBuf, "floor") */
 	) {
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "(")) {

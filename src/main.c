@@ -287,7 +287,7 @@ static BOOL isStringAllWhitespace(char * str) {
 	return TRUE;
 }
 
-void execScriptInFile(char * filename) {
+void execScriptInFile(char * filename /* , LISP_ENV * globalEnv */) {
 	FILE * fp = fopen(filename, "r");
 
 	if (fp == NULL) {
@@ -492,7 +492,11 @@ void readEvalPrintLoop() {
 		} else if (!strcmp(buf, "exit") || !strcmp(buf, "quit") || !strcmp(buf, "bye")) {
 			printf("\nExiting...\n");
 			break;
-		} else if (!strcmp(buf, "fsck")) {
+		} /* else if (!strncmp(buf, "load ", 5)) {
+			TODO: Load script from file into REPL environment.
+			fatalError("fsck");
+			execScriptInFile(filename, globalEnv);
+		} */ else if (!strcmp(buf, "fsck")) {
 			fatalError("fsck");
 		}
 
