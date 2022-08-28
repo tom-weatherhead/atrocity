@@ -210,24 +210,10 @@ LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 	return result;
 }
 
-LISP_EXPR * parseConsExpression(CharSource * cs) {
-	/* Parse head expression */
+/* LISP_EXPR * parseConsExpression(CharSource * cs) {
 	LISP_EXPR * head = parseExpression(cs);
 
-	/* Parse tail expression */
 	LISP_EXPR * tail = parseExpression(cs);
-
-	/* Consume )
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
-		fprintf(stderr, "parseConsExpression() : Error : Expected ), found EOF\n");
-		return NULL;
-	} else if (strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseConsExpression() : Error : Expected ), found '%s'\n", dstBuf);
-		return NULL;
-	} */
 
 	if (!consumeStr(cs, ")")) {
 		fatalError("parseConsExpression() : Expected )");
@@ -270,7 +256,7 @@ LISP_EXPR * parseCdrExpression(CharSource * cs) {
 	result->expr = expr;
 
 	return result;
-}
+} */
 
 LISP_EXPR * parseBeginExpression(CharSource * cs) {
 	LISP_EXPR * result = createUndefinedExpression();
@@ -354,14 +340,13 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return parseLambdaExpression(cs);
 	} else if (!strcmp(dstBuf, "set!") || !strcmp(dstBuf, "set")) {
 		return parseSetExpression(cs);
-	} else if (!strcmp(dstBuf, "cons")) {
-		/* Should cons, car, and cdr be implemented as primops? */
+	} /* else if (!strcmp(dstBuf, "cons")) {
 		return parseConsExpression(cs);
 	} else if (!strcmp(dstBuf, "car")) {
 		return parseCarExpression(cs);
 	} else if (!strcmp(dstBuf, "cdr")) {
 		return parseCdrExpression(cs);
-	} else if (!strcmp(dstBuf, "begin")) {
+	} */ else if (!strcmp(dstBuf, "begin")) {
 		return parseBeginExpression(cs);
 	} else if (!strcmp(dstBuf, "while")) {
 		return parseWhileExpression(cs);
@@ -502,9 +487,9 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "list") ||
 		!strcmp(dstBuf, "random")
 		/* Not yet implemented: */
-		|| !strcmp(dstBuf, "cons") /* || -> Implement cons, car, cdr as primops
+		|| !strcmp(dstBuf, "cons") ||
 		!strcmp(dstBuf, "car") ||
-		!strcmp(dstBuf, "cdr") ||
+		!strcmp(dstBuf, "cdr") /* || -> Implement cons, car, cdr as primops
 		!strcmp(dstBuf, "rplaca") ||
 		!strcmp(dstBuf, "rplacd") ||
 		!strcmp(dstBuf, "quote") ||

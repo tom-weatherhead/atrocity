@@ -110,21 +110,37 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			printValue(operand1Value);
 			printf("\n");
 
+			/* Return without freeing the values */
+
 			return operand1Value;
 		} else if (!strcmp(op, "random")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
 			if (operand1Value->type != lispValueType_Number || operand1Value->value <= 0) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : random : Bad parameter\n");
-				return NULL;
+				fatalError("evaluatePrimitiveOperatorCall() : random : Bad parameter");
 			}
 
 			return createNumericValue(rand() % operand1Value->value);
-		} /* TODO: else if (!strcmp(op, "car")) {
-			;
+		} else if (!strcmp(op, "car")) {
+			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+
+			if (operand1Value->type != lispValueType_Pair) {
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : car : Operand is not a pair\n");
+				fatalError("evaluatePrimitiveOperatorCall() : car : Operand is not a pair");
+			}
+
+			return operand1Value->pair->head;
 		} else if (!strcmp(op, "cdr")) {
-			;
-		} */
+			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+
+			if (operand1Value->type != lispValueType_Pair) {
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : cdr : Operand is not a pair\n");
+				fatalError("evaluatePrimitiveOperatorCall() : cdr : Operand is not a pair");
+			}
+
+			return operand1Value->pair->tail;
+		}
 
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
 			LISP_EXPR * operand2Expr = actualParamExprs->next->expr;
@@ -296,7 +312,7 @@ LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 	return value;
 }
 
-LISP_VALUE * evaluateConsExpression(LISP_EXPR * expr, LISP_ENV * env) {
+/* LISP_VALUE * evaluateConsExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 	if (expr->type != lispExpressionType_Cons) {
 		fprintf(stderr, "evaluateConsExpression() : Expression is not a Cons expression\n");
@@ -341,7 +357,7 @@ LISP_VALUE * evaluateCdrExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	}
 
 	return cloneValue(value->pair->tail);
-}
+} */
 
 LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(NULL);
@@ -497,14 +513,14 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 		case lispExpressionType_Letrec:
 			return evaluateLetrecExpression(expr, env);
 
-		case lispExpressionType_Cons:
+		/* case lispExpressionType_Cons:
 			return evaluateConsExpression(expr, env);
 
 		case lispExpressionType_Car:
 			return evaluateCarExpression(expr, env);
 
 		case lispExpressionType_Cdr:
-			return evaluateCdrExpression(expr, env);
+			return evaluateCdrExpression(expr, env); */
 
 		case lispExpressionType_Begin:
 			return evaluateBeginExpression(expr, env);

@@ -188,14 +188,19 @@ void runTests() {
 	parseAndEvaluate("(cons 1 null)");
 	parseAndEvaluate("(cons 1 (cons 2 null))");
 	parseAndEvaluate("(cons 1 (cons 2 (cons 3 null)))");
+	parseAndEvaluate("(cons 1 '(2 3))");
 
 	/* car */
 	parseAndEvaluate("(car (cons 1 null))");
+	parseAndEvaluate("(car '(1))");
 	parseAndEvaluate("(car (cons 1 (cons 2 null)))");
+	parseAndEvaluate("(car '(1 2))");
 
 	/* cdr */
 	parseAndEvaluate("(cdr (cons 1 null))");
+	parseAndEvaluate("(cdr '(1))");
 	parseAndEvaluate("(cdr (cons 1 (cons 2 null)))");
+	parseAndEvaluate("(cdr '(1 2))");
 
 	/* let */
 	parseAndEvaluate("(let ((a 7)) a)");
