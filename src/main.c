@@ -11,11 +11,9 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-list (for Labyrinth)
-list? (the is-list predicate)
 String literals (for Labyrinth)
 string? (for Labyrinth)
-listtostring
+listtostring (for Labyrinth)
 Real (i.e. floating-point) numbers?
 floor
 QuoteKeyword (e.g. for (quote 1 2 3))
@@ -24,7 +22,6 @@ rplacd
 Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
 call/cc
 throw (for Labyrinth)
-print (for Labyrinth)
 */
 
 #include <stdlib.h>
@@ -55,6 +52,11 @@ LISP_VALUE * globalTrueValue = NULL;
 static char commentChar = ';';
 
 /* Functions */
+
+void fatalError(char * str) {
+	fprintf(stderr, "\nFatal error: '%s'\nAborting the program...\n", str);
+	exit(1);
+}
 
 void parseAndEvaluate(char * str) {
 	printf("\nInput: '%s'\n", str);
@@ -480,6 +482,8 @@ void readEvalPrintLoop() {
 		} else if (!strcmp(buf, "exit") || !strcmp(buf, "quit") || !strcmp(buf, "bye")) {
 			printf("\nExiting...\n");
 			break;
+		} else if (!strcmp(buf, "fsck")) {
+			fatalError("fsck");
 		}
 
 		/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); */

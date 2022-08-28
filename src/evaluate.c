@@ -63,11 +63,27 @@ BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 	return FALSE;
 }
 
+static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_ENV * env) {
+
+	if (exprList == NULL) {
+		return createNull();
+	}
+
+	LISP_VALUE * head = evaluate(exprList->expr, env);
+	LISP_VALUE * tail = exprListToListValue(exprList->next, env);
+
+	return createPair(head, tail);
+}
+
 LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	/* TODO: print call/cc */
+	/* TODO: call/cc */
 
 	LISP_VALUE * result = NULL;
 	/* printf("evaluateFunctionCall() : Operator is '%s'\n", op); */
+
+	if (!strcmp(op, "list")) {
+		return exprListToListValue(actualParamExprs, env);
+	}
 
 	if (actualParamExprs != NULL && actualParamExprs->expr != NULL) {
 		LISP_EXPR * operand1Expr = actualParamExprs->expr;
@@ -104,7 +120,11 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			}
 
 			return createNumericValue(rand() % operand1Value->value);
-		}
+		} /* TODO: else if (!strcmp(op, "car")) {
+			;
+		} else if (!strcmp(op, "cdr")) {
+			;
+		} */
 
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
 			LISP_EXPR * operand2Expr = actualParamExprs->next->expr;
@@ -123,7 +143,8 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 				!strcmp(op, "<=") ||
 				!strcmp(op, ">=") ||
 				!strcmp(op, "=") ||
-				!strcmp(op, "!=")
+				!strcmp(op, "!=") ||
+				!strcmp(op, "cons")
 			) {
 				/* Both operands must be numeric */
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
@@ -138,6 +159,9 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));
+				} else if (!strcmp(op, "cons")) {
+					/* Return without freeing the values */
+					return createPair(operand1Value, operand2Value);
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
 					const int operand1 = operand1Value->value;
 					const int operand2 = operand2Value->value;

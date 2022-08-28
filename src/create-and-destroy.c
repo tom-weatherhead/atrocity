@@ -15,6 +15,10 @@
 static LISP_VALUE * createUndefinedValue() {
 	LISP_VALUE * result = (LISP_VALUE *)malloc(sizeof(LISP_VALUE));
 
+	if (result == NULL) {
+		fatalError("malloc() failed in createUndefinedValue()");
+	}
+
 	result->type = lispValueType_Undefined;
 	result->value = 0;
 	memset(result->name, 0, maxStringValueLength * sizeof(char));
@@ -39,7 +43,7 @@ LISP_VALUE * createStringValue(char * value) {
 
 	if (strlen(value) >= maxStringValueLength) {
 		fprintf(stderr, "The string '%s' is too long to be a string value.", value);
-		return NULL;
+		fatalError("createStringValue() : String too long");
 	}
 
 	LISP_VALUE * result = createUndefinedValue();
@@ -54,7 +58,7 @@ LISP_VALUE * createSymbolValue(char * value) {
 
 	if (strlen(value) >= maxStringValueLength) {
 		fprintf(stderr, "The string '%s' is too long to be a string value.", value);
-		return NULL;
+		fatalError("createSymbolValue() : String too long");
 	}
 
 	LISP_VALUE * result = createUndefinedValue();
@@ -76,6 +80,10 @@ LISP_VALUE * createPrimitiveOperator(char * value) {
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
 	LISP_CLOSURE * closure = (LISP_CLOSURE *)malloc(sizeof(LISP_CLOSURE));
+
+	if (closure == NULL) {
+		fatalError("malloc() failed in createClosure()");
+	}
 
 	closure->args = args;
 	closure->body = body;
@@ -111,6 +119,10 @@ static void freeClosure(LISP_CLOSURE * closure) {
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	LISP_PAIR * pair = (LISP_PAIR *)malloc(sizeof(LISP_PAIR));
+
+	if (pair == NULL) {
+		fatalError("malloc() failed in createPair()");
+	}
 
 	pair->head = head;
 	pair->tail = tail;
@@ -176,8 +188,10 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 		default:
 			fprintf(stderr, "Failed to clone value of type %d\n", value->type);
-			return NULL;
+			fatalError("cloneValue() : Bad value type");
 	}
+
+	return NULL;
 }
 
 void freeValue(LISP_VALUE * value) {
@@ -200,6 +214,10 @@ void freeValue(LISP_VALUE * value) {
 LISP_EXPR * createUndefinedExpression() {
 	LISP_EXPR * result = (LISP_EXPR *)malloc(sizeof(LISP_EXPR));
 
+	if (result == NULL) {
+		fatalError("malloc() failed in createUndefinedExpression()");
+	}
+
 	result->type = lispExpressionType_Undefined;
 	result->value = NULL;
 	result->var = NULL;
@@ -216,6 +234,10 @@ LISP_EXPR * createUndefinedExpression() {
 
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next) {
 	LISP_VAR_LIST_ELEMENT * result = (LISP_VAR_LIST_ELEMENT *)malloc(sizeof(LISP_VAR_LIST_ELEMENT));
+
+	if (result == NULL) {
+		fatalError("malloc() failed in createVariableListElement()");
+	}
 
 	result->var = var;
 	result->next = next;
@@ -244,6 +266,10 @@ void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
 
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next) {
 	LISP_EXPR_PAIR_LIST_ELEMENT * result = (LISP_EXPR_PAIR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_PAIR_LIST_ELEMENT));
+
+	if (result == NULL) {
+		fatalError("malloc() failed in createExpressionPairListElement()");
+	}
 
 	result->expr = expr;
 	result->expr2 = expr2;
@@ -277,6 +303,10 @@ void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
 	LISP_LAMBDA_EXPR * lambdaExpr = (LISP_LAMBDA_EXPR *)malloc(sizeof(LISP_LAMBDA_EXPR));
+
+	if (lambdaExpr == NULL) {
+		fatalError("malloc() failed in createLambdaExpression()");
+	}
 
 	lambdaExpr->args = args;
 	lambdaExpr->body = body;
@@ -381,6 +411,10 @@ void freeExpression(LISP_EXPR * expr) {
 LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR_LIST_ELEMENT * next) {
 	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_LIST_ELEMENT));
 
+	if (result == NULL) {
+		fatalError("malloc() failed in createExpressionListElement()");
+	}
+
 	result->expr = expr;
 	result->next = next;
 
@@ -402,15 +436,19 @@ LISP_VAR * createVariable(char * name) {
 
 	if (strlen(name) >= maxStringValueLength - 1) {
 		fprintf(stderr, "createVariable() : The name '%s' is too long.\n", name);
-		return NULL;
+		fatalError("createVariable() : String too long");
 	}
 	/* Ensure that name does not contain ( or ) */
 	else if (strchr(name, '(') != NULL || strchr(name, ')')) {
 		fprintf(stderr, "createVariable() : The name '%s' contains an illegal character: '(' or ')'.\n", name);
-		return NULL;
+		fatalError("createVariable() : String contains an illegal character");
 	}
 
 	LISP_VAR * var = (LISP_VAR *)malloc(sizeof(LISP_VAR));
+
+	if (var == NULL) {
+		fatalError("malloc() failed in createVariable()");
+	}
 
 	memset(var->name, 0, maxStringValueLength);
 	strcpy(var->name, name);
@@ -434,6 +472,10 @@ void freeVariable(LISP_VAR * var) {
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
 	LISP_NAME_VALUE_LIST_ELEMENT * nvle = (LISP_NAME_VALUE_LIST_ELEMENT * )malloc(sizeof(LISP_NAME_VALUE_LIST_ELEMENT));
 
+	if (nvle == NULL) {
+		fatalError("malloc() failed in createNameValueListElement()");
+	}
+
 	nvle->name = name;
 	nvle->value = value; /* TODO? : Clone the value? */
 	nvle->next = next;
@@ -456,6 +498,10 @@ void freeNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
 
 LISP_ENV * createEnvironment(LISP_ENV * next) {
 	LISP_ENV * env = (LISP_ENV *)malloc(sizeof(LISP_ENV));
+
+	if (env == NULL) {
+		fatalError("malloc() failed in createEnvironment()");
+	}
 
 	env->nameValueList = NULL;
 	env->next = next;
@@ -518,7 +564,7 @@ BOOL isList(LISP_VALUE * value) {
 
 void printValue(LISP_VALUE * value) {
 
-	if (isList(value)) {
+	if (isList(value) && value->type != lispValueType_Null) {
 		char separator = '\0';
 
 		printf("List: (");
@@ -565,11 +611,11 @@ void printValue(LISP_VALUE * value) {
 			break;
 
 		case lispValueType_Null:
-			printf("Null");
+			printf("Null: ()");
 			break;
 
 		default:
-			printf("<invalidValue>");
+			printf("<invalid value>");
 			break;
 	}
 }

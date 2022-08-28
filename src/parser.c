@@ -52,6 +52,10 @@ LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 
 	LISP_FUNCTION_CALL * functionCall = (LISP_FUNCTION_CALL *)malloc(sizeof(LISP_FUNCTION_CALL));
 
+	if (functionCall == NULL) {
+		fatalError("malloc() failed in parseFunctionCallExpression()");
+	}
+
 	functionCall->firstExpr = exprList->expr;
 	functionCall->actualParamExprs = exprList->next;
 
@@ -73,7 +77,7 @@ LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseVariableList() : Error : Expected ), found EOF\n");
-		return NULL;
+		fatalError("parseVariableList() : Expected ), found EOF");
 	} else if (!strcmp(dstBuf, ")")) {
 		return NULL; /* End of list */
 	}
@@ -89,7 +93,7 @@ LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 
 	if (!consumeStr(cs, "(")) {
-		return NULL;
+		fatalError("parseLambdaExpression() : Expected (");
 	}
 
 	/* Parse variable list and consume ) */
@@ -99,7 +103,7 @@ LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		return NULL;
+		fatalError("parseLambdaExpression() : Expected )");
 	}
 
 	return createLambdaExpression(args, expr);
@@ -115,13 +119,13 @@ LISP_EXPR * parseSetExpression(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseSetExpression() : Error : Expected variable, found EOF\n");
-		return NULL;
+		fatalError("parseSetExpression() : Expected variable, found EOF");
 	} else if (!strcmp(dstBuf, "(")) {
 		fprintf(stderr, "parseSetExpression() : Error : Expected variable, found '('\n");
-		return NULL;
+		fatalError("parseSetExpression() : Expected variable, found '('");
 	} else if (!strcmp(dstBuf, ")")) {
 		fprintf(stderr, "parseSetExpression() : Error : Expected variable, found ')'\n");
-		return NULL;
+		fatalError("parseSetExpression() : Expected variable, found ')'");
 	}
 
 	LISP_VAR * var = createVariable(dstBuf);
@@ -131,7 +135,7 @@ LISP_EXPR * parseSetExpression(CharSource * cs) {
 
 	if (!consumeStr(cs, ")")) {
 		fprintf(stderr, "parseSetExpression() : Error : Expected ')'\n");
-		return NULL;
+		fatalError("parseSetExpression() : Expected ')'");
 	}
 
 	/* printf("Calling createSetExpression()...\n"); */
@@ -145,17 +149,17 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseVarExpressionPairList() : Error : Expected ( or ), found EOF\n");
-		return NULL;
+		fatalError("parseVarExpressionPairList() : Expected ( or ), found EOF");
 	} else if (!strcmp(dstBuf, ")")) {
 		return NULL; /* The end of the list */
 	} else if (strcmp(dstBuf, "(")) {
 		fprintf(stderr, "parseVarExpressionPairList() : Error : Expected ( or ), found '%s'\n", dstBuf);
-		return NULL;
+		fatalError("parseVarExpressionPairList() : Expected ( or )");
 	}
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseVarExpressionPairList() : Error : Expected variable, found EOF\n");
-		return NULL;
+		fatalError("parseVarExpressionPairList() : Expected variable, found EOF");
 	}
 
 	LISP_VAR * var = createVariable(dstBuf);
@@ -164,11 +168,15 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		return NULL;
+		fatalError("parseVarExpressionPairList() : Expected )");
 	}
 
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next = parseVarExpressionPairList(cs);
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * result = (LISP_VAR_EXPR_PAIR_LIST_ELEMENT *)malloc(sizeof(LISP_VAR_EXPR_PAIR_LIST_ELEMENT));
+
+	if (result == NULL) {
+		fatalError("malloc() failed in parseVarExpressionPairList()");
+	}
 
 	result->var = var;
 	result->expr = expr;
@@ -180,7 +188,7 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 
 	if (!consumeStr(cs, "(")) {
-		return NULL;
+		fatalError("parseLetExpression() : Expected (");
 	}
 
 	/* Parse the variable-expression pair list */
@@ -190,7 +198,7 @@ LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 	LISP_EXPR * expr = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		return NULL;
+		fatalError("parseLetExpression() : Expected )");
 	}
 
 	LISP_EXPR * result = createUndefinedExpression();
@@ -222,7 +230,7 @@ LISP_EXPR * parseConsExpression(CharSource * cs) {
 	} */
 
 	if (!consumeStr(cs, ")")) {
-		return NULL;
+		fatalError("parseConsExpression() : Expected )");
 	}
 
 	LISP_EXPR * result = createUndefinedExpression();
@@ -238,7 +246,7 @@ LISP_EXPR * parseCarExpression(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		return NULL;
+		fatalError("parseCarExpression() : Expected )");
 	}
 
 	LISP_EXPR * result = createUndefinedExpression();
@@ -253,7 +261,7 @@ LISP_EXPR * parseCdrExpression(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		return NULL;
+		fatalError("parseCdrExpression() : Expected )");
 	}
 
 	LISP_EXPR * result = createUndefinedExpression();
@@ -278,7 +286,7 @@ LISP_EXPR * parseWhileExpression(CharSource * cs) {
 	LISP_EXPR * body = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		return NULL;
+		fatalError("parseWhileExpression() : Expected )");
 	}
 
 	LISP_EXPR * result = createUndefinedExpression();
@@ -491,23 +499,23 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "primop?") ||
 		!strcmp(dstBuf, "closure?") ||
 		!strcmp(dstBuf, "print") ||
+		!strcmp(dstBuf, "list") ||
+		!strcmp(dstBuf, "random")
 		/* Not yet implemented: */
-		!strcmp(dstBuf, "cons") ||
+		|| !strcmp(dstBuf, "cons") /* || -> Implement cons, car, cdr as primops
 		!strcmp(dstBuf, "car") ||
 		!strcmp(dstBuf, "cdr") ||
-		!strcmp(dstBuf, "list") ||
 		!strcmp(dstBuf, "rplaca") ||
 		!strcmp(dstBuf, "rplacd") ||
 		!strcmp(dstBuf, "quote") ||
 		!strcmp(dstBuf, "floor") ||
-		!strcmp(dstBuf, "random") ||
-		!strcmp(dstBuf, "call/cc")
+		!strcmp(dstBuf, "call/cc") */
 	) {
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "(")) {
 		return parseBracketedExpression(cs);
 	} else if (!strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseExpression() : Error: Unexpected ')'\n");
+		fatalError("parseExpression() : Encountered an unexpected ')'");
 		return NULL;
 	} else {
 		return createExpressionFromVariable(createVariable(dstBuf));

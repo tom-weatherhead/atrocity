@@ -462,10 +462,10 @@
 		(longestPath (findLongestPathFromRoom (car (reverse path1))))
 		)
 		(begin
-			;(print (cons "Longest path: " longestPath))
+			; (print (cons "Longest path: " longestPath))
 			(print (listtostring (list "The longest path contains " (length longestPath) " rooms.")))
 			(set roomGoal (car (reverse longestPath)))
-			;(print (listtostring (list "Aristotle's Second Book of the Poetics is in Room " roomGoal ".")))
+			; (print (listtostring (list "Aristotle's Second Book of the Poetics is in Room " roomGoal ".")))
 			(print (listtostring (list "The path from Room (0 0) to the goal contains " (length (findShortestPathBetweenRooms '(0 0) roomGoal)) " rooms.")))
 		)
 	)
@@ -571,7 +571,7 @@
 	)
 	(set JorgesRoom (car JorgesPath))
 	(set JorgesPath (cdr JorgesPath))
-	;(print (listtostring (list "The Venerable Jorge is in Room " JorgesRoom ".")))
+	; (print (listtostring (list "The Venerable Jorge is in Room " JorgesRoom ".")))
 	(reportProximityToJorge)
 
 	(printAdjacentRooms 0 (assoc room connections))

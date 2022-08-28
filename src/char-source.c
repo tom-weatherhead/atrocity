@@ -13,6 +13,10 @@
 CharSource * createCharSource(char * str) {
 	CharSource * cs = (CharSource *)malloc(sizeof(CharSource));
 
+	if (cs == NULL) {
+		fatalError("malloc() failed in createCharSource()");
+	}
+
 	/* TODO? : Clone the string? */
 	cs->str = str;
 
@@ -107,10 +111,10 @@ BOOL consumeStr(CharSource * cs, char * str) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "consumeStr() : Error : Expected '%s', found EOF\n", str);
-		return FALSE; /* or exit(1); ? */
+		fatalError("consumeStr() 1");
 	} else if (strcmp(dstBuf, str)) {
 		fprintf(stderr, "consumeStr() : Error : Expected '%s', found '%s'\n", str, dstBuf);
-		return FALSE;
+		fatalError("consumeStr() 2");
 	}
 
 	return TRUE;

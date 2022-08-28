@@ -163,4 +163,6 @@ enum {
 	lispExpressionType_CallCC
 };
 
+void fatalError(char * str);
+
 /* **** The End **** */
