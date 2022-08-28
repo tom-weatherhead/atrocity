@@ -31,15 +31,20 @@ void freeCharSource(CharSource * cs) {
 	free(cs);
 }
 
+static BOOL isWhiteSpace(char c) {
+	return c == ' ' || c == '\t' || c == '\n' ? TRUE : FALSE;
+}
+
 int getNextChar(CharSource * cs) {
 
 	while (cs->i < cs->len) {
-		const int c = (int)cs->str[cs->i];
+		const char c = cs->str[cs->i];
 
 		++cs->i;
 
-		if (c != (int)' ') {
-			return c;
+		/* if (c != (int)' ') { */
+		if (!isWhiteSpace(c)) {
+			return (int)c;
 		}
 	}
 
@@ -55,10 +60,6 @@ void rewindOneChar(CharSource * cs) {
 
 static BOOL isEOF(CharSource * cs) {
 	return cs->i >= cs->len;
-}
-
-static BOOL isWhiteSpace(char c) {
-	return c == ' ' || c == '\t' ? TRUE : FALSE;
 }
 
 static void skipWhiteSpace(CharSource * cs) {

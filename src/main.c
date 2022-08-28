@@ -297,9 +297,14 @@ void execScriptInFile(char * filename) {
 
 	printf("\nExecuting script...\n\n");
 
-	const int bufSize = 1024;
+	const int bufSize = 4096;
 	const int bufSizeInBytes = bufSize * sizeof(char);
 	char * str = (char *)malloc(bufSizeInBytes);
+
+	if (str == NULL) {
+		fatalError("malloc() failed in execScriptInFile()");
+	}
+
 	int i = 0;
 	int bracketDepth = 0;
 

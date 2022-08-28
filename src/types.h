@@ -10,7 +10,7 @@
 #endif
 
 /* const int maxStringValueLength = 8; */
-#define maxStringValueLength 48
+#define maxStringValueLength 64
 
 /* Forward declarations of some structs */
 

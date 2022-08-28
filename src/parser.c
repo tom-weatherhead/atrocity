@@ -450,8 +450,13 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseExpression() : Error : Expected an expression, found EOF\n");
+		fatalError("parseExpression() : Expected an expression, found EOF");
 		return NULL;
-	} else if (safeAtoi(dstBuf, &dstBufAsInt)) {
+	}
+
+	printf("parseExpression() : dstBuf is '%s'\n", dstBuf);
+
+	if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
 	} else if (!strcmp(dstBuf, "'")) {
@@ -485,12 +490,12 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "closure?") ||
 		!strcmp(dstBuf, "print") ||
 		!strcmp(dstBuf, "list") ||
-		!strcmp(dstBuf, "random")
-		/* Not yet implemented: */
-		|| !strcmp(dstBuf, "cons") ||
+		!strcmp(dstBuf, "random") ||
+		!strcmp(dstBuf, "cons") ||
 		!strcmp(dstBuf, "car") ||
-		!strcmp(dstBuf, "cdr") /* || -> Implement cons, car, cdr as primops
-		!strcmp(dstBuf, "rplaca") ||
+		!strcmp(dstBuf, "cdr")
+		/* Not yet implemented: */
+		/* || !strcmp(dstBuf, "rplaca") ||
 		!strcmp(dstBuf, "rplacd") ||
 		!strcmp(dstBuf, "quote") ||
 		!strcmp(dstBuf, "floor") ||
