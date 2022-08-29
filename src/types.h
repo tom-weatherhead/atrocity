@@ -25,7 +25,7 @@ struct LISP_EXPR_LIST_ELEMENT_STRUCT;
 /* Every value is an expression. */
 /* Every expression can be evaluated to a value. */
 
-typedef struct {
+typedef struct LISP_VALUE_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
 	int type;
@@ -34,6 +34,9 @@ typedef struct {
 	char name[maxStringValueLength]; /* Used by ValueTypes String and PrimitiveOperator */
 	struct LISP_PAIR_STRUCT * pair;
 	struct LISP_CLOSURE_STRUCT * closure;
+
+	int continuationId;
+	struct LISP_VALUE_STRUCT * continuationReturnValue;
 } LISP_VALUE;
 
 /* typedef struct {
@@ -146,6 +149,8 @@ enum {
 	lispValueType_Pair,
 	lispValueType_Null,
 	/* lispValueType_Exception, */
+	lispPseudoValueType_Continuation,
+	lispPseudoValueType_ContinuationReturn,
 	lispExpressionType_Undefined,
 	lispExpressionType_Value,
 	lispExpressionType_Variable,

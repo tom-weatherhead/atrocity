@@ -11,8 +11,7 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-String literals (for Labyrinth)
-string? (for Labyrinth)
+string? (for Labyrinth) (Done?)
 listtostring (for Labyrinth)
 Real (i.e. floating-point) numbers?
 floor
@@ -20,8 +19,8 @@ QuoteKeyword (e.g. for (quote 1 2 3))
 rplaca
 rplacd
 Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
-call/cc
-throw (for Labyrinth)
+call/cc (for Labyrinth)
+throw (for Labyrinth) (Done?)
 */
 
 #include <stdlib.h>

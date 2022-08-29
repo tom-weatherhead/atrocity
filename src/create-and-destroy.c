@@ -24,6 +24,8 @@ static LISP_VALUE * createUndefinedValue() {
 	memset(result->name, 0, maxStringValueLength * sizeof(char));
 	result->pair = NULL;
 	result->closure = NULL;
+	result->continuationId = 0;
+	result->continuationReturnValue = NULL;
 
 	/* registerValueWithMemoryManager(result); */
 

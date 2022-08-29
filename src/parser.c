@@ -242,11 +242,13 @@ LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found EOF\n");
+		/* TODO: fatalError(""); */
 		return NULL;
 	} else if (!strcmp(dstBuf, ")")) {
 		return NULL; /* End of list */
 	} else if (strcmp(dstBuf, "(")) {
 		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found '%s'\n", dstBuf);
+		/* TODO: fatalError(""); */
 		return NULL;
 	}
 
@@ -254,6 +256,7 @@ LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 	LISP_EXPR * expr2 = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
+		/* TODO: fatalError(""); */
 		return NULL;
 	}
 
@@ -282,6 +285,7 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseBracketedExpression() : Error : Expected an expression or keyword, found EOF\n");
+		/* TODO: fatalError(""); */
 		return NULL;
 	} else if (!strcmp(dstBuf, "lambda")) {
 		return parseLambdaExpression(cs);
@@ -293,9 +297,7 @@ LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return parseWhileExpression(cs);
 	} else if (!strcmp(dstBuf, "cond")) {
 		return parseCondExpression(cs);
-	} /* else if (!strcmp(dstBuf, "call/cc")) {
-		return parseCallCCExpression(cs);
-	} */ else if (!strcmp(dstBuf, "let")) {
+	} else if (!strcmp(dstBuf, "let")) {
 		return parseLetExpression(cs, lispExpressionType_Let);
 	} else if (!strcmp(dstBuf, "let*")) {
 		return parseLetExpression(cs, lispExpressionType_LetStar);
@@ -319,6 +321,7 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 
 	if (c == EOF) {
 		fprintf(stderr, "parseExpressionList() : Error : Expected an expression list, found EOF\n");
+		/* TODO: fatalError(""); */
 		return NULL;
 	}
 
@@ -333,6 +336,8 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 
 	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_LIST_ELEMENT));
 
+	/* TODO: if (result == NULL) fatalError(""); */
+
 	result->expr = expr;
 	result->next = next;
 
@@ -346,6 +351,7 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found EOF\n");
+		/* TODO: fatalError(""); */
 		return NULL;
 	} else if (!strcmp(dstBuf, "(")) {
 		return createQuotedList(cs);
@@ -368,6 +374,7 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "createQuotedList() : Error : Expected a literal value, found EOF\n");
+		/* TODO: fatalError(""); */
 		return NULL;
 	} else if (!strcmp(dstBuf, ")")) {
 		return createNull();
@@ -433,7 +440,8 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "throw") ||
 		!strcmp(dstBuf, "call/cc")
 		/* Not yet implemented: */
-		/* || !strcmp(dstBuf, "rplaca") ||
+		/* || !strcmp(dstBuf, "listtostring") ||
+		!strcmp(dstBuf, "rplaca") ||
 		!strcmp(dstBuf, "rplacd") ||
 		!strcmp(dstBuf, "quote") ||
 		!strcmp(dstBuf, "floor") */
