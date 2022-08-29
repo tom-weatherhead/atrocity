@@ -52,7 +52,7 @@ LISP_VALUE * lookupVariableInEnvironment(LISP_VAR * var, LISP_ENV * env) {
 		env = env->next;
 	}
 
-	/* printf("lookupVariableInEnvironment: Returning value %ld\n", (long)value); */
+	printf("lookupVariableInEnvironment: Looked up var '%s', returning value %ld\n", var->name, value);
 
 	return value;
 }

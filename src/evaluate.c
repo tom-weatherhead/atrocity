@@ -31,7 +31,7 @@ LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int
 	LISP_VALUE * operandValue = evaluate(operandExpr, env);
 	const int b = operandValue->type == lispValueType;
 
-	freeValue(operandValue);
+	/* freeValue(operandValue); */
 
 	return booleanToClonedValue(b);
 }
@@ -76,10 +76,8 @@ static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_
 }
 
 LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	/* TODO: call/cc */
-
 	LISP_VALUE * result = NULL;
-	/* printf("evaluateFunctionCall() : Operator is '%s'\n", op); */
+	printf("evaluatePrimitiveOperatorCall() : Operator is '%s'\n", op);
 
 	if (!strcmp(op, "list")) {
 		/* 'list' can take any number of args, including zero. */
@@ -89,7 +87,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 	if (actualParamExprs != NULL && actualParamExprs->expr != NULL) {
 		LISP_EXPR * operand1Expr = actualParamExprs->expr;
 
-		/* printf("evaluateFunctionCall() : Operand 1 is: ");
+		/* printf("evaluatePrimitiveOperatorCall() : Operand 1 is: ");
 		printValue(operand1Value); */
 		if (!strcmp(op, "null?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Null);
@@ -153,6 +151,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			fatalError("An exception has been thrown.");
 		} else if (!strcmp(op, "call/cc")) {
 			/* Call with current continuation */
+			printf("Evaluating a call/cc usage...\n");
 			/* The arg must be a lambda expr that takes exactly one arg. */
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -171,7 +170,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
 			LISP_EXPR * operand2Expr = actualParamExprs->next->expr;
 
-			/* printf("evaluateFunctionCall() : Operand 2 is: ");
+			/* printf("evaluatePrimitiveOperatorCall() : Operand 2 is: ");
 			printValue(operand2Value); */
 
 			if (
@@ -188,9 +187,23 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 				!strcmp(op, "!=") ||
 				!strcmp(op, "cons")
 			) {
-				/* Both operands must be numeric */
+				printf("%s: Evaluating both operands\n", op);
+				printf("operand1Expr is %lu\n", operand1Expr);
+				printf("operand1Expr->type is %d\n", operand1Expr->type);
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+				printf("%s: Evaluated first operand\n", op);
+				printValue(operand1Value);
+				printf("operand2Expr is %lu\n", operand2Expr);
+				printf("operand2Expr->type is %d\n", operand2Expr->type);
+				printf("operand2Expr->functionCall is %lu\n", operand2Expr->functionCall);
+
+				if (operand2Expr->functionCall != NULL && operand2Expr->functionCall->firstExpr != NULL && operand2Expr->functionCall->firstExpr->var != NULL) {
+					printf("operand2Expr->functionCall->firstExpr->var->name is '%s'\n", operand2Expr->functionCall->firstExpr->var->name);
+				}
+
+				/* printf("operand2Expr->name is '%s'\n", operand2Expr->name); */
 				LISP_VALUE * operand2Value = evaluate(operand2Expr, env);
+				printf("%s: Evaluated both operands\n", op);
 
 				if (!strcmp(op, "=")) {
 					/* printf("= : operand1Value is ");
@@ -203,8 +216,10 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "cons")) {
 					/* Return without freeing the values */
+					printf("cons: Creating pair\n");
 					return createPair(operand1Value, operand2Value);
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
+					/* Both operands must be numeric */
 					const int operand1 = operand1Value->value;
 					const int operand2 = operand2Value->value;
 
@@ -272,6 +287,7 @@ LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT 
 			/* The formal and actual parameter lists have different lengths. */
 			fprintf(stderr, "evaluateClosureCall() : The formal and actual parameter lists have different lengths.\n");
 			freeEnvironment(newEnv);
+			fatalError("evaluateClosureCall() : The formal and actual parameter lists have different lengths.");
 			return NULL;
 		}
 
@@ -297,14 +313,26 @@ LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT 
 }
 
 LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
+	printf("BEGIN evaluateFunctionCall()\n");
+	printf("  Evaluating firstExpr\n");
+	printf("  firstExpr ptr is %lu\n", functionCall->firstExpr);
+	printf("  firstExpr type is %d\n", functionCall->firstExpr->type);
+
+	if (functionCall->firstExpr->var != NULL) {
+		printf("  firstExpr is a variable named '%s'\n", functionCall->firstExpr->var->name);
+	}
+
 	LISP_VALUE * callableValue = evaluate(functionCall->firstExpr, env);
 
 	if (callableValue->type == lispValueType_PrimitiveOperator) {
+		printf("  -> PrimitiveOperator\n");
 		return evaluatePrimitiveOperatorCall(callableValue->name, functionCall->actualParamExprs, env);
 	} else if (callableValue->type == lispValueType_Closure) {
+		printf("  -> Closure\n");
 		return evaluateClosureCall(callableValue->closure, functionCall->actualParamExprs, env);
 	} else {
 		fprintf(stderr, "evaluateFunctionCall() : Attempted to call an uncallable value\n");
+		fatalError("evaluateFunctionCall() : Attempted to call an uncallable value");
 		return NULL;
 	}
 }
@@ -317,6 +345,7 @@ LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 
 	if (setExpr->type != lispExpressionType_SetExpr) {
 		fprintf(stderr, "evaluateSetExpression() : Expression is not a Set expression\n");
+		fatalError("evaluateSetExpression() : Expression is not a Set expression");
 		return NULL;
 	}
 
@@ -441,6 +470,7 @@ LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 /* LISP_VALUE * evaluateCallCCExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
 
 LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
+	LISP_VALUE * value = NULL;
 
 	switch (expr->type) {
 		case lispExpressionType_Value:
@@ -448,7 +478,17 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 			return cloneValue(expr->value);
 
 		case lispExpressionType_Variable:
-			return cloneValue(lookupVariableInEnvironment(expr->var, env));
+			printf("evaluate variable\n");
+			printf("... named '%s'\n", expr->var->name);
+			value = lookupVariableInEnvironment(expr->var, env);
+
+			if (value == NULL) {
+				fprintf(stderr, "evaluate() : Undefined variable '%s'\n", expr->var->name);
+				fatalError("evaluate() : Undefined variable");
+				return NULL;
+			}
+
+			return cloneValue(value);
 
 		case lispExpressionType_FunctionCall:
 			return evaluateFunctionCall(expr->functionCall, env);
@@ -477,10 +517,8 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 		case lispExpressionType_Cond:
 			return evaluateCondExpression(expr, env);
 
-		/* case lispExpressionType_CallCC:
-			return evaluateCallCCExpression(expr, env); */
-
 		default:
+			fatalError("evaluate() : Unrecognized expression type");
 			return NULL;
 	}
 }

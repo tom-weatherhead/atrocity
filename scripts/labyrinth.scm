@@ -1,11 +1,19 @@
 ; Note: This is a pseudo-Scheme file.
 ; Labyrinth in Scheme - November 21, 2013
 
+; 2022-08-28: TODO: To debug: (((curry +) 1) 2) crashes; the var f is undefined
+; In this case, f should be +
+
 ; BEGIN Define commonly-used lambda expressions here.
 ; Of particular importance are combine, compose, and curry.
 
 (set id (lambda (x) x))
-(set combine (lambda (f sum zero) (letrec ((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l))))))) loop))) ; Version 2, using letrec: see page 126
+(set combine (lambda (f sum zero) ; Version 2, using letrec: see page 126
+	(letrec
+		((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l)))))))
+		loop
+	)
+))
 (set compose (lambda (f g) (lambda (x) (g (f x)))))
 (set curry (lambda (f) (lambda (x) (lambda (y) (f x y)))))
 
@@ -28,16 +36,16 @@
 (set any (lambda (l) (if (null? l) '() (if (car l) 'T (any (cdr l))))))
 (set all (lambda (l) (if (null? l) 'T (if (not (car l)) '() (all (cdr l))))))
 
-; (set mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
-; (set mapc (curry mapcar)) ; Original definition.  From page 101.
-(set mapc (lambda (f) (combine f cons '()))) ; Second definition.
-(set mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
+(set mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
+(set mapc (curry mapcar)) ; Original definition.  From page 101.
+; (set mapc (lambda (f) (combine f cons '()))) ; Second definition.
+; (set mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
 
 (set any2 (combine id or '()))
 (set all2 (combine id and 'T))
 
-; (set +1 (lambda (n) (+ n 1))) ; Version 1
-(set +1 ((curry +) 1)) ; Version 2
+(set +1 (lambda (n) (+ n 1))) ; Version 1
+; (set +1 ((curry +) 1)) ; Version 2
 
 ; (set append (lambda (l1 l2) (if (null? l1) l2 (cons (car l1) (append (cdr l1) l2))))) ; Version 1
 (set append (lambda (l1 l2) ((combine id cons l2) l1))) ; Version 2
