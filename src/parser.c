@@ -242,13 +242,13 @@ LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found EOF\n");
-		/* TODO: fatalError(""); */
+		fatalError("parseExpressionPairList() : Error : Expected ( or ), found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, ")")) {
 		return NULL; /* End of list */
 	} else if (strcmp(dstBuf, "(")) {
 		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found '%s'\n", dstBuf);
-		/* TODO: fatalError(""); */
+		fatalError("parseExpressionPairList() : Error : Expected ( or )");
 		return NULL;
 	}
 
@@ -256,7 +256,7 @@ LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 	LISP_EXPR * expr2 = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		/* TODO: fatalError(""); */
+		fatalError("parseExpressionPairList() : Encountered an unexpected ')'");
 		return NULL;
 	}
 
@@ -277,15 +277,13 @@ LISP_EXPR * parseCondExpression(CharSource * cs) {
 }
 
 LISP_EXPR * parseBracketedExpression(CharSource * cs) {
-	/* TODO: call/cc ? */
-
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 	const int csRewindPoint = cs->i;
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseBracketedExpression() : Error : Expected an expression or keyword, found EOF\n");
-		/* TODO: fatalError(""); */
+		fatalError("parseBracketedExpression() : Error : Expected an expression or keyword, found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, "lambda")) {
 		return parseLambdaExpression(cs);
@@ -321,7 +319,7 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 
 	if (c == EOF) {
 		fprintf(stderr, "parseExpressionList() : Error : Expected an expression list, found EOF\n");
-		/* TODO: fatalError(""); */
+		fatalError("parseExpressionList() : Error : Expected an expression list, found EOF");
 		return NULL;
 	}
 
@@ -336,7 +334,9 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 
 	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_LIST_ELEMENT));
 
-	/* TODO: if (result == NULL) fatalError(""); */
+	if (result == NULL) {
+		fatalError("malloc() failed in parseExpressionList()");
+	}
 
 	result->expr = expr;
 	result->next = next;
@@ -351,7 +351,7 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found EOF\n");
-		/* TODO: fatalError(""); */
+		fatalError("createQuotedValue() : Error : Expected a literal value, found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, "(")) {
 		return createQuotedList(cs);
@@ -374,7 +374,7 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "createQuotedList() : Error : Expected a literal value, found EOF\n");
-		/* TODO: fatalError(""); */
+		fatalError("createQuotedList() : Error : Expected a literal value, found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, ")")) {
 		return createNull();

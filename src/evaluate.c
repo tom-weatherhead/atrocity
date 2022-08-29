@@ -418,14 +418,10 @@ LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 	for (; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
 		/* Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop. */
-		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, globalNullValue, newEnv->nameValueList); */
-		/* TODO: Use addToEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) */
 		addToEnvironment(newEnv, varExprPairList->var, globalNullValue);
 	}
 
 	for (varExprPairList = expr->varExprPairList; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
-		/* newEnvFrame.add(varExprPairList->var->name, evaluate(varExprPairList->expr, newEnv)); */
-		/* TODO: Use updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR * var, LISP_VALUE * value) */
 		updateIfFoundInNameValueList(newEnv->nameValueList, varExprPairList->var, evaluate(varExprPairList->expr, newEnv));
 	}
 
