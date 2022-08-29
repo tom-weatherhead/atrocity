@@ -291,7 +291,7 @@ LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT 
 			return NULL;
 		}
 
-		LISP_VALUE * value = evaluate(ep->expr, env);
+		LISP_VALUE * value = evaluate(ep->expr, env); /* TODO: env or closure->env ? */
 
 		newEnv->nameValueList = createNameValueListElement(np->var->name, value, newEnv->nameValueList);
 		/* freeValue(value); */
@@ -301,7 +301,7 @@ LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT 
 
 	LISP_VALUE * result = evaluate(closure->body, newEnv);
 
-	newEnv->next = NULL;
+	/* newEnv->next = NULL; */
 	/* TODO? : Free the values, but not the names, in this environment?
 
 	ThAW 2022-08-18 : Don't free newEnv: Someone is still using it. E.g.:

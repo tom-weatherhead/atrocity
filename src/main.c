@@ -257,6 +257,15 @@ void runTests() {
 
 	parseAndEvaluateStringList(strs4);
 
+	/* curry test */
+	char * strs6[] = {
+		"(set! curry2 (lambda (f) (lambda (x) (lambda (y) (f x y)))))",
+		"(((curry2 +) 2) 3)",
+		NULL
+	};
+
+	parseAndEvaluateStringList(strs6);
+
 	/* char * strs[] = {, NULL}; */
 
 	/* TODO: letrec print call/cc */
