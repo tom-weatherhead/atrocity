@@ -254,7 +254,9 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 				!strcmp(op, ">=") ||
 				!strcmp(op, "=") ||
 				!strcmp(op, "!=") ||
-				!strcmp(op, "cons")
+				!strcmp(op, "cons") ||
+				!strcmp(op, "rplaca") ||
+				!strcmp(op, "rplacd")
 			) {
 				/* printf("%s: Evaluating both operands\n", op);
 				printf("operand1Expr is %lu\n", operand1Expr);
@@ -296,6 +298,26 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 					/* Return without freeing the values */
 					/* printf("cons: Creating pair\n"); */
 					return createPair(operand1Value, operand2Value);
+				} else if (!strcmp(op, "rplaca")) {
+
+					if (operand1Value->type != lispValueType_Pair) {
+						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair; type %d\n", operand1Value->type);
+						fatalError("evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair");
+					}
+
+					operand1Value->pair->head = operand2Value;
+
+					return operand2Value;
+				} else if (!strcmp(op, "rplacd")) {
+
+					if (operand1Value->type != lispValueType_Pair) {
+						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair; type %d\n", operand1Value->type);
+						fatalError("evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair");
+					}
+
+					operand1Value->pair->tail = operand2Value;
+
+					return operand2Value;
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
 					/* Both operands must be numeric */
 					const int operand1 = operand1Value->value;

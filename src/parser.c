@@ -441,12 +441,11 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "cdr") ||
 		!strcmp(dstBuf, "throw") ||
 		!strcmp(dstBuf, "call/cc") ||
-		!strcmp(dstBuf, "listtostring")
+		!strcmp(dstBuf, "listtostring") ||
+		!strcmp(dstBuf, "rplaca") ||
+		!strcmp(dstBuf, "rplacd")
 		/* Not yet implemented: */
-		/* || !strcmp(dstBuf, "rplaca") ||
-		!strcmp(dstBuf, "rplacd") ||
-		!strcmp(dstBuf, "quote") ||
-		!strcmp(dstBuf, "floor") */
+		/* || !strcmp(dstBuf, "quote") || !strcmp(dstBuf, "floor") */
 	) {
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "(")) {

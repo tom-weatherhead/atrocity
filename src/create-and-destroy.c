@@ -138,9 +138,9 @@ static void freeClosure(LISP_CLOSURE * closure) {
 	if (closure->env != NULL) {
 		freeEnvironment(closure->env);
 		closure->env = NULL;
-	} */
+	}
 
-	free(closure);
+	free(closure); */
 }
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
@@ -163,17 +163,17 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 
 static void freePair(LISP_PAIR * pair) {
 
-	if (pair->head != NULL) {
-		/* freeValue(pair->head); */
+	/* if (pair->head != NULL) {
+		/ * freeValue(pair->head); * /
 		pair->head = NULL;
 	}
 
 	if (pair->tail != NULL) {
-		/* freeValue(pair->tail); */
+		/ * freeValue(pair->tail); * /
 		pair->tail = NULL;
 	}
 
-	free(pair);
+	free(pair); */
 }
 
 LISP_VALUE * createNull() {
@@ -227,7 +227,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 void freeValue(LISP_VALUE * value) {
 
-	if (value->pair != NULL) {
+	/* if (value->pair != NULL) {
 		freePair(value->pair);
 		value->pair = NULL;
 	}
@@ -237,7 +237,7 @@ void freeValue(LISP_VALUE * value) {
 		value->closure = NULL;
 	}
 
-	free(value);
+	free(value); */
 }
 
 // **** Expression struct creation functions ****
@@ -278,10 +278,10 @@ LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_
 
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
 
-	if (varList != NULL) {
+	/* if (varList != NULL) {
 
 		if (varList->var != NULL) {
-			/* printf("freeVariableList() : Freeing a variable named '%s'\n", varList->var->name); */
+			/ * printf("freeVariableList() : Freeing a variable named '%s'\n", varList->var->name); * /
 			freeVariable(varList->var);
 			varList->var = NULL;
 		}
@@ -292,7 +292,7 @@ void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
 		}
 
 		free(varList);
-	}
+	} */
 }
 
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next) {
@@ -311,7 +311,7 @@ LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, 
 
 void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 
-	if (exprPairList != NULL) {
+	/* if (exprPairList != NULL) {
 
 		if (exprPairList->expr != NULL) {
 			freeExpression(exprPairList->expr);
@@ -329,7 +329,7 @@ void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 		}
 
 		free(exprPairList);
-	}
+	} */
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
@@ -353,7 +353,7 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 void freeLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr) {
 	/* printf("Freeing LambdaExpression...\n"); */
 
-	if (lambdaExpr->args != NULL) {
+	/* if (lambdaExpr->args != NULL) {
 		freeVariableList(lambdaExpr->args);
 		lambdaExpr->args = NULL;
 	}
@@ -363,7 +363,7 @@ void freeLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr) {
 		lambdaExpr->body = NULL;
 	}
 
-	free(lambdaExpr);
+	free(lambdaExpr); */
 }
 
 LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {
@@ -380,29 +380,29 @@ LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {
 } */
 
 void freeFunctionCall(LISP_FUNCTION_CALL * functionCall) {
-	freeExpression(functionCall->firstExpr);
+	/* freeExpression(functionCall->firstExpr);
 	functionCall->firstExpr = NULL;
 	freeExpressionList(functionCall->actualParamExprs);
 	functionCall->actualParamExprs = NULL;
-	free(functionCall);
+	free(functionCall); */
 }
 
 void freeExpression(LISP_EXPR * expr) {
 
-	if (expr->value != NULL) {
+	/* if (expr->value != NULL) {
 		freeValue(expr->value);
 		expr->value = NULL;
 	}
 
-	/* if (expr->var != NULL) {
+	/ * if (expr->var != NULL) {
 		freeVariable(expr->var);
 		expr->var = NULL;
-	} */
+	} * /
 
-	/* if (expr->exprList != NULL) {
+	/ * if (expr->exprList != NULL) {
 		freeExpressionList(expr->exprList);
 		expr->exprList = NULL;
-	} */
+	} * /
 
 	if (expr->lambdaExpr != NULL) {
 		freeLambdaExpression(expr->lambdaExpr);
@@ -414,7 +414,7 @@ void freeExpression(LISP_EXPR * expr) {
 		expr->functionCall = NULL;
 	}
 
-	/* if (expr->expr != NULL) {
+	/ * if (expr->expr != NULL) {
 		freeExpression(expr->expr);
 		expr->expr = NULL;
 	}
@@ -422,19 +422,19 @@ void freeExpression(LISP_EXPR * expr) {
 	if (expr->expr2 != NULL) {
 		freeExpression(expr->expr2);
 		expr->expr2 = NULL;
-	} */
+	} * /
 
-	/* if (expr->varExprPairList != NULL) {
+	/ * if (expr->varExprPairList != NULL) {
 		freeVarExprPairList(expr->varExprPairList);
 		expr->varExprPairList = NULL;
-	} */
+	} * /
 
-	/* if (expr->exprPairList != NULL) {
+	/ * if (expr->exprPairList != NULL) {
 		freeExprPairList(expr->exprPairList);
 		expr->exprPairList = NULL;
-	} */
+	} * /
 
-	free(expr);
+	free(expr); */
 }
 
 // **** Expression list struct creation functions ****
@@ -454,11 +454,11 @@ LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR
 
 void freeExpressionList(LISP_EXPR_LIST_ELEMENT * exprList) {
 
-	while (exprList != NULL) {
+	/* while (exprList != NULL) {
 		freeExpression(exprList->expr);
-		exprList->expr = NULL; /* So we don't try to free it again */
+		exprList->expr = NULL; / * So we don't try to free it again * /
 		exprList = exprList->next;
-	}
+	} */
 }
 
 /* A variable is an Expression but not a Value. */
@@ -497,7 +497,7 @@ LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
 }
 
 void freeVariable(LISP_VAR * var) {
-	free(var);
+	/* free(var); */
 }
 
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
@@ -516,15 +516,15 @@ LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALU
 
 void freeNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
 
-	if (nvle != NULL) {
-		/* Do not free name. */
+	/* if (nvle != NULL) {
+		/ * Do not free name. * /
 		nvle->name = NULL;
-		/* Do not free value. */
+		/ * Do not free value. * /
 		nvle->value = NULL;
 		freeNameValueList(nvle->next);
 		nvle->next = NULL;
 		free(nvle);
-	}
+	} */
 }
 
 LISP_ENV * createEnvironment(LISP_ENV * next) {
@@ -542,24 +542,24 @@ LISP_ENV * createEnvironment(LISP_ENV * next) {
 
 void freeEnvironment(LISP_ENV * env) {
 
-	if (env != NULL) {
+	/* if (env != NULL) {
 
 		if (env->nameValueList != NULL) {
 			freeNameValueList(env->nameValueList);
 			env->nameValueList = NULL;
 		}
 
-		/* If we free the entire list of environment frames,
+		/ * If we free the entire list of environment frames,
 		 * then freeing any frame will free the global environment.
-		 */
+		 * /
 
-		/* if (env->next != NULL) {
-			freeEnvironment(env->next); */
+		/ * if (env->next != NULL) {
+			freeEnvironment(env->next); * /
 		env->next = NULL;
-		/* } */
+		/ * } * /
 
 		free(env);
-	}
+	} */
 }
 
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
