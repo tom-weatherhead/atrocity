@@ -632,4 +632,163 @@ void printValue(LISP_VALUE * value) {
 	}
 }
 
+BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
+	/* Returns FALSE iff there is no more room to print in buf. */
+	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else: */
+	memset(buf, 0, bufsize * sizeof(char));
+
+	if (isList(value) && value->type != lispValueType_Null) {
+		char separator = '\0';
+		int separatorLen = 0;
+
+		if (bufsize <= 1) {
+			*buf = '\0'; /* Null-terminate the string */
+			return FALSE;
+		}
+
+		*buf++ = '(';
+		--bufsize;
+
+		while (value->type != lispValueType_Null) {
+
+			if (bufsize <= separatorLen) {
+				*buf = '\0'; /* Null-terminate the string */
+				return FALSE;
+			}
+
+			sprintf(buf, "%c", separator);
+			buf += separatorLen;
+			bufsize -= separatorLen;
+
+			if (!printValueToString(value->pair->head, buf, bufsize)) {
+				return FALSE;
+			}
+
+			const int len = strlen(buf);
+
+			buf += len;
+			bufsize -= len;
+
+			separator = ' ';
+			separatorLen = 1;
+			value = value->pair->tail;
+		}
+
+		if (bufsize <= 1) {
+			*buf = '\0'; /* Null-terminate the string */
+			return FALSE;
+		}
+
+		*buf = ')';
+
+		return TRUE;
+	} else if (value->type != lispValueType_Pair) {
+
+		if (bufsize <= 1) {
+			*buf = '\0'; /* Null-terminate the string */
+			return FALSE;
+		}
+
+		*buf++ = '(';
+		--bufsize;
+
+		if (!printValueToString(value->pair->head, buf, bufsize)) {
+			return FALSE;
+		}
+
+		int len = strlen(buf);
+
+		buf += len;
+		bufsize -= len;
+
+		if (bufsize <= 3) {
+			*buf = '\0'; /* Null-terminate the string */
+			return FALSE;
+		}
+
+		*buf++ = ' ';
+		*buf++ = '.';
+		*buf++ = ' ';
+		bufsize -= 3;
+
+		if (!printValueToString(value->pair->tail, buf, bufsize)) {
+			return FALSE;
+		}
+
+		len = strlen(buf);
+
+		buf += len;
+		bufsize -= len;
+
+		if (bufsize <= 1) {
+			*buf = '\0'; /* Null-terminate the string */
+			return FALSE;
+		}
+
+		*buf = ')';
+
+		return TRUE;
+	}
+
+	char * strClosure = "<closure>";
+	char * strInvalid = "<invalid value>";
+	const int maxPrintedIntegerLength = 10;
+	int lenToAppend = 0;
+
+	switch (value->type) {
+		case lispValueType_Number:
+			lenToAppend = maxPrintedIntegerLength;
+			break;
+
+		case lispValueType_PrimitiveOperator:
+		case lispValueType_String:
+		case lispValueType_Symbol:
+			lenToAppend = strlen(value->name);
+			break;
+
+		case lispValueType_Closure:
+			lenToAppend = strlen(strClosure);
+			break;
+
+		case lispValueType_Null:
+			lenToAppend = 2;
+			break;
+
+		default:
+			lenToAppend = strlen(strInvalid);
+			break;
+	}
+
+	if (bufsize <= lenToAppend) {
+		*buf = '\0'; /* Null-terminate the string */
+		return FALSE;
+	}
+
+	switch (value->type) {
+		case lispValueType_Number:
+			sprintf(buf, "%d", value->value);
+			break;
+
+		case lispValueType_PrimitiveOperator:
+		case lispValueType_String:
+		case lispValueType_Symbol:
+			strcat(buf, value->name);
+			break;
+
+		case lispValueType_Closure:
+			strcat(buf, strClosure);
+			break;
+
+		case lispValueType_Null:
+			strcat(buf, "()");
+			break;
+
+		default:
+			strcat(buf, strInvalid);
+			break;
+	}
+
+	return TRUE;
+}
+
 /* **** The End **** */

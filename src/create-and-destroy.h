@@ -33,5 +33,6 @@ void freeVariable(LISP_VAR * var);
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
 
 void printValue(LISP_VALUE * value);
+BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize);
 
 /* **** The End **** */
