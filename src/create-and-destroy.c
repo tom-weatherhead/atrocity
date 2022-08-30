@@ -25,7 +25,7 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 	return maxStringValueLength;
 }
 
-static LISP_VALUE * createUndefinedValue() {
+LISP_VALUE * createUndefinedValue() {
 	LISP_VALUE * result = (LISP_VALUE *)malloc(sizeof(LISP_VALUE));
 
 	if (result == NULL) {
@@ -590,7 +590,11 @@ BOOL isList(LISP_VALUE * value) {
 
 void printValue(LISP_VALUE * value) {
 
-	if (isList(value) && value->type != lispValueType_Null) {
+	if (value == NULL) {
+		printf("NULL");
+
+		return;
+	} else if (isList(value) && value->type != lispValueType_Null) {
 		char separator = '\0';
 
 		printf("List: (");
@@ -638,6 +642,16 @@ void printValue(LISP_VALUE * value) {
 
 		case lispValueType_Null:
 			printf("Null: ()");
+			break;
+
+		case lispPseudoValueType_Continuation:
+			printf("<continuation; id %d>", value->continuationId);
+			break;
+
+		case lispPseudoValueType_ContinuationReturn:
+			printf("<continuation return; id %d, value: ", value->continuationId);
+			printValue(value->continuationReturnValue);
+			printf(">");
 			break;
 
 		default:
@@ -748,6 +762,8 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		return TRUE;
 	}
 
+	char * strContinuation = "<contin>";
+	char * strContinuationReturn = "<contRtn>";
 	char * strClosure = "<closure>";
 	char * strInvalid = "<invalid value>";
 	const int maxPrintedIntegerLength = 10;
@@ -772,6 +788,14 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 		case lispValueType_Null:
 			lenToAppend = 2;
+			break;
+
+		case lispPseudoValueType_Continuation:
+			lenToAppend = strlen(strContinuation);
+			break;
+
+		case lispPseudoValueType_ContinuationReturn:
+			lenToAppend = strlen(strContinuationReturn);
 			break;
 
 		default:
@@ -801,19 +825,27 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		case lispValueType_PrimitiveOperator:
 		case lispValueType_String:
 		case lispValueType_Symbol:
-			strcat(buf, value->name);
+			strcpy(buf, value->name);
 			break;
 
 		case lispValueType_Closure:
-			strcat(buf, strClosure);
+			strcpy(buf, strClosure);
 			break;
 
 		case lispValueType_Null:
-			strcat(buf, "()");
+			strcpy(buf, "()");
+			break;
+
+		case lispPseudoValueType_Continuation:
+			strcpy(buf, strContinuation);
+			break;
+
+		case lispPseudoValueType_ContinuationReturn:
+			strcpy(buf, strContinuationReturn);
 			break;
 
 		default:
-			strcat(buf, strInvalid);
+			strcpy(buf, strInvalid);
 			break;
 	}
 

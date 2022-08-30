@@ -151,6 +151,7 @@ enum {
 	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
+
 	lispExpressionType_Undefined,
 	lispExpressionType_Value,
 	lispExpressionType_Variable,

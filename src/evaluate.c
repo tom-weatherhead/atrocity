@@ -339,17 +339,37 @@ LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * 
 	} */
 
 	LISP_VALUE * callableValue = evaluate(functionCall->firstExpr, env);
+	LISP_VALUE * continuationReturnValue = NULL;
 
-	if (callableValue->type == lispValueType_PrimitiveOperator) {
-		/* printf("  -> PrimitiveOperator\n"); */
-		return evaluatePrimitiveOperatorCall(callableValue->name, functionCall->actualParamExprs, env);
-	} else if (callableValue->type == lispValueType_Closure) {
-		/* printf("  -> Closure\n"); */
-		return evaluateClosureCall(callableValue->closure, functionCall->actualParamExprs, env);
-	} else {
-		fprintf(stderr, "evaluateFunctionCall() : Attempted to call an uncallable value\n");
-		fatalError("evaluateFunctionCall() : Attempted to call an uncallable value");
-		return NULL;
+	switch (callableValue->type) {
+		case lispValueType_PrimitiveOperator:
+			/* printf("  -> PrimitiveOperator\n"); */
+			return evaluatePrimitiveOperatorCall(callableValue->name, functionCall->actualParamExprs, env);
+
+		case lispValueType_Closure:
+			/* printf("  -> Closure\n"); */
+			return evaluateClosureCall(callableValue->closure, functionCall->actualParamExprs, env);
+
+		case lispPseudoValueType_Continuation:
+			/* There must be exactly one actual parameter */
+
+			if (functionCall->actualParamExprs == NULL || functionCall->actualParamExprs->next != NULL) {
+				fprintf(stderr, "evaluateFunctionCall() : Bad number of parameters (!= 1) when calling a continuation\n");
+				fatalError("evaluateFunctionCall() : Bad number of parameters (!= 1) when calling a continuation");
+				return NULL;
+			}
+
+			continuationReturnValue = createUndefinedValue();
+			continuationReturnValue->type = lispPseudoValueType_ContinuationReturn;
+			continuationReturnValue->continuationId = callableValue->continuationId;
+			continuationReturnValue->continuationReturnValue = evaluate(functionCall->actualParamExprs->expr, env);
+
+			return continuationReturnValue;
+
+		default:
+			fprintf(stderr, "evaluateFunctionCall() : Attempted to call an uncallable value\n");
+			fatalError("evaluateFunctionCall() : Attempted to call an uncallable value");
+			return NULL;
 	}
 }
 
