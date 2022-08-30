@@ -11,16 +11,13 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-string? (for Labyrinth) (Done?)
-listtostring (for Labyrinth)
+call/cc (for Labyrinth)
 Real (i.e. floating-point) numbers?
 floor
-QuoteKeyword (e.g. for (quote 1 2 3))
 rplaca
 rplacd
 Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
-call/cc (for Labyrinth)
-throw (for Labyrinth) (Done?)
+QuoteKeyword (e.g. for (quote 1 2 3))
 */
 
 #include <stdlib.h>
@@ -510,11 +507,11 @@ void readEvalPrintLoop() {
 
 		CharSource * cs = createCharSource(buf);
 
-		printf("Parsing...\n");
+		/* printf("Parsing...\n"); */
 
 		LISP_EXPR * parseTree = parseExpression(cs);
 
-		printf("Evaluating...\n");
+		/* printf("Evaluating...\n"); */
 
 		LISP_VALUE * value = evaluate(parseTree, globalEnv);
 

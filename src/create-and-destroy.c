@@ -12,6 +12,19 @@
 
 /* **** Value struct creation functions **** */
 
+int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
+	/* Return the number of chars, not necessarily the number of bytes. */
+
+	/* In the future, we might do something like:
+	value->numCharsAllocatedToNameBuf = ...;
+	value->name = (char *)malloc(value->numCharsAllocatedToNameBuf * sizeof(char));
+	memset(value->name, 0, value->numCharsAllocatedToNameBuf * sizeof(char));
+	*/
+	/* return value->numCharsAllocatedToNameBuf; */
+
+	return maxStringValueLength;
+}
+
 static LISP_VALUE * createUndefinedValue() {
 	LISP_VALUE * result = (LISP_VALUE *)malloc(sizeof(LISP_VALUE));
 
@@ -62,6 +75,7 @@ LISP_VALUE * createStringValue(char * str) {
 
 	result->type = lispValueType_String;
 	memcpy(result->name, str, len * sizeof(char));
+	printf("Created string: <%s>\n", result->name);
 
 	return result;
 }
@@ -634,8 +648,12 @@ void printValue(LISP_VALUE * value) {
 
 BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	/* Returns FALSE iff there is no more room to print in buf. */
-	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else: */
-	memset(buf, 0, bufsize * sizeof(char));
+	printf("printValueToString() : Printing value: ");
+	printValue(value);
+	printf("\n");
+
+	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else:
+	memset(buf, 0, bufsize * sizeof(char)); */
 
 	if (isList(value) && value->type != lispValueType_Null) {
 		char separator = '\0';
@@ -682,7 +700,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		*buf = ')';
 
 		return TRUE;
-	} else if (value->type != lispValueType_Pair) {
+	} else if (value->type == lispValueType_Pair) {
 
 		if (bufsize <= 1) {
 			*buf = '\0'; /* Null-terminate the string */
@@ -735,6 +753,8 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	const int maxPrintedIntegerLength = 10;
 	int lenToAppend = 0;
 
+	printf("Determining arg length...\n");
+
 	switch (value->type) {
 		case lispValueType_Number:
 			lenToAppend = maxPrintedIntegerLength;
@@ -760,13 +780,22 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	}
 
 	if (bufsize <= lenToAppend) {
+		printf("Returning FALSE");
 		*buf = '\0'; /* Null-terminate the string */
 		return FALSE;
 	}
 
+	printf("Arg length is %d\n", lenToAppend);
+
+	/* (listtostring '(1 2 3)) */
+	/* (listtostring '("abc" 123 "def")) -> TODO: BUG: Double quotes are not removed from string literals inside a (single-)quoted list */
+	/* (listtostring (list "abc" 123 "def")) */
+
 	switch (value->type) {
 		case lispValueType_Number:
+			printf("sprintf()...\n");
 			sprintf(buf, "%d", value->value);
+			printf("sprintf() done\n");
 			break;
 
 		case lispValueType_PrimitiveOperator:

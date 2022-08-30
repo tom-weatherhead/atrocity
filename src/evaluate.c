@@ -139,13 +139,23 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			}
 
 			return operand1Value->pair->tail;
-		} /* else if (!strcmp(op, "listtostring")) {
+		} else if (!strcmp(op, "listtostring")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
-			Allocate a big buffer
+			if (!isList(operand1Value)) {
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list\n");
+				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list");
+			}
 
-			TODO: operand1Value.map(toString).join('');
-		} */else if (!strcmp(op, "throw")) {
+			LISP_VALUE * result = createStringValue("");
+
+			if (!printValueToString(operand1Value, result->name, getNumCharsAllocatedToNameBufInValue(result))) {
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : listtostring : Destination string buffer overflow\n");
+				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Destination string buffer overflow");
+			}
+
+			return result;
+		} else if (!strcmp(op, "throw")) {
 			fprintf(stderr, "An exception has been thrown.\n");
 
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);

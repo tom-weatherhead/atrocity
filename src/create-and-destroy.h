@@ -1,5 +1,7 @@
 /* atrocity/src/create-and-destroy.h */
 
+int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value);
+
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next);
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next);
 
@@ -32,6 +34,7 @@ void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList);
 void freeVariable(LISP_VAR * var);
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
 
+BOOL isList(LISP_VALUE * value);
 void printValue(LISP_VALUE * value);
 BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize);
 

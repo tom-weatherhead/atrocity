@@ -407,8 +407,10 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 	if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
 	} else if (!strcmp(dstBuf, "'")) {
+		/* printf("parseExpression() : Creating QuotedValue...\n"); */
 		return createExpressionFromValue(createQuotedValue(cs));
 	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
+		/* printf("parseExpression() : Creating string...\n"); */
 		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (
 		!strcmp(dstBuf, "+") ||
@@ -438,10 +440,10 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "car") ||
 		!strcmp(dstBuf, "cdr") ||
 		!strcmp(dstBuf, "throw") ||
-		!strcmp(dstBuf, "call/cc")
+		!strcmp(dstBuf, "call/cc") ||
+		!strcmp(dstBuf, "listtostring")
 		/* Not yet implemented: */
-		/* || !strcmp(dstBuf, "listtostring") ||
-		!strcmp(dstBuf, "rplaca") ||
+		/* || !strcmp(dstBuf, "rplaca") ||
 		!strcmp(dstBuf, "rplacd") ||
 		!strcmp(dstBuf, "quote") ||
 		!strcmp(dstBuf, "floor") */
