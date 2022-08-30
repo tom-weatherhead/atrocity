@@ -100,9 +100,39 @@ void addToEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 
 	if (!updateIfFoundInEnvironment(env, var, value)) {
+
+		while (env->next != NULL) {
+			env = env->next;
+		}
+
+		/* Now env == globalEnv */
+
 		addToEnvironment(env, var, value);
+		/* Or -> addToEnvironment(globalEnv, var, value); */
 	}
 }
+
+/*
+public addBubbleDown(key: IVariable<T>, value: T): void {
+	// I.e. update the key's value in this frame or in any frame below it.
+	// !!! -> If the key is not found, add the key and value to the global env.
+
+	// console.log(`EnvironmentFrame<T>.AddBubbleDown() : var is ${key.name}; value is ${value}`);
+
+	// if (value === undefined) {
+	// 	console.log('Warning in EnvironmentFrame.addBubbleDown() : The value being added is falsy.');
+	// }
+
+	if (!this.dictionaryContainsKey(key) && typeof this.next !== 'undefined') {
+		this.next.addBubbleDown(key, value); // Bubble down towards the global environment.
+	} else {
+		// Bug fix: Before 2013/12/04, the "else" above was absent, and the code below was executed unconditionally.
+		// Console.WriteLine("AddBubbleDown: The new value of {0} in {1} environment frame is {2}",
+		// 	key, (next != null) ? "a local" : "the global", value);
+		this.add(key, value);
+	}
+}
+*/
 
 void printEnvironment(LISP_ENV * env) {
 	int i = 0;

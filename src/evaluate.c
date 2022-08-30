@@ -223,12 +223,21 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			/* Now call the closure (operand1Value), passing in
 			the currentContinuation as the one and only parameter */
 
+			printf("call/cc: evaluateClosureCall()\n");
+
 			LISP_VALUE * result = evaluateClosureCall(operand1Value->closure, createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
 
-			if (result->type == lispPseudoValueType_ContinuationReturn) {
+			if (result->type == lispPseudoValueType_ContinuationReturn && result->continuationId == currentContinuation->continuationId) {
 				/* Unwrap the value inside */
+				printf("call/cc: Caught the ContinuationReturn with id %d\n", currentContinuation->continuationId);
+				printf("Unwrapping value with ptr %lu\n", result->continuationReturnValue);
+				printValue(result->continuationReturnValue);
+				printf("\n");
+
 				return result->continuationReturnValue;
 			}
+
+			printf("call/cc: Finished without catching the ContinuationReturn\n");
 
 			return result;
 
@@ -501,6 +510,7 @@ LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 
 	/* printf("setValueInEnvironment()...\n"); */
 
+	/* TODO: Use addBubbleDown() instead of setValueInEnvironment() */
 	setValueInEnvironment(env, setExpr->var, value);
 
 	/* printf("Set var '%s' to value ", setExpr->var->name);
