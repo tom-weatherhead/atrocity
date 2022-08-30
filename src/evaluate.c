@@ -17,9 +17,13 @@
 extern LISP_VALUE * globalNullValue;
 extern LISP_VALUE * globalTrueValue;
 
+static int nextContinuationId = 0;
+
 /* Function prototypes */
 
 /* Forward references */
+
+LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env);
 
 /* Functions */
 
@@ -179,8 +183,18 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
 
-			fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete\n");
-			fatalError("evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete");
+			LISP_VALUE * currentContinuation = createUndefinedValue();
+
+			currentContinuation->type = lispPseudoValueType_Continuation;
+			currentContinuation->continuationId = nextContinuationId++;
+
+			/* Now call the closure (operand1Value), passing in
+			the currentContinuation as the one and only parameter */
+
+			return evaluateClosureCall(operand1Value->closure, createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
+
+			/* fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete\n");
+			fatalError("evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete"); */
 		}
 
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
