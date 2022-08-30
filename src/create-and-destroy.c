@@ -75,7 +75,7 @@ LISP_VALUE * createStringValue(char * str) {
 
 	result->type = lispValueType_String;
 	memcpy(result->name, str, len * sizeof(char));
-	printf("Created string: <%s>\n", result->name);
+	/* printf("Created string: <%s>\n", result->name); */
 
 	return result;
 }
@@ -211,6 +211,11 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 		case lispValueType_Null:
 			return createNull();
+
+		case lispPseudoValueType_Continuation:
+		case lispPseudoValueType_ContinuationReturn:
+			fprintf(stderr, "Warning: cloneValue() returning the original value for Continuation or ContinuationReturn\n");
+			return value;
 
 		default:
 			fprintf(stderr, "Failed to clone value of type %d\n", value->type);

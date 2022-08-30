@@ -149,7 +149,8 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
 			} else if (operand1Value->type != lispValueType_Pair) {
-				fprintf(stderr, "evaluatePrimitiveOperatorCall() : car : Operand is not a pair\n");
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : car : Operand is not a pair; type %d\n", operand1Value->type);
+				/* printValue(operand1Value); */
 				fatalError("evaluatePrimitiveOperatorCall() : car : Operand is not a pair");
 			}
 
@@ -160,7 +161,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
 			} else if (operand1Value->type != lispValueType_Pair) {
-				fprintf(stderr, "evaluatePrimitiveOperatorCall() : cdr : Operand is not a pair\n");
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : cdr : Operand is not a pair; type %d\n", operand1Value->type);
 				fatalError("evaluatePrimitiveOperatorCall() : cdr : Operand is not a pair");
 			}
 
@@ -331,8 +332,8 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 					}
 				}
 
-				freeValue(operand2Value);
-				freeValue(operand1Value);
+				/* freeValue(operand2Value);
+				freeValue(operand1Value); */
 			}
 
 			/* Handle if */

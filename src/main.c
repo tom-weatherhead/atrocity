@@ -11,11 +11,11 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-call/cc (for Labyrinth)
+call/cc (for Labyrinth) -> Done?
+rplacd (for Labyrinth)
+rplaca
 Real (i.e. floating-point) numbers?
 floor
-rplaca
-rplacd
 Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
 QuoteKeyword (e.g. for (quote 1 2 3))
 */
