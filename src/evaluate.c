@@ -98,6 +98,58 @@ static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_
 	return createPair(head, tail);
 }
 
+static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
+	LISP_VALUE * value = evaluate(expr, env);
+	BOOL result = value->type == lispValueType_Null;
+
+	/* freeValue(value); */
+
+	return result;
+}
+
+/*
+static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+
+	for (...) {
+
+		if (evaluatesToNull(expr, env)) {
+			return globalNullValue;
+		}
+	}
+
+	return globalTrueValue;
+}
+
+static LISP_VALUE * evaluateOr(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+
+	for (...) {
+
+		if (!evaluatesToNull(expr, env)) {
+			return globalTrueValue;
+		}
+	}
+
+	return globalNullValue;
+}
+
+/ * Stolen from C# * /
+
+static LISP_VALUE * evaluateDoubleQuestionMark(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+
+	for (...) {
+		LISP_VALUE * value = evaluate(expr, env);
+
+		if (value->type != lispValueType_Null) {
+			return value;
+		}
+
+		/ * freeValue(value); * /
+	}
+
+	return globalNullValue;
+}
+*/
+
 LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 	LISP_VALUE * result = NULL;
 	/* printf("evaluatePrimitiveOperatorCall() : Operator is '%s'\n", op); */

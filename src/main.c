@@ -59,14 +59,16 @@ void fatalError(char * str) {
 }
 
 static LISP_ENV * createGlobalEnvironment() {
+	failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
+	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL");
 
-	if (globalNullValue == NULL) {
+	/* if (globalNullValue == NULL) { */
 		globalNullValue = createNull();
-	}
+	/* } */
 
-	if (globalTrueValue == NULL) {
+	/* if (globalTrueValue == NULL) { */
 		globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
-	}
+	/* } */
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
