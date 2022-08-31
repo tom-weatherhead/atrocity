@@ -213,4 +213,6 @@ enum {
 
 void fatalError(char * str);
 
+#define failIf(b, str) if (b) { fprintf(stderr, "Fatal error '%s' in file %s at line %d\n", str, __FILE__, __LINE__); exit(1); }
+
 /* **** The End **** */

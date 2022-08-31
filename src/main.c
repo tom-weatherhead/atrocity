@@ -11,13 +11,11 @@
 /* TODO: create domain-object-model.c */
 
 /* TODO: Add this stuff:
-call/cc (for Labyrinth) -> Done?
-rplacd (for Labyrinth)
-rplaca
-Real (i.e. floating-point) numbers?
-floor
+rplaca -> Done?
 Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
 QuoteKeyword (e.g. for (quote 1 2 3))
+Real (i.e. floating-point) numbers?
+floor
 */
 
 #include <stdlib.h>
@@ -38,6 +36,10 @@ QuoteKeyword (e.g. for (quote 1 2 3))
 
 /* Function prototypes */
 
+/* Forward references */
+
+static void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose);
+
 /* Constants */
 
 /* Global variables */
@@ -54,58 +56,94 @@ void fatalError(char * str) {
 	exit(1);
 }
 
-void parseAndEvaluate(char * str) {
-	printf("\nInput: '%s'\n", str);
+static LISP_ENV * createGlobalEnvironment() {
 
-	globalNullValue = createNull();
-	globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+	if (globalNullValue == NULL) {
+		globalNullValue = createNull();
+	}
 
-	CharSource * cs = createCharSource(str);
+	if (globalTrueValue == NULL) {
+		globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+	}
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
 	/* BEGIN: Predefined variables in the global environment */
-	LISP_VAR * varNull = createVariable("null");
+	parseAndEvaluateEx("(set! null '())", globalEnv, FALSE);
 
-	addToEnvironment(globalEnv, varNull, globalNullValue);
+	/* Curry a function that takes two parameters */
+	parseAndEvaluateEx("(set! curry2 (lambda (f) (lambda (x) (lambda (y) (f x y)))))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set! +1 ((curry2 +) 1))", globalEnv, FALSE);
 	/* END: Predefined variables in the global environment */
 
-	LISP_EXPR * parseTree = parseExpression(cs);
+	return globalEnv;
+}
 
+static void freeGlobalEnvironment(LISP_ENV * globalEnv) {
+	freeEnvironment(globalEnv);
+	freeValue(globalTrueValue);
+	globalTrueValue = NULL;
+	freeValue(globalNullValue);
+	globalNullValue = NULL;
+}
+
+static void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
+	LISP_ENV * originalGlobalEnv = globalEnv;
+
+	if (verbose) {
+		printf("\nInput: '%s'\n", str);
+	}
+
+	if (globalEnv == NULL) {
+		globalEnv = createGlobalEnvironment();
+	}
+
+	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
+	failIf(globalNullValue == NULL, "globalNullValue is NULL");
+
+	CharSource * cs = createCharSource(str);
+	LISP_EXPR * parseTree = parseExpression(cs);
 	LISP_VALUE * value = evaluate(parseTree, globalEnv);
 
-	printf("Output: ");
-	printValue(value);
-	printf("\n");
+	if (verbose) {
+		printf("Output: ");
+		printValue(value);
+		printf("\n");
+	}
 
 	/* Note bene: freeClosure is currently mostly disabled to avoid
 	 * double-freeing things. We must fix this. */
 	freeValue(value);
 	freeExpression(parseTree);
-	freeVariable(varNull);
-	freeEnvironment(globalEnv);
 	freeCharSource(cs);
 
-	freeValue(globalTrueValue);
-	freeValue(globalNullValue);
-	globalNullValue = NULL;
+	if (originalGlobalEnv == NULL) {
+		freeGlobalEnvironment(globalEnv);
+	}
+}
+
+void parseAndEvaluate(char * str) {
+	/* LISP_VALUE * value = */ parseAndEvaluateEx(str, NULL, TRUE);
 }
 
 void parseAndEvaluateStringList(char * strs[]) {
-	int i = 0;
+	int i;
 
-	globalNullValue = createNull();
-	globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
+	/* globalNullValue = createNull();
+	globalTrueValue = createSymbolValue("T"); / * Use 'T ; i.e. createSymbolValue("T") * /
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
-	/* BEGIN: Predefined variables in the global environment */
+	/ * BEGIN: Predefined variables in the global environment * /
 	LISP_VAR * varNull = createVariable("null");
 
 	addToEnvironment(globalEnv, varNull, globalNullValue);
-	/* END: Predefined variables in the global environment */
+	/ * END: Predefined variables in the global environment */
 
-	for (;;) {
+	LISP_ENV * globalEnv = createGlobalEnvironment();
+
+	for (i = 0; ; ++i) {
 		char * str = strs[i];
 
 		if (str == NULL) {
@@ -125,15 +163,15 @@ void parseAndEvaluateStringList(char * strs[]) {
 		printf("\n");
 
 		freeCharSource(cs);
-		++i;
 	}
 
-	freeVariable(varNull);
+	/* freeVariable(varNull);
 	freeEnvironment(globalEnv);
 
 	freeValue(globalTrueValue);
 	freeValue(globalNullValue);
-	globalNullValue = NULL;
+	globalNullValue = NULL; */
+	freeGlobalEnvironment(globalEnv);
 }
 
 void testGetIdentifier(char * str) {
@@ -303,7 +341,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	printf("\nExecuting script...\n\n");
 
 	LISP_ENV * originalGlobalEnvParam = globalEnv;
-	LISP_VAR * varNull = NULL;
 
 	const int bufSize = 4096;
 	const int bufSizeInBytes = bufSize * sizeof(char);
@@ -319,16 +356,11 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	memset(str, 0, bufSizeInBytes);
 
 	if (globalEnv == NULL) {
-		globalNullValue = createNull();
-		globalTrueValue = createSymbolValue("T");
-
-		globalEnv = createEnvironment(NULL);
-
-		/* BEGIN: Predefined variables in the global environment */
-		varNull = createVariable("null");
-
-		addToEnvironment(globalEnv, varNull, globalNullValue);
+		globalEnv = createGlobalEnvironment();
 	}
+
+	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
+	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
 	for (;;) {
 		int cn = fgetc(fp);
@@ -416,12 +448,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	fclose(fp);
 
 	if (originalGlobalEnvParam == NULL) {
-		freeVariable(varNull);
-		freeEnvironment(globalEnv);
-
-		freeValue(globalTrueValue);
-		freeValue(globalNullValue);
-		globalNullValue = NULL;
+		freeGlobalEnvironment(globalEnv);
 	}
 
 	free(str);
@@ -456,16 +483,10 @@ void readEvalPrintLoop() {
 	const int bufsizeInBytes = bufsize * sizeof(char);
 	char * buf = (char *)malloc(bufsizeInBytes);
 	int i;
+	LISP_ENV * globalEnv = createGlobalEnvironment();
 
-	globalNullValue = createNull();
-	globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
-
-	LISP_ENV * globalEnv = createEnvironment(NULL);
-
-	/* BEGIN: Predefined variables in the global environment */
-	LISP_VAR * varNull = createVariable("null");
-
-	addToEnvironment(globalEnv, varNull, globalNullValue);
+	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
+	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
 	printf("\nStarting the read-eval-print loop...\n\n");
 
@@ -528,13 +549,7 @@ void readEvalPrintLoop() {
 		freeCharSource(cs);
 	}
 
-	freeVariable(varNull);
-	freeEnvironment(globalEnv);
-
-	freeValue(globalTrueValue);
-	freeValue(globalNullValue);
-	globalNullValue = NULL;
-
+	freeGlobalEnvironment(globalEnv);
 	free(buf);
 
 	printf("REPL complete.\n");
