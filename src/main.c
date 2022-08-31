@@ -41,6 +41,8 @@ floor
 static void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose);
 
 /* Constants */
+/* static int readScriptBufSize = 4096;
+static int replBufSize = 1024; */
 
 /* Global variables */
 
@@ -128,20 +130,8 @@ void parseAndEvaluate(char * str) {
 }
 
 void parseAndEvaluateStringList(char * strs[]) {
-	int i;
-
-	/* globalNullValue = createNull();
-	globalTrueValue = createSymbolValue("T"); / * Use 'T ; i.e. createSymbolValue("T") * /
-
-	LISP_ENV * globalEnv = createEnvironment(NULL);
-
-	/ * BEGIN: Predefined variables in the global environment * /
-	LISP_VAR * varNull = createVariable("null");
-
-	addToEnvironment(globalEnv, varNull, globalNullValue);
-	/ * END: Predefined variables in the global environment */
-
 	LISP_ENV * globalEnv = createGlobalEnvironment();
+	int i;
 
 	for (i = 0; ; ++i) {
 		char * str = strs[i];
@@ -153,9 +143,7 @@ void parseAndEvaluateStringList(char * strs[]) {
 		printf("\nInput %d: '%s'\n", i, str);
 
 		CharSource * cs = createCharSource(str);
-
 		LISP_EXPR * parseTree = parseExpression(cs);
-
 		LISP_VALUE * value = evaluate(parseTree, globalEnv);
 
 		printf("Output %d: ", i);
@@ -165,17 +153,11 @@ void parseAndEvaluateStringList(char * strs[]) {
 		freeCharSource(cs);
 	}
 
-	/* freeVariable(varNull);
-	freeEnvironment(globalEnv);
-
-	freeValue(globalTrueValue);
-	freeValue(globalNullValue);
-	globalNullValue = NULL; */
 	freeGlobalEnvironment(globalEnv);
 }
 
 void testGetIdentifier(char * str) {
-	char dstBuf[8];
+	char dstBuf[maxStringValueLength];
 	int i = 0;
 	CharSource * cs = createCharSource(str);
 
@@ -302,8 +284,6 @@ void runTests() {
 
 	/* char * strs[] = {, NULL}; */
 
-	/* TODO: letrec print call/cc */
-
 	/* parseAndEvaluate(""); */
 
 	/* parseAndEvaluateStringList(["", "", "", ..., NULL]); */
@@ -322,6 +302,7 @@ static BOOL isStringAllWhitespace(char * str) {
 
 	for (i = 0; i < len; ++i) {
 
+		/* if (isspace(str[i])) {} ? (after #include <ctype.h>) */
 		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n') {
 			return FALSE;
 		}
