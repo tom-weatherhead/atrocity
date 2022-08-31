@@ -107,12 +107,12 @@ static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-/*
 static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 
-	for (...) {
+	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
 
-		if (evaluatesToNull(expr, env)) {
+		if (evaluatesToNull(actualParamExprs->expr, env)) {
+			/* Enable short-circuiting */
 			return globalNullValue;
 		}
 	}
@@ -122,9 +122,10 @@ static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_
 
 static LISP_VALUE * evaluateOr(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 
-	for (...) {
+	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
 
-		if (!evaluatesToNull(expr, env)) {
+		if (!evaluatesToNull(actualParamExprs->expr, env)) {
+			/* Enable short-circuiting */
 			return globalTrueValue;
 		}
 	}
@@ -132,32 +133,39 @@ static LISP_VALUE * evaluateOr(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_E
 	return globalNullValue;
 }
 
-/ * Stolen from C# * /
+/* Stolen from C# */
+/* E.g. In C#, a ?? b ?? c is equiv to (a != null) ? a : ((b != null) ? b : c) */
 
 static LISP_VALUE * evaluateDoubleQuestionMark(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 
-	for (...) {
-		LISP_VALUE * value = evaluate(expr, env);
+	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
+		LISP_VALUE * value = evaluate(actualParamExprs->expr, env);
 
 		if (value->type != lispValueType_Null) {
 			return value;
 		}
 
-		/ * freeValue(value); * /
+		/* freeValue(value); */
 	}
 
 	return globalNullValue;
 }
-*/
 
 LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 	LISP_VALUE * result = NULL;
 	/* printf("evaluatePrimitiveOperatorCall() : Operator is '%s'\n", op); */
 
+	/* BEGIN : These primops can take any number of args, including zero. */
 	if (!strcmp(op, "list")) {
-		/* 'list' can take any number of args, including zero. */
 		return exprListToListValue(actualParamExprs, env);
+	} else if (!strcmp(op, "and")) {
+		return evaluateAnd(actualParamExprs, env);
+	} else if (!strcmp(op, "or")) {
+		return evaluateOr(actualParamExprs, env);
+	} else if (!strcmp(op, "??")) {
+		return evaluateDoubleQuestionMark(actualParamExprs, env);
 	}
+	/* END : These primops can take any number of args, including zero. */
 
 	if (actualParamExprs != NULL && actualParamExprs->expr != NULL) {
 		LISP_EXPR * operand1Expr = actualParamExprs->expr;

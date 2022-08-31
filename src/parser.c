@@ -388,7 +388,30 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 	}
 }
 
+static BOOL isStringInList(char * str, char * list[]) {
+	int i;
+
+	for (i = 0; list[i] != NULL; ++i) {
+
+		if (!strcmp(str, list[i])) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /* Parse an expression */
+
+static char * primops[] = {
+	"+", "-", "*", "/", "%", "<", ">", "<=", ">=",
+	"=", /* For all value types, not just numbers */
+	"!=", /* For all value types, not just numbers */
+	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
+	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
+	"if", "print", "random", "throw", "call/cc"
+	/* Not yet implemented: "quote", "floor" */
+};
 
 LISP_EXPR * parseExpression(CharSource * cs) {
 	/* Be careful to not assume that sizeof(char) is always 1. */
@@ -412,18 +435,18 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
 		/* printf("parseExpression() : Creating string...\n"); */
 		return createExpressionFromValue(createStringValue(dstBuf));
-	} else if (
-		!strcmp(dstBuf, "+") ||
+	} else if (isStringInList(dstBuf, primops)) {
+		/* !strcmp(dstBuf, "+") ||
 		!strcmp(dstBuf, "-") ||
 		!strcmp(dstBuf, "*") ||
 		!strcmp(dstBuf, "/") ||
 		!strcmp(dstBuf, "%") ||
 		!strcmp(dstBuf, "<") ||
 		!strcmp(dstBuf, ">") ||
-		!strcmp(dstBuf, "=") || /* For all value types, not just numbers */
+		!strcmp(dstBuf, "=") || / * For all value types, not just numbers * /
 		!strcmp(dstBuf, "<=") ||
 		!strcmp(dstBuf, ">=") ||
-		!strcmp(dstBuf, "!=") || /* For all value types, not just numbers */
+		!strcmp(dstBuf, "!=") || / * For all value types, not just numbers * /
 		!strcmp(dstBuf, "if") ||
 		!strcmp(dstBuf, "null?") ||
 		!strcmp(dstBuf, "number?") ||
@@ -444,9 +467,9 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		!strcmp(dstBuf, "listtostring") ||
 		!strcmp(dstBuf, "rplaca") ||
 		!strcmp(dstBuf, "rplacd")
-		/* Not yet implemented: */
-		/* || !strcmp(dstBuf, "quote") || !strcmp(dstBuf, "floor") */
-	) {
+		/ * Not yet implemented: and or ?? * /
+		/ * || !strcmp(dstBuf, "quote") || !strcmp(dstBuf, "floor") * /
+	) { */
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "(")) {
 		return parseBracketedExpression(cs);
