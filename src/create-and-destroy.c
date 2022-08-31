@@ -1,5 +1,7 @@
 /* atrocity/src/create-and-destroy.c */
 
+/* Contains 11 calls to malloc() */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -855,5 +857,73 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 	return TRUE;
 }
+
+/* BEGIN SCHEME_UNIVERSAL_TYPE */
+
+SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
+	int type,
+	int integerValue,
+	int maxNameLength,
+	char * name,
+	SCHEME_UNIVERSAL_TYPE * value1,
+	SCHEME_UNIVERSAL_TYPE * value2,
+	SCHEME_UNIVERSAL_TYPE * next
+) {
+	SCHEME_UNIVERSAL_TYPE * result = (SCHEME_UNIVERSAL_TYPE *)malloc(sizeof(SCHEME_UNIVERSAL_TYPE));
+
+	result->mark = 0;
+	result->type = type;
+	result->integerValue = integerValue;
+	result->maxNameLength = maxNameLength;
+	result->name = name;
+	result->value1 = value1;
+	result->value2 = value2;
+	result->next = next;
+
+	return result;
+}
+
+SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
+	int type,
+	int integerValue,
+	int maxNameLength,
+	char * name,
+	SCHEME_UNIVERSAL_TYPE * value1,
+	SCHEME_UNIVERSAL_TYPE * value2,
+	SCHEME_UNIVERSAL_TYPE * next
+) {
+	/* If name != NULL then copy it, and set maxNameLength = strlen(name) + 1 */
+	/* If name == NULL and maxNameLength > 1 then malloc(maxNameLength * sizeof(char)) and zero-fill it */
+	/* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then malloc and zero-fill */
+
+	if (name != NULL) {
+		const int len = strlen(name);
+
+		if (maxNameLength <= len) {
+			maxNameLength = len + 1;
+		}
+		/* This allows you to allocate a buffer longer than len + 1 chars if you wish */
+	} else if (maxNameLength <= 0) {
+		maxNameLength = maxStringValueLength;
+	}
+
+	char * buf = (char *)malloc(maxNameLength * sizeof(char));
+
+	memset(buf, 0, maxNameLength * sizeof(char));
+
+	if (name != NULL) {
+		strcpy(buf, name);
+	}
+
+	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
+
+	/* return ...; */
+
+	/* fatalError("allocateStringAndCreateUniversalStruct() is incomplete");
+
+	return NULL; */
+}
+
+/* END SCHEME_UNIVERSAL_TYPE */
 
 /* **** The End **** */
