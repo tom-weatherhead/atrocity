@@ -445,6 +445,12 @@ static char * fgets_wrapper(char * buffer, size_t buflen, FILE * fp) {
 	return 0;
 }
 
+/* TODO: Unify the functions execScriptInFile(), readEvalPrintLoop(), and
+the parseAndEvaluate() that is used in runTests() */
+/* Pass this new function a getLine callback function so it can get lines
+of code (or NULL for EOF) as it needs them. */
+/* Output to string (or a list of strings) (or a list of Scheme values?) */
+
 void readEvalPrintLoop() {
 	const int bufsize = 1024;
 	const int bufsizeInBytes = bufsize * sizeof(char);
