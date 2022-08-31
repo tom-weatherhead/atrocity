@@ -23,15 +23,15 @@ static int nextContinuationId = 0;
 
 /* Forward references */
 
-LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env);
+static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env);
 
 /* Functions */
 
-LISP_VALUE * booleanToClonedValue(int b) {
+static LISP_VALUE * booleanToClonedValue(int b) {
 	return cloneValue(b ? globalTrueValue : globalNullValue);
 }
 
-LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int lispValueType) {
+static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int lispValueType) {
 	LISP_VALUE * operandValue = evaluate(operandExpr, env);
 
 	if (operandValue->type == lispPseudoValueType_ContinuationReturn) {
@@ -45,7 +45,7 @@ LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int
 	return booleanToClonedValue(b);
 }
 
-BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
+static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 
 	if (v1->type != v2->type) {
 		return FALSE;
@@ -151,7 +151,7 @@ static LISP_VALUE * evaluateDoubleQuestionMark(LISP_EXPR_LIST_ELEMENT * actualPa
 	return globalNullValue;
 }
 
-LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 	LISP_VALUE * result = NULL;
 	/* printf("evaluatePrimitiveOperatorCall() : Operator is '%s'\n", op); */
 
@@ -455,7 +455,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 	return result;
 }
 
-LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(closure->env);
 
 	LISP_VAR_LIST_ELEMENT * np = closure->args;
@@ -496,16 +496,7 @@ LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT 
 	return result;
 }
 
-LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
-	/* printf("BEGIN evaluateFunctionCall()\n");
-	printf("  Evaluating firstExpr\n");
-	printf("  firstExpr ptr is %lu\n", functionCall->firstExpr);
-	printf("  firstExpr type is %d\n", functionCall->firstExpr->type);
-
-	if (functionCall->firstExpr->var != NULL) {
-		printf("  firstExpr is a variable named '%s'\n", functionCall->firstExpr->var->name);
-	} */
-
+static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
 	LISP_VALUE * callableValue = evaluate(functionCall->firstExpr, env);
 
 	if (callableValue->type == lispPseudoValueType_ContinuationReturn) {
@@ -516,11 +507,9 @@ LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * 
 
 	switch (callableValue->type) {
 		case lispValueType_PrimitiveOperator:
-			/* printf("  -> PrimitiveOperator\n"); */
 			return evaluatePrimitiveOperatorCall(callableValue->name, functionCall->actualParamExprs, env);
 
 		case lispValueType_Closure:
-			/* printf("  -> Closure\n"); */
 			return evaluateClosureCall(callableValue->closure, functionCall->actualParamExprs, env);
 
 		case lispPseudoValueType_Continuation:
@@ -543,10 +532,6 @@ LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * 
 			continuationReturnValue->continuationId = callableValue->continuationId;
 			continuationReturnValue->continuationReturnValue = actualParamValue;
 
-			/* printf("Calling continuation with ID %d; returning value: ", continuationReturnValue->continuationId);
-			printValue(continuationReturnValue->continuationReturnValue);
-			printf("\n"); */
-
 			return continuationReturnValue;
 
 		default:
@@ -556,11 +541,11 @@ LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * 
 	}
 }
 
-LISP_VALUE * evaluateLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr, LISP_ENV * env) {
+static LISP_VALUE * evaluateLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr, LISP_ENV * env) {
 	return createClosure(lambdaExpr->args, lambdaExpr->body, env);
 }
 
-LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
+static LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 
 	if (setExpr->type != lispExpressionType_SetExpr) {
 		fprintf(stderr, "evaluateSetExpression() : Expression is not a Set expression\n");
@@ -568,30 +553,19 @@ LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 		return NULL;
 	}
 
-	/* printf("evaluate()...\n");
-	printf("env is %lu\n", env);
-	printf("setExpr is %lu\n", setExpr);
-	printf("setExpr->expr is %lu\n", setExpr->expr); */
-
 	LISP_VALUE * value = evaluate(setExpr->expr, env);
 
 	if (value->type == lispPseudoValueType_ContinuationReturn) {
 		return value;
 	}
 
-	/* printf("setValueInEnvironment()...\n"); */
-
-	/* TODO: Use addBubbleDown() instead of setValueInEnvironment() */
+	/* X TODO: Use addBubbleDown() instead of setValueInEnvironment() */
 	setValueInEnvironment(env, setExpr->var, value);
-
-	/* printf("Set var '%s' to value ", setExpr->var->name);
-	printValue(value);
-	printf("\n"); */
 
 	return value;
 }
 
-LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
+static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(NULL);
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList;
 
@@ -616,7 +590,7 @@ LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) {
+static LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList = expr->varExprPairList;
 
 	while (varExprPairList != NULL) {
@@ -636,7 +610,7 @@ LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return evaluate(expr->expr, env);
 }
 
-LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
+static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(env);
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList = expr->varExprPairList;
 
@@ -658,7 +632,7 @@ LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return evaluate(expr->expr, newEnv);
 }
 
-LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
+static LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	/* LISP_VALUE * result = NULL; or globalNullValue */
 	LISP_VALUE * result = globalNullValue;
 	LISP_EXPR_LIST_ELEMENT * exprList;
@@ -680,7 +654,7 @@ LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-LISP_VALUE * evaluateWhileExpression(LISP_EXPR * expr, LISP_ENV * env) {
+static LISP_VALUE * evaluateWhileExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * result = NULL;
 
 	for (;;) {
@@ -700,7 +674,7 @@ LISP_VALUE * evaluateWhileExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return result;
 }
 
-LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
+static LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPair;
 
 	for (exprPair = expr->exprPairList; exprPair != NULL; exprPair = exprPair->next) {

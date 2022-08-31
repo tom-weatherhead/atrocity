@@ -24,7 +24,7 @@ static LISP_VALUE * createQuotedList(CharSource * cs);
 
 /* Functions */
 
-BOOL safeAtoi(char * str, int * ptrToInt) {
+static BOOL safeAtoi(char * str, int * ptrToInt) {
 	const int len = strlen(str);
 	int i = 0;
 
@@ -47,7 +47,7 @@ BOOL safeAtoi(char * str, int * ptrToInt) {
 	return TRUE;
 }
 
-LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
+static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 	LISP_EXPR_LIST_ELEMENT * exprList = parseExpressionList(cs);
 
 	LISP_FUNCTION_CALL * functionCall = (LISP_FUNCTION_CALL *)malloc(sizeof(LISP_FUNCTION_CALL));
@@ -71,7 +71,7 @@ LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 	return result;
 }
 
-LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
+static LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
@@ -82,15 +82,13 @@ LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 		return NULL; /* End of list */
 	}
 
-	/* printf("parseVariableList() : Creating the variable '%s'\n", dstBuf); */
-
 	LISP_VAR * var = createVariable(dstBuf);
 	LISP_VAR_LIST_ELEMENT * next = parseVariableList(cs);
 
 	return createVariableListElement(var, next);
 }
 
-LISP_EXPR * parseLambdaExpression(CharSource * cs) {
+static LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 
 	if (!consumeStr(cs, "(")) {
 		fatalError("parseLambdaExpression() : Expected (");
@@ -109,9 +107,7 @@ LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 	return createLambdaExpression(args, expr);
 }
 
-LISP_EXPR * parseSetExpression(CharSource * cs) {
-	/* printf("parseSetExpression() : begin\n"); */
-
+static LISP_EXPR * parseSetExpression(CharSource * cs) {
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
@@ -138,12 +134,10 @@ LISP_EXPR * parseSetExpression(CharSource * cs) {
 		fatalError("parseSetExpression() : Expected ')'");
 	}
 
-	/* printf("Calling createSetExpression()...\n"); */
-
 	return createSetExpression(var, expr);
 }
 
-LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
+static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
@@ -185,7 +179,7 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
 	return result;
 }
 
-LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
+static LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 
 	if (!consumeStr(cs, "(")) {
 		fatalError("parseLetExpression() : Expected (");
@@ -210,7 +204,7 @@ LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 	return result;
 }
 
-LISP_EXPR * parseBeginExpression(CharSource * cs) {
+static LISP_EXPR * parseBeginExpression(CharSource * cs) {
 	LISP_EXPR * result = createUndefinedExpression();
 
 	result->type = lispExpressionType_Begin;
@@ -219,7 +213,7 @@ LISP_EXPR * parseBeginExpression(CharSource * cs) {
 	return result;
 }
 
-LISP_EXPR * parseWhileExpression(CharSource * cs) {
+static LISP_EXPR * parseWhileExpression(CharSource * cs) {
 	LISP_EXPR * condition = parseExpression(cs);
 	LISP_EXPR * body = parseExpression(cs);
 
@@ -236,7 +230,7 @@ LISP_EXPR * parseWhileExpression(CharSource * cs) {
 	return result;
 }
 
-LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
+static LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
@@ -265,7 +259,7 @@ LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 	return createExpressionPairListElement(expr, expr2, next);
 }
 
-LISP_EXPR * parseCondExpression(CharSource * cs) {
+static LISP_EXPR * parseCondExpression(CharSource * cs) {
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList = parseExpressionPairList(cs);
 
 	LISP_EXPR * result = createUndefinedExpression();
@@ -276,10 +270,12 @@ LISP_EXPR * parseCondExpression(CharSource * cs) {
 	return result;
 }
 
-LISP_EXPR * parseBracketedExpression(CharSource * cs) {
+static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 	const int csRewindPoint = cs->i;
+
+	/* 'if' is currently handled as a primop */
 
 	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
 		fprintf(stderr, "parseBracketedExpression() : Error : Expected an expression or keyword, found EOF\n");
@@ -359,10 +355,7 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
 		return createNumericValue(dstBufAsInt);
 	} else {
-		/* fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found '%s'\n", dstBuf);
-		return NULL; */
 		/* printf("createSymbolValue: '%s'\n", dstBuf); */
-
 		return createSymbolValue(dstBuf);
 	}
 }
