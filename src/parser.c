@@ -409,7 +409,7 @@ static char * primops[] = {
 	"!=", /* For all value types, not just numbers */
 	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
 	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
-	"if", "print", "random", "throw", "call/cc"
+	"if", "print", "random", "throw", "call/cc", "and", "or", "??"
 	/* Not yet implemented: "quote", "floor" */
 };
 
@@ -436,40 +436,6 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		/* printf("parseExpression() : Creating string...\n"); */
 		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (isStringInList(dstBuf, primops)) {
-		/* !strcmp(dstBuf, "+") ||
-		!strcmp(dstBuf, "-") ||
-		!strcmp(dstBuf, "*") ||
-		!strcmp(dstBuf, "/") ||
-		!strcmp(dstBuf, "%") ||
-		!strcmp(dstBuf, "<") ||
-		!strcmp(dstBuf, ">") ||
-		!strcmp(dstBuf, "=") || / * For all value types, not just numbers * /
-		!strcmp(dstBuf, "<=") ||
-		!strcmp(dstBuf, ">=") ||
-		!strcmp(dstBuf, "!=") || / * For all value types, not just numbers * /
-		!strcmp(dstBuf, "if") ||
-		!strcmp(dstBuf, "null?") ||
-		!strcmp(dstBuf, "number?") ||
-		!strcmp(dstBuf, "string?") ||
-		!strcmp(dstBuf, "symbol?") ||
-		!strcmp(dstBuf, "pair?") ||
-		!strcmp(dstBuf, "list?") ||
-		!strcmp(dstBuf, "primop?") ||
-		!strcmp(dstBuf, "closure?") ||
-		!strcmp(dstBuf, "print") ||
-		!strcmp(dstBuf, "list") ||
-		!strcmp(dstBuf, "random") ||
-		!strcmp(dstBuf, "cons") ||
-		!strcmp(dstBuf, "car") ||
-		!strcmp(dstBuf, "cdr") ||
-		!strcmp(dstBuf, "throw") ||
-		!strcmp(dstBuf, "call/cc") ||
-		!strcmp(dstBuf, "listtostring") ||
-		!strcmp(dstBuf, "rplaca") ||
-		!strcmp(dstBuf, "rplacd")
-		/ * Not yet implemented: and or ?? * /
-		/ * || !strcmp(dstBuf, "quote") || !strcmp(dstBuf, "floor") * /
-	) { */
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "(")) {
 		return parseBracketedExpression(cs);
