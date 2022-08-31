@@ -860,6 +860,9 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 /* BEGIN SCHEME_UNIVERSAL_TYPE */
 
+static int numMallocs = 0;
+static int numFrees = 0;
+
 SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	int type,
 	int integerValue,
@@ -871,6 +874,7 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 ) {
 	SCHEME_UNIVERSAL_TYPE * result = (SCHEME_UNIVERSAL_TYPE *)malloc(sizeof(SCHEME_UNIVERSAL_TYPE));
 
+	++numMallocs;
 	result->mark = 0;
 	result->type = type;
 	result->integerValue = integerValue;
@@ -909,6 +913,7 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 
 	char * buf = (char *)malloc(maxNameLength * sizeof(char));
 
+	++numMallocs;
 	memset(buf, 0, maxNameLength * sizeof(char));
 
 	if (name != NULL) {
@@ -917,13 +922,152 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 
 	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
 
-	/* return ...; */
-
 	/* fatalError("allocateStringAndCreateUniversalStruct() is incomplete");
 
 	return NULL; */
 }
 
+void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
+
+	if (expr->name != NULL) {
+		free(expr->name);
+		++numFrees;
+		expr->name = NULL;
+	}
+
+	if (expr->value1 != NULL) {
+		freeUniversalStruct(expr->value1);
+		expr->value1 = NULL;
+	}
+
+	if (expr->value2 != NULL) {
+		freeUniversalStruct(expr->value2);
+		expr->value2 = NULL;
+	}
+
+	if (expr->next != NULL) {
+		freeUniversalStruct(expr->next);
+		expr->next = NULL;
+	}
+
+	free(expr);
+	++numFrees;
+}
+
 /* END SCHEME_UNIVERSAL_TYPE */
+
+/* **** BEGIN Memory manager version 1 **** */
+
+typedef struct MEMMGR_RECORD_STRUCT {
+	SCHEME_UNIVERSAL_TYPE * expr;
+	struct MEMMGR_RECORD_STRUCT * next;
+} MEMMGR_RECORD;
+
+MEMMGR_RECORD * memmgrRecords = NULL;
+
+void printMemMgrReport() {
+	printf("  Memory manager: %d mallocs, %d frees", numMallocs, numFrees);
+
+	if (numMallocs > numFrees) {
+		printf(" : **** LEAKAGE ****");
+	}
+
+	printf("\n");
+}
+
+void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
+	MEMMGR_RECORD * mmRec = (MEMMGR_RECORD *)malloc(sizeof(MEMMGR_RECORD));
+
+	++numMallocs;
+	mmRec->expr = item;
+	mmRec->next = memmgrRecords;
+	memmgrRecords = mmRec;
+}
+
+int getNumMemMgrRecords() {
+	int n = 0;
+	MEMMGR_RECORD * mmRec;
+
+	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
+		++n;
+	}
+
+	return n;
+}
+
+void clearMarks() {
+	MEMMGR_RECORD * mmRec;
+
+	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
+		mmRec->expr->mark = 0;
+	}
+}
+
+void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
+	/* Do this recursively */
+	expr->mark = 1;
+
+	if (expr->value1 != NULL) {
+		setMarksInExprTree(expr->value1);
+	}
+
+	if (expr->value2 != NULL) {
+		setMarksInExprTree(expr->value2);
+	}
+
+	if (expr->next != NULL) {
+		setMarksInExprTree(expr->next);
+	}
+}
+
+void freeUnmarkedStructs() {
+	MEMMGR_RECORD ** ppmmRec = &memmgrRecords;
+	MEMMGR_RECORD * mmRec = *ppmmRec;
+
+	while (mmRec != NULL) {
+
+		if (mmRec->expr->mark == 0) {
+			/* Free mmRec->expr. Do not free recursively.
+			Allow mmRec->expr->name to be freed. */
+			mmRec->expr->value1 = NULL;
+			mmRec->expr->value2 = NULL;
+			mmRec->expr->next = NULL;
+			freeUniversalStruct(mmRec->expr);
+			mmRec->expr = NULL;
+
+			/* Then free mmRec, preserving the integrity of the linked list */
+			MEMMGR_RECORD * nextmmRec = mmRec->next;
+
+			mmRec->expr = NULL;
+			mmRec->next = NULL;
+			free(mmRec);
+			++numFrees;
+			*ppmmRec = nextmmRec;
+		} else {
+			ppmmRec = &mmRec->next;
+		}
+
+		mmRec = *ppmmRec;
+	}
+}
+
+void collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]) {
+	int i;
+
+	clearMarks();
+
+	for (i = 0; exprTreesToMark[i] != NULL; ++i) {
+		setMarksInExprTree(exprTreesToMark[i]);
+	}
+
+	freeUnmarkedStructs();
+}
+
+void freeAllStructs() {
+	clearMarks();
+	freeUnmarkedStructs();
+}
+
+/* **** END Memory manager version 1 **** */
 
 /* **** The End **** */
