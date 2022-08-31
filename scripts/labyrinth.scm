@@ -1,51 +1,54 @@
 ; Note: This is a pseudo-Scheme file.
 ; Labyrinth in Scheme - November 21, 2013
 
-; 2022-08-28: TODO: To debug: (((curry +) 1) 2) crashes; the var f is undefined
-; In this case, f should be +
-
 ; BEGIN Define commonly-used lambda expressions here.
 ; Of particular importance are combine, compose, and curry.
 
 (set id (lambda (x) x))
+
 (set combine (lambda (f sum zero) ; Version 2, using letrec: see page 126
 	(letrec
 		((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l)))))))
 		loop
 	)
 ))
+
 (set compose (lambda (f g) (lambda (x) (g (f x)))))
+
 (set curry (lambda (f) (lambda (x) (lambda (y) (f x y)))))
 
 (set compose2args (lambda (f g) (lambda (x y) (g (f x y)))))
 (set reverse2args (lambda (f) (lambda (x y) (f y x))))
 
-; (set > (reverse2args <))
+; (set > (reverse2args <)) ; Comment out if Scheme implements > as a primop
 (set not (lambda (x) (if x '() 'T)))
 (set and (lambda (x y) (if x y x)))
 (set or (lambda (x y) (if x x y)))
 (set mod (lambda (m n) (- m (* n (/ m n)))))
 (set gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))
-(set atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
+
+; (set atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
 (set atom? (compose list? not)) ; Version 2
-(set equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
+
+; (set equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
 (set equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
-; (set >= (compose2args < not))
-; (set <= (compose2args > not))
+
+; (set >= (compose2args < not)) ; Comment out if Scheme implements >= as a primop
+; (set <= (compose2args > not)) ; Comment out if Scheme implements <= as a primop
 (set <> (compose2args = not))
 (set any (lambda (l) (if (null? l) '() (if (car l) 'T (any (cdr l))))))
 (set all (lambda (l) (if (null? l) 'T (if (not (car l)) '() (all (cdr l))))))
 
-(set mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
-(set mapc (curry mapcar)) ; Original definition.  From page 101.
-; (set mapc (lambda (f) (combine f cons '()))) ; Second definition.
-; (set mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
+; (set mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
+; (set mapc (curry mapcar)) ; Original definition.  From page 101.
+(set mapc (lambda (f) (combine f cons '()))) ; Second definition.
+(set mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
 
 (set any2 (combine id or '()))
 (set all2 (combine id and 'T))
 
-(set +1 (lambda (n) (+ n 1))) ; Version 1
-; (set +1 ((curry +) 1)) ; Version 2
+; (set +1 (lambda (n) (+ n 1))) ; Version 1
+(set +1 ((curry +) 1)) ; Version 2
 
 ; (set append (lambda (l1 l2) (if (null? l1) l2 (cons (car l1) (append (cdr l1) l2))))) ; Version 1
 (set append (lambda (l1 l2) ((combine id cons l2) l1))) ; Version 2
@@ -291,22 +294,46 @@
 			(possibleNeighbours '())
 		)
 		(call/cc (lambda (exit) (begin
+			; (print "openListLocal")
+			; (print openListLocal)
+
 			(while (not (empty? openListLocal)) (begin
 				(set r (random (length openListLocal)))
 				(set room1 (nth r openListLocal))
 				(set openListLocal (removesublist openListLocal r 1))
 				(set possibleNeighbours (generatePossibleNeighbours room1 numberOfLevels numberOfRoomsPerLevel))
 
+				; (print "room1")
+				; (print room1)
+				; (print "possibleNeighbours")
+				; (print possibleNeighbours)
+
 				(while (not (empty? possibleNeighbours)) (begin
 					(set r (random (length possibleNeighbours)))
 					(set room2 (nth r possibleNeighbours))
+
+					; (print "room2")
+					; (print room2)
+
 					(set possibleNeighbours (removesublist possibleNeighbours r 1))
+
+					; (print "roomLabels")
+					; (print roomLabels)
+					; (print "(assoc room1 roomLabels)")
+					; (print (assoc room1 roomLabels))
+					; (print "(assoc room2 roomLabels)")
+					; (print (assoc room2 roomLabels))
 
 					(if (<> (assoc room1 roomLabels) (assoc room2 roomLabels))
 						(exit (list room1 room2))
 						'()
 					)
+
+					; (print "possibleNeighbours")
+					; (print possibleNeighbours)
 				))
+
+				; (print "possibleNeighbours is empty")
 			))
 			(throw "Unable to find possible neighbours with different labels.")
 		)))
@@ -581,6 +608,9 @@
 	(set JorgesPath (cdr JorgesPath))
 	; (print (listtostring (list "The Venerable Jorge is in Room " JorgesRoom ".")))
 	(reportProximityToJorge)
+
+	(print "AdjacentRooms")
+	(print (assoc room connections))
 
 	(printAdjacentRooms 0 (assoc room connections))
 )))

@@ -123,9 +123,9 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 	return result;
 }
 
-static void freeClosure(LISP_CLOSURE * closure) {
+/* static void freeClosure(LISP_CLOSURE * closure) {
 
-	/* if (closure->args != NULL) {
+	if (closure->args != NULL) {
 		freeVariableList(closure->args);
 		closure->args = NULL;
 	}
@@ -140,8 +140,8 @@ static void freeClosure(LISP_CLOSURE * closure) {
 		closure->env = NULL;
 	}
 
-	free(closure); */
-}
+	free(closure);
+} */
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	LISP_PAIR * pair = (LISP_PAIR *)malloc(sizeof(LISP_PAIR));
@@ -161,9 +161,9 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	return result;
 }
 
-static void freePair(LISP_PAIR * pair) {
+/* static void freePair(LISP_PAIR * pair) {
 
-	/* if (pair->head != NULL) {
+	if (pair->head != NULL) {
 		/ * freeValue(pair->head); * /
 		pair->head = NULL;
 	}
@@ -173,8 +173,8 @@ static void freePair(LISP_PAIR * pair) {
 		pair->tail = NULL;
 	}
 
-	free(pair); */
-}
+	free(pair);
+} */
 
 LISP_VALUE * createNull() {
 	LISP_VALUE * result = createUndefinedValue();
@@ -602,7 +602,7 @@ void printValue(LISP_VALUE * value) {
 	} else if (isList(value) && value->type != lispValueType_Null) {
 		char separator = '\0';
 
-		printf("List: (");
+		printf("(");
 
 		while (value->type != lispValueType_Null) {
 			printf("%c", separator);
@@ -622,15 +622,16 @@ void printValue(LISP_VALUE * value) {
 			break;
 
 		case lispValueType_String:
-			printf("String: '%s'", value->name);
+			printf("\"%s\"", value->name);
 			break;
 
 		case lispValueType_Symbol:
-			printf("Symbol: '%s'", value->name);
+			printf("'%s", value->name);
 			break;
 
 		case lispValueType_PrimitiveOperator:
-			printf("PrimitiveOperator: '%s'", value->name);
+			/* printf("PrimitiveOperator: '%s'", value->name); */
+			printf("%s", value->name);
 			break;
 
 		case lispValueType_Closure:
@@ -646,7 +647,7 @@ void printValue(LISP_VALUE * value) {
 			break;
 
 		case lispValueType_Null:
-			printf("Null: ()");
+			printf("()");
 			break;
 
 		case lispPseudoValueType_Continuation:
@@ -667,9 +668,9 @@ void printValue(LISP_VALUE * value) {
 
 BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	/* Returns FALSE iff there is no more room to print in buf. */
-	printf("printValueToString() : Printing value: ");
+	/* printf("printValueToString() : Printing value: ");
 	printValue(value);
-	printf("\n");
+	printf("\n"); */
 
 	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else:
 	memset(buf, 0, bufsize * sizeof(char)); */
@@ -774,7 +775,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	const int maxPrintedIntegerLength = 10;
 	int lenToAppend = 0;
 
-	printf("Determining arg length...\n");
+	/* printf("Determining arg length...\n"); */
 
 	switch (value->type) {
 		case lispValueType_Number:
@@ -814,7 +815,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		return FALSE;
 	}
 
-	printf("Arg length is %d\n", lenToAppend);
+	/* printf("Arg length is %d\n", lenToAppend); */
 
 	/* (listtostring '(1 2 3)) */
 	/* (listtostring '("abc" 123 "def")) -> TODO: BUG: Double quotes are not removed from string literals inside a (single-)quoted list */
@@ -822,9 +823,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 	switch (value->type) {
 		case lispValueType_Number:
-			printf("sprintf()...\n");
 			sprintf(buf, "%d", value->value);
-			printf("sprintf() done\n");
 			break;
 
 		case lispValueType_PrimitiveOperator:

@@ -64,8 +64,13 @@ BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 			return !strcmp(v1->name, v2->name);
 
 		case lispValueType_Pair:
+			return areValuesEqual(v1->pair->head, v2->pair->head) && areValuesEqual(v1->pair->tail, v2->pair->tail);
+
 		case lispValueType_Closure:
+			return FALSE;
+
 		default:
+			fprintf(stderr, "areValuesEqual() : Unexpected value type %d\n", v1->type);
 			break;
 	}
 
@@ -230,7 +235,8 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			if (result->type == lispPseudoValueType_ContinuationReturn && result->continuationId == currentContinuation->continuationId) {
 				/* Unwrap the value inside */
 				printf("call/cc: Caught the ContinuationReturn with id %d\n", currentContinuation->continuationId);
-				printf("Unwrapping value with ptr %lu\n", result->continuationReturnValue);
+				/* printf("Unwrapping value with ptr %lu\n", result->continuationReturnValue); */
+				printf("Unwrapped value: ");
 				printValue(result->continuationReturnValue);
 				printf("\n");
 
@@ -381,6 +387,10 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 				}
 
 				result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
+
+				if (result->type == lispPseudoValueType_ContinuationReturn) {
+					printf("if: result is a ContinuationReturn\n");
+				}
 			}
 		}
 	}
@@ -475,6 +485,10 @@ LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * 
 			continuationReturnValue->type = lispPseudoValueType_ContinuationReturn;
 			continuationReturnValue->continuationId = callableValue->continuationId;
 			continuationReturnValue->continuationReturnValue = actualParamValue;
+
+			printf("Calling continuation with ID %d; returning value: ", continuationReturnValue->continuationId);
+			printValue(continuationReturnValue->continuationReturnValue);
+			printf("\n");
 
 			return continuationReturnValue;
 
@@ -588,15 +602,22 @@ LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 }
 
 LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
-	LISP_VALUE * result = NULL;
+	/* LISP_VALUE * result = NULL; or globalNullValue */
+	LISP_VALUE * result = globalNullValue;
 	LISP_EXPR_LIST_ELEMENT * exprList;
 
 	for (exprList = expr->exprList; exprList != NULL; exprList = exprList->next) {
 		result = evaluate(exprList->expr, env);
 
 		if (result->type == lispPseudoValueType_ContinuationReturn) {
+			printf("begin: result is a ContinuationReturn\n");
 			break;
 		}
+	}
+
+	if (result == NULL) {
+		fprintf(stderr, "evaluateBeginExpression() tried to return NULL\n");
+		fatalError("evaluateBeginExpression() tried to return NULL");
 	}
 
 	return result;
@@ -615,7 +636,7 @@ LISP_VALUE * evaluateWhileExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		LISP_VALUE * value = evaluate(expr->expr2, env);
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
-			break;
+			return value;
 		}
 	}
 
