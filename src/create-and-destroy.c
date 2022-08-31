@@ -214,7 +214,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 		case lispPseudoValueType_Continuation:
 		case lispPseudoValueType_ContinuationReturn:
-			fprintf(stderr, "Warning: cloneValue() returning the original value for Continuation or ContinuationReturn\n");
+			/* fprintf(stderr, "Warning: cloneValue() returning the original value for Continuation or ContinuationReturn\n"); */
 			return value;
 
 		default:

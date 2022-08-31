@@ -203,7 +203,7 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			fatalError("An exception has been thrown.");
 		} else if (!strcmp(op, "call/cc")) {
 			/* Call with current continuation */
-			printf("Evaluating a call/cc usage...\n");
+			/* printf("Evaluating a call/cc usage...\n"); */
 			/* The arg must be a lambda expr that takes exactly one arg. */
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -228,27 +228,24 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 			/* Now call the closure (operand1Value), passing in
 			the currentContinuation as the one and only parameter */
 
-			printf("call/cc: evaluateClosureCall()\n");
+			/* printf("call/cc: evaluateClosureCall()\n"); */
 
 			LISP_VALUE * result = evaluateClosureCall(operand1Value->closure, createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
 
 			if (result->type == lispPseudoValueType_ContinuationReturn && result->continuationId == currentContinuation->continuationId) {
 				/* Unwrap the value inside */
-				printf("call/cc: Caught the ContinuationReturn with id %d\n", currentContinuation->continuationId);
+				/* printf("call/cc: Caught the ContinuationReturn with id %d\n", currentContinuation->continuationId); */
 				/* printf("Unwrapping value with ptr %lu\n", result->continuationReturnValue); */
-				printf("Unwrapped value: ");
+				/* printf("Unwrapped value: ");
 				printValue(result->continuationReturnValue);
-				printf("\n");
+				printf("\n"); */
 
 				return result->continuationReturnValue;
 			}
 
-			printf("call/cc: Finished without catching the ContinuationReturn\n");
+			/* printf("call/cc: Finished without catching the ContinuationReturn\n"); */
 
 			return result;
-
-			/* fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete\n");
-			fatalError("evaluatePrimitiveOperatorCall() : call/cc : Implementation not complete"); */
 		}
 
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
@@ -388,9 +385,9 @@ LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * a
 
 				result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
 
-				if (result->type == lispPseudoValueType_ContinuationReturn) {
+				/* if (result->type == lispPseudoValueType_ContinuationReturn) {
 					printf("if: result is a ContinuationReturn\n");
-				}
+				} */
 			}
 		}
 	}
@@ -486,9 +483,9 @@ LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * 
 			continuationReturnValue->continuationId = callableValue->continuationId;
 			continuationReturnValue->continuationReturnValue = actualParamValue;
 
-			printf("Calling continuation with ID %d; returning value: ", continuationReturnValue->continuationId);
+			/* printf("Calling continuation with ID %d; returning value: ", continuationReturnValue->continuationId);
 			printValue(continuationReturnValue->continuationReturnValue);
-			printf("\n");
+			printf("\n"); */
 
 			return continuationReturnValue;
 
@@ -610,7 +607,7 @@ LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		result = evaluate(exprList->expr, env);
 
 		if (result->type == lispPseudoValueType_ContinuationReturn) {
-			printf("begin: result is a ContinuationReturn\n");
+			/* printf("begin: result is a ContinuationReturn\n"); */
 			break;
 		}
 	}
