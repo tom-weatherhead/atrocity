@@ -14,6 +14,8 @@
 #include "environment.h"
 #include "evaluate.h"
 
+/* External variables */
+
 extern LISP_VALUE * globalNullValue;
 extern LISP_VALUE * globalTrueValue;
 
