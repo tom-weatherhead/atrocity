@@ -343,6 +343,69 @@ void runTests() {
 
 	/* parseAndEvaluateStringList(["", "", "", ..., NULL]); */
 
+	/* Tests from thaw-grammar:
+test('LL(1) Scheme let* non-recursive test', () => {
+	// 2014/02/17 : Derived from Kamin page 126.
+
+	// Assert that let* is not a clone of letrec.
+
+	expect(() =>
+		evaluateToISExpression(
+			[
+				'(let*',
+				'((countones (lambda (l)',
+				'(if (null? l) 0',
+				'	(if (= (car l) 1) (+ 1 (countones (cdr l)))',
+				'	(countones (cdr l)))))))',
+				"(countones '(1 2 3 1 0 1 1 5)))"
+			].join('\n')
+		)
+	).toThrow();
+});
+
+test('LL(1) Scheme call/cc test', () => {
+	// From Kamin page 128.
+	schemeTest([
+		['(set mod (lambda (m n) (- m (* n (/ m n)))))', '<closure>'],
+		['(set gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))', '<closure>'],
+		[
+			'(set gcd* (lambda (l) ' +
+				'(call/cc (lambda (exit) ' +
+				'(letrec ((gcd*-aux (lambda (l) ' +
+				'    (if (= (car l) 1) (exit 1) ' +
+				'        (if (null? (cdr l)) (car l) ' +
+				'            (gcd (car l) (gcd*-aux (cdr l)))))))) ' +
+				'    (gcd*-aux l))))))',
+			'<closure>'
+		],
+		["(gcd* '(9 27 81 60))", '3'],
+		["(gcd* '(101 202 103))", '1'],
+		["(gcd* '(9 27 1 81 60))", '1'],
+		["(gcd* '(9 27 81 60 1 NotANumber))", '1']
+	]);
+});
+
+test('LL(1) Scheme static scope test', () => {
+	// See page 135 of Kamin, or pages 128-137 for more context about static vs. dynamic scope.
+	schemeTest([
+		['(set add (lambda (x) (lambda (y) (+ x y))))', '<closure>'],
+		['(set add1 (add 1))', '<closure>'],
+		['(set f (lambda (x) (add1 x)))', '<closure>'],
+		// Assert that our Scheme uses static scope, as Scheme should.
+		['(f 5)', '6']
+	]);
+});
+
+test('LL(1) Scheme Global vs. Local Variable test', () => {
+	schemeTest([
+		['(set a 1)', '1'],
+		['(set afunc (lambda () a))', '<closure>'],
+		['(set func2 (lambda (a) (afunc)))', '<closure>'],
+		['(func2 0)', '1']
+	]);
+});
+	*/
+
 	/* testGetIdentifier("abc (def weatherhead) ghi");
 	testGetIdentifier("(+1 7)");
 	testGetIdentifier("(((a b) c) d)");
