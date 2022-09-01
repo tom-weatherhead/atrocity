@@ -73,6 +73,22 @@ static LISP_ENV * createGlobalEnvironment() {
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
 	/* BEGIN: Predefined variables in the global environment */
+
+	/* ; BEGIN Define commonly-used lambda expressions here.
+	; Of particular importance are combine, compose, and curry.
+
+	(set! id (lambda (x) x))
+
+	; Version 2, using letrec: see Kamin page 126
+	(set! combine (lambda (f sum zero)
+		(letrec
+			((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l)))))))
+			loop
+		)
+	))
+
+	(set compose (lambda (f g) (lambda (x) (g (f x))))) */
+
 	parseAndEvaluateEx("(set! null '())", globalEnv, FALSE);
 
 	/* Curry a function that takes two parameters */
