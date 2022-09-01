@@ -294,8 +294,6 @@
 			(possibleNeighbours '())
 		)
 		(call/cc (lambda (exit) (begin
-			; (print "openListLocal")
-			; (print openListLocal)
 
 			(while (not (empty? openListLocal)) (begin
 				(set r (random (length openListLocal)))
@@ -303,37 +301,16 @@
 				(set openListLocal (removesublist openListLocal r 1))
 				(set possibleNeighbours (generatePossibleNeighbours room1 numberOfLevels numberOfRoomsPerLevel))
 
-				; (print "room1")
-				; (print room1)
-				; (print "possibleNeighbours")
-				; (print possibleNeighbours)
-
 				(while (not (empty? possibleNeighbours)) (begin
 					(set r (random (length possibleNeighbours)))
 					(set room2 (nth r possibleNeighbours))
-
-					; (print "room2")
-					; (print room2)
-
 					(set possibleNeighbours (removesublist possibleNeighbours r 1))
-
-					; (print "roomLabels")
-					; (print roomLabels)
-					; (print "(assoc room1 roomLabels)")
-					; (print (assoc room1 roomLabels))
-					; (print "(assoc room2 roomLabels)")
-					; (print (assoc room2 roomLabels))
 
 					(if (<> (assoc room1 roomLabels) (assoc room2 roomLabels))
 						(exit (list room1 room2))
 						'()
 					)
-
-					; (print "possibleNeighbours")
-					; (print possibleNeighbours)
 				))
-
-				; (print "possibleNeighbours is empty")
 			))
 			(throw "Unable to find possible neighbours with different labels.")
 		)))

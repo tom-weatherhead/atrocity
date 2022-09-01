@@ -62,39 +62,76 @@ static LISP_ENV * createGlobalEnvironment() {
 	failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
 	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL");
 
-	/* if (globalNullValue == NULL) { */
-		globalNullValue = createNull();
-	/* } */
-
-	/* if (globalTrueValue == NULL) { */
-		globalTrueValue = createSymbolValue("T"); /* Use 'T ; i.e. createSymbolValue("T") */
-	/* } */
+	globalNullValue = createNull();
+	globalTrueValue = createSymbolValue("T"); /* I.e. 'T */
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
 	/* BEGIN: Predefined variables in the global environment */
 
 	/* ; BEGIN Define commonly-used lambda expressions here.
-	; Of particular importance are combine, compose, and curry.
+	; Of particular importance are combine, compose, and curry. */
 
-	(set! id (lambda (x) x))
-
-	; Version 2, using letrec: see Kamin page 126
+	/* ; Version 2 of combine, using letrec: see Kamin page 126
 	(set! combine (lambda (f sum zero)
 		(letrec
 			((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l)))))))
 			loop
 		)
-	))
+	)) */
+	parseAndEvaluateEx(
+		"(set! combine (lambda (f sum zero) (letrec ((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l))))))) loop)))",
+		globalEnv,
+		FALSE
+	);
 
-	(set compose (lambda (f g) (lambda (x) (g (f x))))) */
+	parseAndEvaluateEx("(set compose (lambda (f g) (lambda (x) (g (f x)))))", globalEnv, FALSE);
+
+	/* Curry a function that takes two parameters */
+	parseAndEvaluateEx("(set! curry (lambda (f) (lambda (x) (lambda (y) (f x y)))))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set! id (lambda (x) x))", globalEnv, FALSE);
+
+	/*
+(set! compose2args (lambda (f g) (lambda (x y) (g (f x y)))))
+(set! reverse2args (lambda (f) (lambda (x y) (f y x))))
+
+; (set! > (reverse2args <)) ; Comment out if Scheme implements > as a primop
+(set! not (lambda (x) (if x '() 'T)))
+; (set! and (lambda (x y) (if x y x)))
+; (set! or (lambda (x y) (if x x y)))
+; (set! mod (lambda (m n) (- m (* n (/ m n)))))
+(set! mod %)
+(set! gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))
+
+; (set! atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
+(set! atom? (compose list? not)) ; Version 2
+
+; (set! equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
+(set! equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
+
+; (set! >= (compose2args < not)) ; Comment out if Scheme implements >= as a primop
+; (set! <= (compose2args > not)) ; Comment out if Scheme implements <= as a primop
+; (set! <> (compose2args = not))
+(set! <> !=)
+(set! any (lambda (l) (if (null? l) '() (if (car l) 'T (any (cdr l))))))
+(set! all (lambda (l) (if (null? l) 'T (if (not (car l)) '() (all (cdr l))))))
+
+(set! any2 (combine id or '()))
+(set! all2 (combine id and 'T))
+
+; (set! mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
+; (set! mapc (curry mapcar)) ; Original definition.  From page 101.
+(set! mapc (lambda (f) (combine f cons '()))) ; Second definition.
+(set! mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
+	*/
+
+	/* ; (set! +1 (lambda (n) (+ n 1))) ; Version 1 */
+	/* Version 2: */
+	parseAndEvaluateEx("(set! +1 ((curry +) 1))", globalEnv, FALSE);
 
 	parseAndEvaluateEx("(set! null '())", globalEnv, FALSE);
 
-	/* Curry a function that takes two parameters */
-	parseAndEvaluateEx("(set! curry2 (lambda (f) (lambda (x) (lambda (y) (f x y)))))", globalEnv, FALSE);
-
-	parseAndEvaluateEx("(set! +1 ((curry2 +) 1))", globalEnv, FALSE);
 	/* END: Predefined variables in the global environment */
 
 	return globalEnv;
