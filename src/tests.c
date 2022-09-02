@@ -2,52 +2,20 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
+/* #include <string.h> */
 /* #include <ctype.h> */
 /* #include <assert.h> */
-#include <time.h>
 
-#include "types.h"
+#include "types.h" /* Needed to provide BOOL for char-source.h */
 
 #include "char-source.h"
-
-#include "create-and-destroy.h"
-#include "environment.h"
-#include "parser.h"
-#include "evaluate.h"
 
 /* Function prototypes */
 
 void parseAndEvaluate(char * str);
+void parseAndEvaluateStringList(char * strs[]);
 
 /* Functions */
-
-void parseAndEvaluateStringList(char * strs[]) {
-	LISP_ENV * globalEnv = createGlobalEnvironment();
-	int i;
-
-	for (i = 0; ; ++i) {
-		char * str = strs[i];
-
-		if (str == NULL) {
-			break;
-		}
-
-		printf("\nInput %d: '%s'\n", i, str);
-
-		CharSource * cs = createCharSource(str);
-		LISP_EXPR * parseTree = parseExpression(cs);
-		LISP_VALUE * value = evaluate(parseTree, globalEnv);
-
-		printf("Output %d: ", i);
-		printValue(value);
-		printf("\n");
-
-		freeCharSource(cs);
-	}
-
-	freeGlobalEnvironment(globalEnv);
-}
 
 void testGetIdentifier(char * str) {
 	char dstBuf[maxStringValueLength];

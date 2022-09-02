@@ -13,11 +13,21 @@
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "evaluate.h"
+#include "utilities.h"
 
-/* External variables */
+/* External constants / variables */
 
 extern LISP_VALUE * globalNullValue;
 extern LISP_VALUE * globalTrueValue;
+
+/* Local constants */
+
+static char * twoArgumentPrimops[] = {
+	"+", "-", "*", "/", "%", "<", ">", "<=", ">=", "=", "!=",
+	"cons", "rplaca", "rplacd"
+};
+
+/* Local variables */
 
 static int nextContinuationId = 0;
 
@@ -316,7 +326,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* printf("evaluatePrimitiveOperatorCall() : Operand 2 is: ");
 			printValue(operand2Value); */
 
-			if (
+			if (/* isStringInList(op, twoArgumentPrimops) */
 				!strcmp(op, "+") ||
 				!strcmp(op, "-") ||
 				!strcmp(op, "*") ||

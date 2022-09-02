@@ -14,6 +14,7 @@
 
 #include "create-and-destroy.h"
 #include "parser.h"
+#include "utilities.h"
 
 /* Function prototypes */
 
@@ -22,30 +23,19 @@
 static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs);
 static LISP_VALUE * createQuotedList(CharSource * cs);
 
+/* Constants */
+
+static char * primops[] = {
+	"+", "-", "*", "/", "%", "<", ">", "<=", ">=",
+	"=", /* For all value types, not just numbers */
+	"!=", /* For all value types, not just numbers */
+	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
+	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
+	"if", "print", "random", "throw", "call/cc", "and", "or", "??"
+	/* Not yet implemented: "quote", "floor" */
+};
+
 /* Functions */
-
-static BOOL safeAtoi(char * str, int * ptrToInt) {
-	const int len = strlen(str);
-	int i = 0;
-
-	if (len > 0 && str[0] == '-') {
-		i = 1; /* The - may be a minus sign */
-	}
-
-	if (i == len) {
-		return FALSE; /* str is just "" or "-" */
-	}
-
-	for (; i < len; ++i) {
-
-		if (str[i] < '0' || str[i] > '9') {
-			return FALSE;
-		}
-	}
-
-	*ptrToInt = atoi(str);
-	return TRUE;
-}
 
 static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 	LISP_EXPR_LIST_ELEMENT * exprList = parseExpressionList(cs);
@@ -381,30 +371,7 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 	}
 }
 
-static BOOL isStringInList(char * str, char * list[]) {
-	int i;
-
-	for (i = 0; list[i] != NULL; ++i) {
-
-		if (!strcmp(str, list[i])) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
 /* Parse an expression */
-
-static char * primops[] = {
-	"+", "-", "*", "/", "%", "<", ">", "<=", ">=",
-	"=", /* For all value types, not just numbers */
-	"!=", /* For all value types, not just numbers */
-	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
-	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
-	"if", "print", "random", "throw", "call/cc", "and", "or", "??"
-	/* Not yet implemented: "quote", "floor" */
-};
 
 LISP_EXPR * parseExpression(CharSource * cs) {
 	/* Be careful to not assume that sizeof(char) is always 1. */

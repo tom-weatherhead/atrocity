@@ -8,7 +8,14 @@
 /* To do all of the above: $ make clean && make && ./atrocity -t */
 /* To run a script: E.g. $ ./atrocity ../scripts/test001.scm */
 
-/* TODO: create domain-object-model.c */
+/* TODO? : Create:
+- domain-object-model.c
+- input-output.c
+- parse-and-evaluate.c
+- utilities.c
+
+Then main.c will contain only the function main()
+*/
 
 /* TODO: Add this stuff:
 rplaca -> Done?
@@ -34,12 +41,14 @@ floor
 #include "parser.h"
 #include "evaluate.h"
 #include "tests.h"
+#include "utilities.h"
 
 /* Function prototypes */
 
 /* Forward references */
 
 /* Constants */
+
 /* static int readScriptBufSize = 4096;
 static int replBufSize = 1024; */
 
@@ -52,10 +61,7 @@ static char commentChar = ';';
 
 /* Functions */
 
-void fatalError(char * str) {
-	fprintf(stderr, "\nFatal error: '%s'\nAborting the program...\n", str);
-	exit(1);
-}
+/* **** BEGIN parseAndEvaluate **** */
 
 void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	LISP_ENV * originalGlobalEnv = globalEnv;
@@ -96,20 +102,36 @@ void parseAndEvaluate(char * str) {
 	/* LISP_VALUE * value = */ parseAndEvaluateEx(str, NULL, TRUE);
 }
 
-static BOOL isStringAllWhitespace(char * str) {
-	const int len = strlen(str);
+void parseAndEvaluateStringList(char * strs[]) {
+	LISP_ENV * globalEnv = createGlobalEnvironment();
 	int i;
 
-	for (i = 0; i < len; ++i) {
+	for (i = 0; ; ++i) {
+		char * str = strs[i];
 
-		/* if (isspace(str[i])) {} ? (after #include <ctype.h>) */
-		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n') {
-			return FALSE;
+		if (str == NULL) {
+			break;
 		}
+
+		printf("\nInput %d: '%s'\n", i, str);
+
+		CharSource * cs = createCharSource(str);
+		LISP_EXPR * parseTree = parseExpression(cs);
+		LISP_VALUE * value = evaluate(parseTree, globalEnv);
+
+		printf("Output %d: ", i);
+		printValue(value);
+		printf("\n");
+
+		freeCharSource(cs);
 	}
 
-	return TRUE;
+	freeGlobalEnvironment(globalEnv);
 }
+
+/* **** END parseAndEvaluate **** */
+
+/* **** BEGIN I/O **** */
 
 void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	FILE * fp = fopen(filename, "r");
@@ -237,22 +259,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	printf("\nScript execution complete.\n");
 }
 
-static char * fgets_wrapper(char * buffer, size_t buflen, FILE * fp) {
-	/* From https://stackoverflow.com/questions/1694036/why-is-the-gets-function-so-dangerous-that-it-should-not-be-used */
-
-	if (fgets(buffer, buflen, fp) != 0) {
-		size_t len = strlen(buffer);
-
-		if (len > 0 && buffer[len - 1] == '\n') {
-			buffer[len - 1] = '\0';
-		}
-
-		return buffer;
-	}
-
-	return 0;
-}
-
 /* TODO: Unify the functions execScriptInFile(), readEvalPrintLoop(), and
 the parseAndEvaluate() that is used in runTests() */
 /* Pass this new function a getLine callback function so it can get lines
@@ -335,6 +341,8 @@ void readEvalPrintLoop() {
 
 	printf("REPL complete.\n");
 }
+
+/* **** END I/O **** */
 
 /* **** The Main MoFo **** */
 
