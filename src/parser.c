@@ -342,10 +342,8 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 	} else if (!strcmp(dstBuf, "(")) {
 		return createQuotedList(cs);
 	} else if (safeAtoi(dstBuf, &dstBufAsInt)) {
-		/* printf("Converted the string '%s' to the integer %d\n", dstBuf, dstBufAsInt); */
 		return createNumericValue(dstBufAsInt);
 	} else {
-		/* printf("createSymbolValue: '%s'\n", dstBuf); */
 		return createSymbolValue(dstBuf);
 	}
 }
@@ -390,10 +388,8 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 	if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
 	} else if (!strcmp(dstBuf, "'")) {
-		/* printf("parseExpression() : Creating QuotedValue...\n"); */
 		return createExpressionFromValue(createQuotedValue(cs));
 	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
-		/* printf("parseExpression() : Creating string...\n"); */
 		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (isStringInList(dstBuf, primops)) {
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));

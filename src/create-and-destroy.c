@@ -1,6 +1,6 @@
 /* atrocity/src/create-and-destroy.c */
 
-/* Contains 11 calls to malloc() */
+/* Contains 13 calls to malloc() */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -632,7 +632,6 @@ void printValue(LISP_VALUE * value) {
 			break;
 
 		case lispValueType_PrimitiveOperator:
-			/* printf("PrimitiveOperator: '%s'", value->name); */
 			printf("%s", value->name);
 			break;
 
@@ -670,9 +669,6 @@ void printValue(LISP_VALUE * value) {
 
 BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	/* Returns FALSE iff there is no more room to print in buf. */
-	/* printf("printValueToString() : Printing value: ");
-	printValue(value);
-	printf("\n"); */
 
 	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else:
 	memset(buf, 0, bufsize * sizeof(char)); */
@@ -777,8 +773,6 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	const int maxPrintedIntegerLength = 10;
 	int lenToAppend = 0;
 
-	/* printf("Determining arg length...\n"); */
-
 	switch (value->type) {
 		case lispValueType_Number:
 			lenToAppend = maxPrintedIntegerLength;
@@ -817,11 +811,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		return FALSE;
 	}
 
-	/* printf("Arg length is %d\n", lenToAppend); */
-
-	/* (listtostring '(1 2 3)) */
 	/* (listtostring '("abc" 123 "def")) -> TODO: BUG: Double quotes are not removed from string literals inside a (single-)quoted list */
-	/* (listtostring (list "abc" 123 "def")) */
 
 	switch (value->type) {
 		case lispValueType_Number:
@@ -921,10 +911,6 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	}
 
 	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
-
-	/* fatalError("allocateStringAndCreateUniversalStruct() is incomplete");
-
-	return NULL; */
 }
 
 void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {

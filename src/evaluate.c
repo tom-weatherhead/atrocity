@@ -309,49 +309,25 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
 			LISP_EXPR * operand2Expr = actualParamExprs->next->expr;
 
-			/* printf("evaluatePrimitiveOperatorCall() : Operand 2 is: ");
-			printValue(operand2Value); */
-
 			if (isStringInList(op, twoArgumentPrimops)) {
-				/* printf("%s: Evaluating both operands\n", op);
-				printf("operand1Expr is %lu\n", operand1Expr);
-				printf("operand1Expr->type is %d\n", operand1Expr->type); */
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
-				/* printf("%s: Evaluated first operand\n", op);
-				printValue(operand1Value); */
 
 				if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 					return operand1Value;
 				}
 
-				/* printf("operand2Expr is %lu\n", operand2Expr);
-				printf("operand2Expr->type is %d\n", operand2Expr->type);
-				printf("operand2Expr->functionCall is %lu\n", operand2Expr->functionCall);
-
-				if (operand2Expr->functionCall != NULL && operand2Expr->functionCall->firstExpr != NULL && operand2Expr->functionCall->firstExpr->var != NULL) {
-					printf("operand2Expr->functionCall->firstExpr->var->name is '%s'\n", operand2Expr->functionCall->firstExpr->var->name);
-				} */
-
-				/* printf("operand2Expr->name is '%s'\n", operand2Expr->name); */
 				LISP_VALUE * operand2Value = evaluate(operand2Expr, env);
-				/* printf("%s: Evaluated both operands\n", op); */
 
 				if (operand2Value->type == lispPseudoValueType_ContinuationReturn) {
 					return operand2Value;
 				}
 
 				if (!strcmp(op, "=")) {
-					/* printf("= : operand1Value is ");
-					printValue(operand1Value);
-					printf("\n= : operand2Value is ");
-					printValue(operand2Value);
-					printf("\n"); */
 					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "cons")) {
 					/* Return without freeing the values */
-					/* printf("cons: Creating pair\n"); */
 					return createPair(operand1Value, operand2Value);
 				} else if (!strcmp(op, "rplaca")) {
 
@@ -427,10 +403,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				}
 
 				result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
-
-				/* if (result->type == lispPseudoValueType_ContinuationReturn) {
-					printf("if: result is a ContinuationReturn\n");
-				} */
 			}
 		}
 	}
@@ -468,13 +440,8 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 	LISP_VALUE * result = evaluate(closure->body, newEnv);
 
-	/* newEnv->next = NULL; */
-	/* TODO? : Free the values, but not the names, in this environment?
-
-	ThAW 2022-08-18 : Don't free newEnv: Someone is still using it. E.g.:
-	parseAndEvaluate("(((lambda (x) (lambda (y) x)) 5) 8)");
-
-	freeEnvironment(newEnv); */
+	/* ThAW 2022-08-18 : Don't free newEnv: Someone is still using it. E.g.:
+	parseAndEvaluate("(((lambda (x) (lambda (y) x)) 5) 8)"); */
 
 	return result;
 }
@@ -616,7 +583,6 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 }
 
 static LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
-	/* LISP_VALUE * result = NULL; or globalNullValue */
 	LISP_VALUE * result = globalNullValue;
 	LISP_EXPR_LIST_ELEMENT * exprList;
 
@@ -624,7 +590,6 @@ static LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		result = evaluate(exprList->expr, env);
 
 		if (result->type == lispPseudoValueType_ContinuationReturn) {
-			/* printf("begin: result is a ContinuationReturn\n"); */
 			break;
 		}
 	}
@@ -674,8 +639,6 @@ static LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return globalNullValue;
 }
 
-/* LISP_VALUE * evaluateCallCCExpression(LISP_EXPR * expr, LISP_ENV * env) {} */
-
 LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * value = NULL;
 
@@ -685,8 +648,6 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 			return cloneValue(expr->value);
 
 		case lispExpressionType_Variable:
-			/* printf("evaluate variable\n");
-			printf("... named '%s'\n", expr->var->name); */
 			value = lookupVariableInEnvironment(expr->var, env);
 
 			if (value == NULL) {

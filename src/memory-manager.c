@@ -8,7 +8,7 @@
 /* #include <ctype.h> */
 /* #include <assert.h> */
 
-#include "types.h"
+/* #include "types.h"
 
 #include "char-source.h"
 
@@ -20,10 +20,10 @@ typedef struct POINTER_LIST_ELEMENT_STRUCT {
 } POINTER_LIST_ELEMENT;
 
 typedef struct {
-	int mark; /* All dynamically allocated structs must have this member */
+	int mark; / * All dynamically allocated structs must have this member * /
 } MARKED_STRUCT;
 
-/* E.g.: */
+/ * E.g.: * /
 POINTER_LIST_ELEMENT * lispValues = NULL;
 
 POINTER_LIST_ELEMENT * addPointerToList(POINTER_LIST_ELEMENT * list, void * ptr) {
@@ -33,7 +33,7 @@ POINTER_LIST_ELEMENT * addPointerToList(POINTER_LIST_ELEMENT * list, void * ptr)
 	ple->next = list;
 
 	return ple;
-}
+} */
 
 /*
 void clearMarks() {

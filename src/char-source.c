@@ -42,7 +42,6 @@ int getNextChar(CharSource * cs) {
 
 		++cs->i;
 
-		/* if (c != (int)' ') { */
 		if (!isWhiteSpace(c)) {
 			return (int)c;
 		}
