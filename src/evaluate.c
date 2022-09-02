@@ -24,7 +24,7 @@ extern LISP_VALUE * globalTrueValue;
 
 static char * twoArgumentPrimops[] = {
 	"+", "-", "*", "/", "%", "<", ">", "<=", ">=", "=", "!=",
-	"cons", "rplaca", "rplacd"
+	"cons", "rplaca", "rplacd", NULL
 };
 
 /* Local variables */
@@ -165,7 +165,6 @@ static LISP_VALUE * evaluateDoubleQuestionMark(LISP_EXPR_LIST_ELEMENT * actualPa
 
 static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 	LISP_VALUE * result = NULL;
-	/* printf("evaluatePrimitiveOperatorCall() : Operator is '%s'\n", op); */
 
 	/* BEGIN : These primops can take any number of args, including zero. */
 	if (!strcmp(op, "list")) {
@@ -182,8 +181,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	if (actualParamExprs != NULL && actualParamExprs->expr != NULL) {
 		LISP_EXPR * operand1Expr = actualParamExprs->expr;
 
-		/* printf("evaluatePrimitiveOperatorCall() : Operand 1 is: ");
-		printValue(operand1Value); */
 		if (!strcmp(op, "null?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Null);
 		} else if (!strcmp(op, "number?")) {
@@ -227,7 +224,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				return operand1Value;
 			} else if (operand1Value->type != lispValueType_Pair) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : car : Operand is not a pair; type %d\n", operand1Value->type);
-				/* printValue(operand1Value); */
 				fatalError("evaluatePrimitiveOperatorCall() : car : Operand is not a pair");
 			}
 
@@ -275,7 +271,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			fatalError("An exception has been thrown.");
 		} else if (!strcmp(op, "call/cc")) {
 			/* Call with current continuation */
-			/* printf("Evaluating a call/cc usage...\n"); */
 			/* The arg must be a lambda expr that takes exactly one arg. */
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -300,22 +295,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* Now call the closure (operand1Value), passing in
 			the currentContinuation as the one and only parameter */
 
-			/* printf("call/cc: evaluateClosureCall()\n"); */
-
 			LISP_VALUE * result = evaluateClosureCall(operand1Value->closure, createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
 
 			if (result->type == lispPseudoValueType_ContinuationReturn && result->continuationId == currentContinuation->continuationId) {
 				/* Unwrap the value inside */
-				/* printf("call/cc: Caught the ContinuationReturn with id %d\n", currentContinuation->continuationId); */
-				/* printf("Unwrapping value with ptr %lu\n", result->continuationReturnValue); */
-				/* printf("Unwrapped value: ");
-				printValue(result->continuationReturnValue);
-				printf("\n"); */
 
 				return result->continuationReturnValue;
 			}
-
-			/* printf("call/cc: Finished without catching the ContinuationReturn\n"); */
 
 			return result;
 		}
@@ -326,22 +312,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* printf("evaluatePrimitiveOperatorCall() : Operand 2 is: ");
 			printValue(operand2Value); */
 
-			if (/* isStringInList(op, twoArgumentPrimops) */
-				!strcmp(op, "+") ||
-				!strcmp(op, "-") ||
-				!strcmp(op, "*") ||
-				!strcmp(op, "/") ||
-				!strcmp(op, "%") ||
-				!strcmp(op, "<") ||
-				!strcmp(op, ">") ||
-				!strcmp(op, "<=") ||
-				!strcmp(op, ">=") ||
-				!strcmp(op, "=") ||
-				!strcmp(op, "!=") ||
-				!strcmp(op, "cons") ||
-				!strcmp(op, "rplaca") ||
-				!strcmp(op, "rplacd")
-			) {
+			if (isStringInList(op, twoArgumentPrimops)) {
 				/* printf("%s: Evaluating both operands\n", op);
 				printf("operand1Expr is %lu\n", operand1Expr);
 				printf("operand1Expr->type is %d\n", operand1Expr->type); */
