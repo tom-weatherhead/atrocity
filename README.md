@@ -24,6 +24,28 @@ $ make
 $ ./atrocity
 ```
 
+From the src directory, you can do the following:
+
+To do a full rebuild and run the built-in tests:
+
+```sh
+$ make clean && make && ./atrocity -t
+```
+
+To run a script: E.g.:
+
+```sh
+$ ./atrocity ../scripts/test001.scm
+```
+
+To enter the read-eval-print loop (REPL) :
+
+```sh
+$ ./atrocity
+```
+
+Exit the REPL by typing 'exit', 'quit', or 'bye'.
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
 

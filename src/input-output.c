@@ -14,7 +14,6 @@
 #include "environment.h"
 #include "parser.h"
 #include "evaluate.h"
-#include "tests.h"
 #include "utilities.h"
 
 /* External constants / variables */
@@ -25,6 +24,8 @@ extern LISP_VALUE * globalTrueValue;
 /* Local constants */
 
 static char commentChar = ';';
+/* static int readScriptBufSize = 4096;
+static int replBufSize = 1024; */
 
 /* Functions */
 
@@ -208,9 +209,9 @@ void readEvalPrintLoop() {
 			/* execScriptInFile(buf + 5, globalEnv); */
 			execScriptInFile("../scripts/labyrinth.scm", globalEnv);
 			continue;
-		} else if (!strcmp(buf, "fsck")) {
+		} /* else if (!strcmp(buf, "fsck")) {
 			fatalError("fsck");
-		}
+		} */
 
 		/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); */
 

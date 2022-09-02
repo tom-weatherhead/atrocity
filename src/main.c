@@ -42,16 +42,12 @@ floor
 #include "parser.h"
 #include "evaluate.h"
 #include "tests.h"
-#include "utilities.h"
 
 /* Function prototypes */
 
 /* Forward references */
 
 /* Constants */
-
-/* static int readScriptBufSize = 4096;
-static int replBufSize = 1024; */
 
 /* Global variables */
 
@@ -138,6 +134,7 @@ int main(int argc, char * argv[]) {
 	char * filename = NULL;
 	int i;
 
+	/* Use the current time to seed the random number generator: */
 	srand(time(NULL));
 
 	for (i = 1; i < argc; ++i) {
