@@ -7,6 +7,7 @@
 #include "types.h"
 
 #include "char-source.h"
+#include "utilities.h"
 
 // **** CharSource functions ****
 
@@ -68,9 +69,7 @@ static void skipWhiteSpace(CharSource * cs) {
 	}
 }
 
-int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize
-	/* , BOOL * pIsSingleQuoted */
-) {
+int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize, BOOL * pIsSingleQuoted) {
 	memset(dstBuf, 0, dstBufSize);
 
 	skipWhiteSpace(cs);
@@ -85,13 +84,20 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize
 	switch (firstChar) {
 		case '(':
 		case ')':
-		case '\'':
+		/* case '\'': */
 			memcpy(dstBuf, cs->str + cs->i++, 1);
 			return 1;
 
-		/* case '\'':
+		case '\'':
 			isSingleQuoted = TRUE;
-			break; */
+
+			if (pIsSingleQuoted == NULL) {
+				fatalError("getIdentifier() found a single quote, but cannot notify caller");
+			}
+
+			*pIsSingleQuoted = TRUE;
+			memcpy(dstBuf, cs->str + cs->i++, 1);
+			return 1;
 
 		default:
 			break;
@@ -101,11 +107,6 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize
 
 	if (pIsSingleQuoted == NULL) {
 		*pIsSingleQuoted = isSingleQuoted;
-	} */
-
-	/* if (cs->str[cs->i] == '(' || cs->str[cs->i] == ')' || cs->str[cs->i] == '\'') {
-		memcpy(dstBuf, &cs->str[cs->i++], 1);
-		return 1;
 	} */
 
 	const BOOL isString = (cs->str[cs->i] == '"') ? TRUE : FALSE;
@@ -155,7 +156,7 @@ BOOL consumeStr(CharSource * cs, char * str) {
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
-	if (getIdentifier(cs, dstBuf, dstBufSize) == 0) {
+	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
 		fprintf(stderr, "consumeStr() : Error : Expected '%s', found EOF\n", str);
 		fatalError("consumeStr() 1");
 	} else if (strcmp(dstBuf, str)) {

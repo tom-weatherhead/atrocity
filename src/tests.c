@@ -22,7 +22,7 @@ void testGetIdentifier(char * str) {
 
 	printf("\nTest getIdentifier('%s') :\n\n", str);
 
-	while (getIdentifier(cs, dstBuf, sizeof(dstBuf)) > 0) {
+	while (getIdentifier(cs, dstBuf, sizeof(dstBuf), NULL) > 0) {
 		printf("getIdentifier %d: dstBuf is '%s'\n", i++, dstBuf);
 	}
 
