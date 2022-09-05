@@ -9,6 +9,7 @@
 #include "types.h"
 
 #include "create-and-destroy.h"
+#include "parse-and-evaluate.h"
 
 /* External variables */
 
@@ -16,8 +17,6 @@ extern LISP_VALUE * globalNullValue;
 extern LISP_VALUE * globalTrueValue;
 
 /* Function prototypes */
-
-void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose);
 
 /* Functions */
 
@@ -109,39 +108,20 @@ void addToEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 
 	if (!updateIfFoundInEnvironment(env, var, value)) {
+		/* Instead of calling something like addBubbleDown(),
+		move env to point to the last element in the list;
+		that element will be the globalEnv. */
 
 		while (env->next != NULL) {
 			env = env->next;
 		}
 
 		/* Now env == globalEnv */
+		/* The pair (var, value) will be added to the globalEnv */
 
 		addToEnvironment(env, var, value);
-		/* Or -> addToEnvironment(globalEnv, var, value); */
 	}
 }
-
-/*
-public addBubbleDown(key: IVariable<T>, value: T): void {
-	// I.e. update the key's value in this frame or in any frame below it.
-	// !!! -> If the key is not found, add the key and value to the global env.
-
-	// console.log(`EnvironmentFrame<T>.AddBubbleDown() : var is ${key.name}; value is ${value}`);
-
-	// if (value === undefined) {
-	// 	console.log('Warning in EnvironmentFrame.addBubbleDown() : The value being added is falsy.');
-	// }
-
-	if (!this.dictionaryContainsKey(key) && typeof this.next !== 'undefined') {
-		this.next.addBubbleDown(key, value); // Bubble down towards the global environment.
-	} else {
-		// Bug fix: Before 2013/12/04, the "else" above was absent, and the code below was executed unconditionally.
-		// Console.WriteLine("AddBubbleDown: The new value of {0} in {1} environment frame is {2}",
-		// 	key, (next != null) ? "a local" : "the global", value);
-		this.add(key, value);
-	}
-}
-*/
 
 void printEnvironment(LISP_ENV * env) {
 	int i = 0;
@@ -180,6 +160,9 @@ LISP_ENV * createGlobalEnvironment() {
 
 	/* ; BEGIN Define commonly-used lambda expressions here.
 	; Of particular importance are combine, compose, and curry. */
+
+	/* Combine: In Javascript array terms,
+	((combine f sum zero) lst) := lst.map(f).reduce(sum, zero); */
 
 	/* ; Version 2 of combine, using letrec: see Kamin page 126
 	(set! combine (lambda (f sum zero)

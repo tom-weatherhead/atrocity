@@ -24,8 +24,8 @@ extern LISP_VALUE * globalTrueValue;
 /* Local constants */
 
 static char commentChar = ';';
-/* static int readScriptBufSize = 4096;
-static int replBufSize = 1024; */
+static int readScriptBufSize = 4096;
+static int replBufSize = 1024;
 
 /* Functions */
 
@@ -41,7 +41,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 
 	LISP_ENV * originalGlobalEnvParam = globalEnv;
 
-	const int bufSize = 4096;
+	const int bufSize = readScriptBufSize;
 	const int bufSizeInBytes = bufSize * sizeof(char);
 	char * str = (char *)malloc(bufSizeInBytes);
 
@@ -162,7 +162,7 @@ of code (or NULL for EOF) as it needs them. */
 /* Output to string (or a list of strings) (or a list of Scheme values?) */
 
 void readEvalPrintLoop() {
-	const int bufsize = 1024;
+	const int bufsize = replBufSize;
 	const int bufsizeInBytes = bufsize * sizeof(char);
 	char * buf = (char *)malloc(bufsizeInBytes);
 	int i;
@@ -209,9 +209,7 @@ void readEvalPrintLoop() {
 			/* execScriptInFile(buf + 5, globalEnv); */
 			execScriptInFile("../scripts/labyrinth.scm", globalEnv);
 			continue;
-		} /* else if (!strcmp(buf, "fsck")) {
-			fatalError("fsck");
-		} */
+		}
 
 		/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); */
 

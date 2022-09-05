@@ -9,11 +9,9 @@
 #include "types.h" /* Needed to provide BOOL for char-source.h */
 
 #include "char-source.h"
+#include "parse-and-evaluate.h"
 
 /* Function prototypes */
-
-void parseAndEvaluate(char * str);
-void parseAndEvaluateStringList(char * strs[]);
 
 /* Functions */
 

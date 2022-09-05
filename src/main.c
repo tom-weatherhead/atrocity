@@ -1,6 +1,4 @@
-/* atrocity/src/main.c */
-
-/* ThAW: Started on 2022-08-15 */
+/* atrocity/src/main.c - Started on 2022-08-15 */
 
 /* cd into the src directory. Then: */
 /* To compile and link: $ make */
@@ -10,19 +8,16 @@
 /* To run a script: E.g. $ ./atrocity ../scripts/test001.scm */
 /* To enter the read-eval-print loop: $ ./atrocity */
 
-/* TODO? : Create:
-- domain-object-model.c
-- parse-and-evaluate.c
-
-Then main.c will contain only the function main()
-*/
-
 /* TODO: Add this stuff:
 rplaca -> Done?
 Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
 QuoteKeyword (e.g. for (quote 1 2 3))
-Real (i.e. floating-point) numbers?
+Real (i.e. floating-point) numbers? Then sin cos tan atan2 pow ln exp
 floor
+string< (string-is-less-than)
+tostring ?
+stringtolist ?
+stringtosymbol ?
 */
 
 #include <stdlib.h>
@@ -36,11 +31,8 @@ floor
 
 #include "char-source.h"
 
-#include "create-and-destroy.h"
-#include "environment.h"
 #include "input-output.h"
-#include "parser.h"
-#include "evaluate.h"
+#include "parse-and-evaluate.h"
 #include "tests.h"
 
 /* Function prototypes */
@@ -53,78 +45,6 @@ floor
 
 LISP_VALUE * globalNullValue = NULL;
 LISP_VALUE * globalTrueValue = NULL;
-
-/* Functions */
-
-/* **** BEGIN parseAndEvaluate **** */
-
-void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
-	LISP_ENV * originalGlobalEnv = globalEnv;
-
-	if (verbose) {
-		printf("\nInput: '%s'\n", str);
-	}
-
-	if (globalEnv == NULL) {
-		globalEnv = createGlobalEnvironment();
-	}
-
-	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
-	failIf(globalNullValue == NULL, "globalNullValue is NULL");
-
-	CharSource * cs = createCharSource(str);
-	LISP_EXPR * parseTree = parseExpression(cs);
-	LISP_VALUE * value = evaluate(parseTree, globalEnv);
-
-	if (verbose) {
-		printf("Output: ");
-		printValue(value);
-		printf("\n");
-	}
-
-	/* Note bene: freeClosure is currently mostly disabled to avoid
-	 * double-freeing things. We must fix this. */
-	freeValue(value);
-	freeExpression(parseTree);
-	freeCharSource(cs);
-
-	if (originalGlobalEnv == NULL) {
-		freeGlobalEnvironment(globalEnv);
-	}
-}
-
-void parseAndEvaluate(char * str) {
-	/* LISP_VALUE * value = */ parseAndEvaluateEx(str, NULL, TRUE);
-}
-
-void parseAndEvaluateStringList(char * strs[]) {
-	LISP_ENV * globalEnv = createGlobalEnvironment();
-	int i;
-
-	for (i = 0; ; ++i) {
-		char * str = strs[i];
-
-		if (str == NULL) {
-			break;
-		}
-
-		printf("\nInput %d: '%s'\n", i, str);
-
-		CharSource * cs = createCharSource(str);
-		LISP_EXPR * parseTree = parseExpression(cs);
-		LISP_VALUE * value = evaluate(parseTree, globalEnv);
-
-		printf("Output %d: ", i);
-		printValue(value);
-		printf("\n");
-
-		freeCharSource(cs);
-	}
-
-	freeGlobalEnvironment(globalEnv);
-}
-
-/* **** END parseAndEvaluate **** */
 
 /* **** The Main MoFo **** */
 

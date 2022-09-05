@@ -68,7 +68,9 @@ static void skipWhiteSpace(CharSource * cs) {
 	}
 }
 
-int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize) {
+int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize
+	/* , BOOL * pIsSingleQuoted */
+) {
 	memset(dstBuf, 0, dstBufSize);
 
 	skipWhiteSpace(cs);
@@ -77,17 +79,41 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize) {
 		return 0;
 	}
 
-	if (cs->str[cs->i] == '(' || cs->str[cs->i] == ')' || cs->str[cs->i] == '\'') {
+	const char firstChar = cs->str[cs->i];
+	BOOL isSingleQuoted = FALSE;
+
+	switch (firstChar) {
+		case '(':
+		case ')':
+		case '\'':
+			memcpy(dstBuf, cs->str + cs->i++, 1);
+			return 1;
+
+		/* case '\'':
+			isSingleQuoted = TRUE;
+			break; */
+
+		default:
+			break;
+	}
+
+	/* failIf(isSingleQuoted && pIsSingleQuoted == NULL);
+
+	if (pIsSingleQuoted == NULL) {
+		*pIsSingleQuoted = isSingleQuoted;
+	} */
+
+	/* if (cs->str[cs->i] == '(' || cs->str[cs->i] == ')' || cs->str[cs->i] == '\'') {
 		memcpy(dstBuf, &cs->str[cs->i++], 1);
 		return 1;
-	}
+	} */
 
 	const BOOL isString = (cs->str[cs->i] == '"') ? TRUE : FALSE;
 	BOOL isStringClosed = FALSE;
 
 	const int start = cs->i;
 
-	if (isString) {
+	if (isString || isSingleQuoted) {
 		++cs->i;
 	}
 
