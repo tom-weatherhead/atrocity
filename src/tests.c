@@ -1,5 +1,9 @@
 /* atrocity/src/tests.c */
 
+/* TODO:
+- Test the parsing (without evaluation) of a macro
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 /* #include <string.h> */
