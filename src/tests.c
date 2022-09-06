@@ -17,7 +17,7 @@
 #include "environment.h"
 #include "parser.h"
 #include "evaluate.h"
-#include "parse-and-evaluate.h"
+/* #include "parse-and-evaluate.h" */
 
 /* Function prototypes */
 
@@ -39,7 +39,7 @@ void testGetIdentifier(char * str) {
 
 /* Note: This is very similar to parseAndEvaluateStringList()
 in parse-and-evaluate.c */
-void multitest(char * inputs[], char * expectedOutputs[]) {
+static void multitest(char * inputs[], char * expectedOutputs[]) {
 	/* failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
 	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL"); */
 
@@ -95,7 +95,7 @@ void multitest(char * inputs[], char * expectedOutputs[]) {
 	}
 }
 
-void test(char * input, char * expectedOutput) {
+static void test(char * input, char * expectedOutput) {
 	char * inputs[] = { input, NULL };
 	char * expectedOutputs[] = { expectedOutput, NULL };
 
@@ -105,78 +105,71 @@ void test(char * input, char * expectedOutput) {
 void runTests() {
 	printf("\nRunning tests...\n");
 
-	// parseAndEvaluate("7");
 	test("7", "7");
-	parseAndEvaluate("+");
-	parseAndEvaluate("(+ 2 3)");
-	parseAndEvaluate("(+ (+ 2 3) 8)");
-	parseAndEvaluate("(if 1 2 3)"); /* Value is 2 */
-	parseAndEvaluate("(if null 2 3)"); /* Value is 3 */
-	parseAndEvaluate("(+ 13 21)");
-	parseAndEvaluate("(- 21 13)");
-	parseAndEvaluate("(* 7 13)");
-	parseAndEvaluate("(/ 100 7)");
-	parseAndEvaluate("(% 100 7)");
-	parseAndEvaluate("(null? null)");
-	parseAndEvaluate("(null? '())");
-	parseAndEvaluate("(null? 13)");
-	parseAndEvaluate("(lambda (x) x)"); /* The identity function */
-	parseAndEvaluate("(lambda (x) 1)"); /* A constant function */
-	parseAndEvaluate("((lambda (x) x) 13)"); /* Call the identity function */
-	parseAndEvaluate("((lambda (x y) (+ x y)) 5 8)");
+	test("+", "+");
+	test("(+ 2 3)", "5");
+	test("(+ (+ 2 3) 8)", "13");
+	test("(if 1 2 3)", "2");
+	test("(if null 2 3)", "3");
+	test("(+ 13 21)", "34");
+	test("(- 21 13)", "8");
+	test("(* 7 13)", "91");
+	test("(/ 100 7)", "14");
+	test("(% 100 7)", "2");
+	test("(null? null)", "T");
+	test("(null? '())", "T");
+	test("(null? 13)", "()");
+	test("(lambda (x) x)", "<closure>"); /* The identity function */
+	test("(lambda (x) 1)", "<closure>"); /* A constant function */
+	test("((lambda (x) x) 13)", "13"); /* Call the identity function */
+	test("((lambda (x y) (+ x y)) 5 8)", "13");
 
-	parseAndEvaluate("(((lambda (x) (lambda (y) y)) 5) 8)"); /* Succeeds */
+	test("(((lambda (x) (lambda (y) y)) 5) 8)", "8"); /* Succeeds */
 
-	parseAndEvaluate("(((lambda (x) (lambda (y) x)) 5) 8)");
+	test("(((lambda (x) (lambda (y) x)) 5) 8)", "5");
 
-	parseAndEvaluate("(((lambda (x) (lambda (y) (+ x y))) 5) 8)");
+	test("(((lambda (x) (lambda (y) (+ x y))) 5) 8)", "13");
 
-	parseAndEvaluate("(set! n 7)");
+	test("(set! n 7)", "7");
 
 	/* cons */
-	parseAndEvaluate("(cons 1 null)");
-	parseAndEvaluate("(cons 1 (cons 2 null))");
-	parseAndEvaluate("(cons 1 (cons 2 (cons 3 null)))");
-	parseAndEvaluate("(cons 1 '(2 3))");
+	test("(cons 1 null)", "(1)");
+	test("(cons 1 (cons 2 null))", "(1 2)");
+	test("(cons 1 (cons 2 (cons 3 null)))", "(1 2 3)");
+	test("(cons 1 '(2 3))", "(1 2 3)");
 
 	/* car */
-	parseAndEvaluate("(car (cons 1 null))");
-	parseAndEvaluate("(car '(1))");
-	parseAndEvaluate("(car (cons 1 (cons 2 null)))");
-	parseAndEvaluate("(car '(1 2))");
+	test("(car (cons 1 null))", "1");
+	test("(car '(1))", "1");
+	test("(car (cons 1 (cons 2 null)))", "1");
+	test("(car '(1 2))", "1");
 
 	/* cdr */
-	parseAndEvaluate("(cdr (cons 1 null))");
-	parseAndEvaluate("(cdr '(1))");
-	parseAndEvaluate("(cdr (cons 1 (cons 2 null)))");
-	parseAndEvaluate("(cdr '(1 2))");
+	test("(cdr (cons 1 null))", "()");
+	test("(cdr '(1))", "()");
+	test("(cdr (cons 1 (cons 2 null)))", "(2)");
+	test("(cdr '(1 2))", "(2)");
 
 	/* let */
-	parseAndEvaluate("(let ((a 7)) a)");
-	parseAndEvaluate("(let ((a 5) (b 8)) (+ a b))");
+	test("(let ((a 7)) a)", "7");
+	test("(let ((a 5) (b 8)) (+ a b))", "13");
 
 	/* let* */
-	parseAndEvaluate("(let* ((a 7)) a)");
-	parseAndEvaluate("(let* ((a 7) (b (+ a 1))) b)");
+	test("(let* ((a 7)) a)", "7");
+	test("(let* ((a 7) (b (+ a 1))) b)", "8");
 
 	/* letrec */
 	/* From thaw-grammar: 'LL(1) Scheme letrec test' */
-	/* The result should be 4 */
-	char * strs5[] = {
-		"(letrec ((countones (lambda (l) (if (null? l) 0 (if (= (car l) 1) (+ 1 (countones (cdr l))) (countones (cdr l))))))) (countones '(1 2 3 1 0 1 1 5)))",
-		NULL
-	};
-
-	parseAndEvaluateStringList(strs5);
+	test("(letrec ((countones (lambda (l) (if (null? l) 0 (if (= (car l) 1) (+ 1 (countones (cdr l))) (countones (cdr l))))))) (countones '(1 2 3 1 0 1 1 5)))", "4");
 
 	/* begin */
-	parseAndEvaluate("(begin 1 2 4 3)");
-	parseAndEvaluate("(begin (set! n 2) (+ n 3))");
+	test("(begin 1 2 4 3)", "3");
+	test("(begin (set! n 2) (+ n 3))", "5");
 
-	/* This {} syntax only works as an initializer; i.e. when strs is declared */
+	/* This {} syntax only works as an initializer; i.e. when strs is declared
 	char * strs[] = {"(begin (set! n 2) (+ n 3))", NULL};
 
-	parseAndEvaluateStringList(strs);
+	parseAndEvaluateStringList(strs); */
 
 	char * inputs2[] = {
 		"(set! add (lambda (a b) (+ a b)))",
@@ -190,16 +183,21 @@ void runTests() {
 	};
 	multitest(inputs2, expectedResults2);
 
-	char * strs3[] = {
+	char * inputs3[] = {
 		"(set! n 1)",
 		"(while (<= n 5) (begin (print n) (set! n (+ n 1))))",
 		NULL
 	};
+	char * expectedResults3[] = {
+		"1",
+		"()",
+		NULL
+	};
 
-	parseAndEvaluateStringList(strs3);
+	multitest(inputs3, expectedResults3);
 
 	/* cond test */
-	char * strs4[] = {
+	char * inputs4[] = {
 		/* "(set! n 1)", */
 		"(set! n 2)",
 		/* "(set! n 3)", */
@@ -207,17 +205,27 @@ void runTests() {
 		"(cond ((= n 1) 111) ((= n 2) 222) ((= n 3) 333) (1 777))",
 		NULL
 	};
+	char * expectedResults4[] = {
+		"2",
+		"222",
+		NULL
+	};
 
-	parseAndEvaluateStringList(strs4);
+	multitest(inputs4, expectedResults4);
 
 	/* curry test */
-	char * strs6[] = {
+	char * inputs6[] = {
 		"(set! curry2 (lambda (f) (lambda (x) (lambda (y) (f x y)))))",
 		"(((curry2 +) 2) 3)",
 		NULL
 	};
+	char * expectedResults6[] = {
+		"<closure>",
+		"5",
+		NULL
+	};
 
-	parseAndEvaluateStringList(strs6);
+	multitest(inputs6, expectedResults6);
 
 	/* char * strs[] = {, NULL}; */
 

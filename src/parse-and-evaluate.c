@@ -59,11 +59,11 @@ void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	}
 }
 
-void parseAndEvaluate(char * str) {
-	/* LISP_VALUE * value = */ parseAndEvaluateEx(str, NULL, TRUE);
-}
+/* void parseAndEvaluate(char * str) {
+	/ * LISP_VALUE * value = * / parseAndEvaluateEx(str, NULL, TRUE);
+} */
 
-void parseAndEvaluateStringList(char * strs[]) {
+/* void parseAndEvaluateStringList(char * strs[]) {
 	LISP_ENV * globalEnv = createGlobalEnvironment();
 	int i;
 
@@ -88,6 +88,6 @@ void parseAndEvaluateStringList(char * strs[]) {
 	}
 
 	freeGlobalEnvironment(globalEnv);
-}
+} */
 
 /* **** The End **** */
