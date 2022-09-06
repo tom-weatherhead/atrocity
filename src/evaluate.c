@@ -189,8 +189,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_String);
 		} else if (!strcmp(op, "symbol?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Symbol);
-		} else if (!strcmp(op, "pair?") || !strcmp(op, "list?")) {
+		} else if (!strcmp(op, "pair?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Pair);
+		} else if (!strcmp(op, "list?")) {
+			/* Note the difference between a pair and a list.
+			The set of lists is a proper subset of the set of pairs.
+			E.g. (cons 1 2) = (1 . 2) is a pair, but not a list. */
+			return booleanToClonedValue(isList(evaluate(operand1Expr, env)));
 		} else if (!strcmp(op, "primop?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_PrimitiveOperator);
 		} else if (!strcmp(op, "closure?")) {
@@ -322,7 +327,46 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					return operand2Value;
 				}
 
+				// TODO:
+				// if (!strcmp(op, "eq?")) {
+				// } else if (!strcmp(op, "eqv?")) {
+				// } else if (!strcmp(op, "equal?")) {
+				// } else
 				if (!strcmp(op, "=")) {
+					/* Note: In real Scheme, = vs. eq? vs. eqv? vs. equal? :
+
+					See https://stackoverflow.com/questions/16299246/what-is-the-difference-between-eq-eqv-equal-and-in-scheme
+
+					Some behaviour of eq? and eqv? are implementation-specific.
+
+					(eq? 2 2)     => depends upon the implementation -> Use =, eqv?. or equal?
+					(eq? "a" "a") => depends upon the implementation
+
+					(eqv? 2 2)     => #t
+					(eqv? "a" "a") => depends upon the implementation -> Use equal?
+
+					In general:
+
+					- Use the = predicate when you wish to test whether two numbers are equivalent. (= only works for numbers.)
+					- Use the eqv? predicate when you wish to test whether two non-numeric non-complex values are equivalent.
+					- Use the equal? predicate when you wish to test whether two complex values (lists, vectors, etc.) are equivalent.
+					- Don't use the eq? predicate unless you know exactly what you're doing. (The eq? predicate is used to check whether its two parameters respresent the same object in memory.)
+
+					See also the Scheme language specification: 11.5  Equivalence predicates :
+					http://www.r6rs.org/final/html/r6rs/r6rs-Z-H-14.html#node_sec_11.5
+
+					See also e.g. https://www.cs.cmu.edu/Groups/AI/html/r4rs/r4rs_8.html
+
+					In LISP:
+					- equal: takes two arguments and returns t if they are
+					structurally equal or nil otherwise.
+					- eq: takes two arguments and returns t if they are same
+					identical objects, sharing the same memory location
+					or nil otherwise. (i.e. reference-equals)
+					- eql: takes two arguments and returns t if the arguments
+					are eq, or if they are numbers of the same type with
+					the same value, or if they are character objects that
+					represent the same character, or nil otherwise. */
 					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));

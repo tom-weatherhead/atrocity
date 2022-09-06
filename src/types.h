@@ -188,7 +188,7 @@ enum {
 	lispValueType_PrimitiveOperator,
 	lispValueType_Closure,
 	lispValueType_Pair,
-	lispValueType_Null,
+	lispValueType_Null, /* TODO? Interpret the NULL pointer as a Null value? */
 	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
