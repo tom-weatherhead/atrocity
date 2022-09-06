@@ -6,13 +6,17 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-/* #include <string.h> */
+#include <string.h>
 /* #include <ctype.h> */
 /* #include <assert.h> */
 
 #include "types.h" /* Needed to provide BOOL for char-source.h */
 
 #include "char-source.h"
+#include "create-and-destroy.h"
+#include "environment.h"
+#include "parser.h"
+#include "evaluate.h"
 #include "parse-and-evaluate.h"
 
 /* Function prototypes */
@@ -33,10 +37,76 @@ void testGetIdentifier(char * str) {
 	freeCharSource(cs);
 }
 
+/* Note: This is very similar to parseAndEvaluateStringList()
+in parse-and-evaluate.c */
+void multitest(char * inputs[], char * expectedOutputs[]) {
+	/* failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
+	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL"); */
+
+	char actualOutput[maxStringValueLength];
+	LISP_ENV * globalEnv = createGlobalEnvironment();
+
+	/* failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
+	failIf(globalNullValue == NULL, "globalNullValue is NULL"); */
+
+	BOOL valuePrintedSuccessfully = TRUE;
+	BOOL outputValuesMatch = TRUE;
+	char * input = NULL;
+	char * expectedOutput = NULL;
+	int i;
+
+	for (i = 0; valuePrintedSuccessfully && outputValuesMatch; ++i) {
+		input = inputs[i];
+		expectedOutput = expectedOutputs[i];
+
+		if (input == NULL || expectedOutput == NULL) {
+			break;
+		}
+
+		CharSource * cs = createCharSource(input);
+		LISP_EXPR * parseTree = parseExpression(cs);
+		LISP_VALUE * value = evaluate(parseTree, globalEnv);
+
+		memset(actualOutput, 0, maxStringValueLength * sizeof(char));
+
+		valuePrintedSuccessfully = printValueToString(value, actualOutput, maxStringValueLength);
+		outputValuesMatch = !strcmp(actualOutput, expectedOutput);
+
+		/* Note bene: freeClosure is currently mostly disabled to avoid
+		 * double-freeing things. We must fix this. */
+		freeValue(value);
+		freeExpression(parseTree);
+		freeCharSource(cs);
+	}
+
+	freeGlobalEnvironment(globalEnv);
+
+	if (!valuePrintedSuccessfully) {
+		fprintf(stderr, "\nTest failed: Output string truncated\n");
+		fprintf(stderr, "  Input: %s\n", input);
+		fprintf(stderr, "  Expected output: %s\n", expectedOutput);
+		exit(1);
+	} else if (!outputValuesMatch) {
+		fprintf(stderr, "\nTest failed:\n");
+		fprintf(stderr, "  Input: %s\n", input);
+		fprintf(stderr, "  Expected output: %s\n", expectedOutput);
+		fprintf(stderr, "  Actual output: %s\n\n", actualOutput);
+		exit(1);
+	}
+}
+
+void test(char * input, char * expectedOutput) {
+	char * inputs[] = { input, NULL };
+	char * expectedOutputs[] = { expectedOutput, NULL };
+
+	multitest(inputs, expectedOutputs);
+}
+
 void runTests() {
 	printf("\nRunning tests...\n");
 
-	parseAndEvaluate("7");
+	// parseAndEvaluate("7");
+	test("7", "7");
 	parseAndEvaluate("+");
 	parseAndEvaluate("(+ 2 3)");
 	parseAndEvaluate("(+ (+ 2 3) 8)");
@@ -108,13 +178,17 @@ void runTests() {
 
 	parseAndEvaluateStringList(strs);
 
-	char * strs2[] = {
+	char * inputs2[] = {
 		"(set! add (lambda (a b) (+ a b)))",
 		"(add 13 21)",
 		NULL
 	};
-
-	parseAndEvaluateStringList(strs2);
+	char * expectedResults2[] = {
+		"<closure>",
+		"34",
+		NULL
+	};
+	multitest(inputs2, expectedResults2);
 
 	char * strs3[] = {
 		"(set! n 1)",

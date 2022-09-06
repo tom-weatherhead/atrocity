@@ -22,6 +22,8 @@ extern LISP_VALUE * globalTrueValue;
 
 /* Functions */
 
+/* TODO: Try to eliminate code duplication in this file. */
+
 void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	LISP_ENV * originalGlobalEnv = globalEnv;
 
