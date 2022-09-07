@@ -14,7 +14,6 @@
 
 /* Forward declarations of some structs */
 
-struct LISP_PAIR_STRUCT;
 struct LISP_EXPR_STRUCT;
 struct LISP_EXPR_LIST_ELEMENT_STRUCT;
 
@@ -45,6 +44,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 	/* BEGIN Temporary members */
 	struct LISP_VALUE_STRUCT * value;
+	struct LISP_VALUE_STRUCT * head;
+	struct LISP_VALUE_STRUCT * tail;
 	/* END Temporary members */
 
 	/* Closure uses (LISP_VAR_LIST_ELEMENT_STRUCT * args), (LISP_EXPR * body), and env */
@@ -74,6 +75,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define LISP_ENV SCHEME_UNIVERSAL_TYPE
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
+#define LISP_PAIR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 
@@ -84,7 +86,7 @@ typedef struct LISP_VALUE_STRUCT {
 	/* TODO: Use a union */
 	int value;
 	char name[maxStringValueLength]; /* Used by ValueTypes String and PrimitiveOperator */
-	struct LISP_PAIR_STRUCT * pair;
+	LISP_PAIR * pair;
 	struct LISP_CLOSURE_STRUCT * closure;
 
 	int continuationId;
@@ -92,13 +94,6 @@ typedef struct LISP_VALUE_STRUCT {
 } LISP_VALUE;
 
 /* The NameValueList is a crude dictionary of values. */
-
-typedef struct LISP_PAIR_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
-
-	LISP_VALUE * head;
-	LISP_VALUE * tail;
-} LISP_PAIR; /* A value. */
 
 typedef struct LISP_CLOSURE_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -193,10 +188,9 @@ enum {
 
 	schemeStructType_Environment,
 	schemeStructType_NameValueListElement,
+	schemeStructType_Pair,
 	schemeStructType_VariableListElement
 };
-
-/* void fatalError(char * str); */
 
 #define failIf(b, str) if (b) { fprintf(stderr, "Fatal error '%s' in file %s at line %d\n", str, __FILE__, __LINE__); exit(1); }
 

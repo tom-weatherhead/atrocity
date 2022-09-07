@@ -30,13 +30,7 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 }
 
 LISP_VALUE * createUndefinedValue() {
-	/* printf("createUndefinedValue() : Begin\n"); */
-
 	LISP_VALUE * result = (LISP_VALUE *)mmAlloc(sizeof(LISP_VALUE));
-
-	/* if (result == NULL) {
-		fatalError("mmAlloc() failed in createUndefinedValue()");
-	} */
 
 	result->type = lispValueType_Undefined;
 	result->value = 0;
@@ -46,29 +40,19 @@ LISP_VALUE * createUndefinedValue() {
 	result->continuationId = 0;
 	result->continuationReturnValue = NULL;
 
-	/* registerValueWithMemoryManager(result); */
-
-	/* printf("createUndefinedValue() : End\n"); */
-
 	return result;
 }
 
 LISP_VALUE * createNumericValue(int value) {
-	/* printf("createNumericValue() : Begin\n"); */
-
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Number;
 	result->value = value;
 
-	/* printf("createNumericValue() : End\n"); */
-
 	return result;
 }
 
 LISP_VALUE * createStringValue(char * str) {
-	/* printf("createStringValue() : Begin\n"); */
-
 	int len = strlen(str);
 
 	if (len > 0 && str[0] == '"') {
@@ -91,13 +75,10 @@ LISP_VALUE * createStringValue(char * str) {
 	memcpy(result->name, str, len * sizeof(char));
 	/* printf("Created string: <%s>\n", result->name); */
 
-	/* printf("createStringValue() : End\n"); */
-
 	return result;
 }
 
 LISP_VALUE * createSymbolValue(char * value) {
-	/* printf("createSymbolValue() : Begin\n"); */
 
 	if (strlen(value) >= maxStringValueLength) {
 		fprintf(stderr, "The string '%s' is too long to be a string value.", value);
@@ -109,32 +90,20 @@ LISP_VALUE * createSymbolValue(char * value) {
 	result->type = lispValueType_Symbol;
 	strcpy(result->name, value);
 
-	/* printf("createSymbolValue() : End\n"); */
-
 	return result;
 }
 
 LISP_VALUE * createPrimitiveOperator(char * value) {
-	/* printf("createPrimitiveOperator() : Begin\n"); */
-
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_PrimitiveOperator;
 	strcpy(result->name, value);
 
-	/* printf("createPrimitiveOperator() : End\n"); */
-
 	return result;
 }
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
-	/* printf("createClosure() : Begin\n"); */
-
 	LISP_CLOSURE * closure = (LISP_CLOSURE *)mmAlloc(sizeof(LISP_CLOSURE));
-
-	/* if (closure == NULL) {
-		fatalError("mmAlloc() failed in createClosure()");
-	} */
 
 	closure->args = args;
 	closure->body = body;
@@ -144,8 +113,6 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 
 	result->type = lispValueType_Closure;
 	result->closure = closure;
-
-	/* printf("createClosure() : End\n"); */
 
 	return result;
 }
@@ -183,13 +150,15 @@ void freeThunk(LISP_VALUE * value) {
 }*/
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
-	/* printf("createPair() : Begin\n"); */
-
-	LISP_PAIR * pair = (LISP_PAIR *)mmAlloc(sizeof(LISP_PAIR));
-
-	/* if (pair == NULL) {
-		fatalError("mmAlloc() failed in createPair()");
-	} */
+	SCHEME_UNIVERSAL_TYPE * pair = createUniversalStruct(
+		schemeStructType_Pair,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	);
 
 	pair->head = head;
 	pair->tail = tail;
@@ -198,8 +167,6 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 
 	result->type = lispValueType_Pair;
 	result->pair = pair;
-
-	/* printf("createPair() : End\n"); */
 
 	return result;
 }
@@ -220,13 +187,9 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 } */
 
 LISP_VALUE * createNull() {
-	/* printf("createNull() : Begin\n"); */
-
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Null;
-
-	/* printf("createNull() : End\n"); */
 
 	return result;
 }
@@ -236,7 +199,6 @@ LISP_VALUE * createNull() {
 } */
 
 LISP_VALUE * cloneValue(LISP_VALUE * value) {
-	/* printf("cloneValue() : Begin\n"); */
 
 	switch (value->type) {
 		case lispValueType_Number:
@@ -292,13 +254,7 @@ void freeValue(LISP_VALUE * value) {
 // **** Expression struct creation functions ****
 
 LISP_EXPR * createUndefinedExpression() {
-	/* printf("createUndefinedExpression() : Begin\n"); */
-
 	LISP_EXPR * result = (LISP_EXPR *)mmAlloc(sizeof(LISP_EXPR));
-
-	/* if (result == NULL) {
-		fatalError("mmAlloc() failed in createUndefinedExpression()");
-	} */
 
 	result->type = lispExpressionType_Undefined;
 	result->value = NULL;
@@ -311,18 +267,12 @@ LISP_EXPR * createUndefinedExpression() {
 	result->varExprPairList = NULL;
 	result->exprPairList = NULL;
 
-	/* printf("createUndefinedExpression() : End\n"); */
-
 	return result;
 }
 
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next) {
-	/* printf("createVariableListElement() : Begin\n"); */
-
 	failIf(var == NULL, "createVariableListElement() : var == NULL");
 	failIf(var->name == NULL, "createVariableListElement() : var->name == NULL");
-
-	/* LISP_VAR_LIST_ELEMENT * result = (LISP_VAR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_VAR_LIST_ELEMENT)); */
 
 	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
 		schemeStructType_VariableListElement,
@@ -333,15 +283,6 @@ LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_
 		NULL,
 		next
 	);
-
-	/* if (result == NULL) {
-		fatalError("mmAlloc() failed in createVariableListElement()");
-	} */
-
-	/* result->var = var; / * Replace result->var->name with (universal) result->name * /
-	result->next = next; */
-
-	/* printf("createVariableListElement() : End\n"); */
 
 	return result;
 }
@@ -545,14 +486,6 @@ LISP_VAR * createVariable(char * name) {
 		fatalError("createVariable() : String contains an illegal character");
 	}
 
-	/* LISP_VAR * var = (LISP_VAR *)mmAlloc(sizeof(LISP_VAR));
-
-	if (var == NULL) {
-		fatalError("mmAlloc() failed in createVariable()");
-	}
-
-	memset(var->name, 0, maxStringValueLength);
-	strcpy(var->name, name); */
 	SCHEME_UNIVERSAL_TYPE * var = allocateStringAndCreateUniversalStruct(
 		lispExpressionType_Variable,
 		0,
@@ -580,16 +513,6 @@ void freeVariable(LISP_VAR * var) {
 }
 
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
-	/* LISP_NAME_VALUE_LIST_ELEMENT * nvle = (LISP_NAME_VALUE_LIST_ELEMENT * )mmAlloc(sizeof(LISP_NAME_VALUE_LIST_ELEMENT));
-
-	if (nvle == NULL) {
-		fatalError("mmAlloc() failed in createNameValueListElement()");
-	}
-
-	nvle->name = name;
-	nvle->value = value; / * TODO? : Clone the value? * /
-	nvle->next = next; */
-
 	SCHEME_UNIVERSAL_TYPE * nvle = allocateStringAndCreateUniversalStruct(
 		schemeStructType_NameValueListElement,
 		0,
@@ -619,14 +542,6 @@ void freeNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
 }
 
 LISP_ENV * createEnvironment(LISP_ENV * next) {
-	/* LISP_ENV * env = (LISP_ENV *)mmAlloc(sizeof(LISP_ENV));
-
-	if (env == NULL) {
-		fatalError("mmAlloc() failed in createEnvironment()");
-	}
-
-	env->nameValueList = NULL;
-	env->next = next; */
 	SCHEME_UNIVERSAL_TYPE * env = createUniversalStruct(
 		schemeStructType_Environment,
 		0,
@@ -970,6 +885,8 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->next = next;
 
 	result->value = NULL; /* Temporary */
+	result->head = NULL; /* Temporary */
+	result->tail = NULL; /* Temporary */
 
 	addItemToMemMgrRecords(result);
 
@@ -1035,6 +952,8 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 	}
 
 	expr->value = NULL; /* Temporary member */
+	expr->head = NULL; /* Temporary member */
+	expr->tail = NULL; /* Temporary member */
 
 	mmFree(expr);
 }
