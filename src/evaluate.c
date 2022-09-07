@@ -485,7 +485,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 		}
 
 		/* newEnv->nameValueList = createNameValueListElement(np->var->name, value, newEnv->nameValueList); */
-		newEnv->nameValueList = createNameValueListElement(np->name, value, newEnv->nameValueList);
+		newEnv->value1 = createNameValueListElement(np->name, value, newEnv->value1);
 		/* freeValue(value); */
 		np = np->next;
 		ep = ep->next;
@@ -581,7 +581,8 @@ static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 		/* Note: This constructs the list in reverse order... */
 		/* TODO: Implement this using recursion instead. */
-		newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList);
+		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
+		newEnv->value1 = createNameValueListElement(varExprPairList->var->name, value, newEnv->value1);
 	}
 
 	newEnv->next = env;
@@ -604,7 +605,8 @@ static LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) 
 			return value;
 		}
 
-		newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList);
+		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
+		newEnv->value1 = createNameValueListElement(varExprPairList->var->name, value, newEnv->value1);
 
 		env = newEnv;
 		varExprPairList = varExprPairList->next;
@@ -629,7 +631,8 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 			return value;
 		}
 
-		updateIfFoundInNameValueList(newEnv->nameValueList, varExprPairList->var, value);
+		/* updateIfFoundInNameValueList(newEnv->nameValueList, varExprPairList->var, value); */
+		updateIfFoundInNameValueList(newEnv->value1, varExprPairList->var, value);
 	}
 
 	return evaluate(expr->expr, newEnv);

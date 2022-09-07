@@ -72,6 +72,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* struct SCHEME_UNIVERSAL_STRUCT * continuationReturnValue; -> use value (above) */
 } SCHEME_UNIVERSAL_TYPE;
 
+#define LISP_ENV SCHEME_UNIVERSAL_TYPE
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
@@ -92,13 +93,6 @@ typedef struct LISP_VALUE_STRUCT {
 
 /* The NameValueList is a crude dictionary of values. */
 
-typedef struct LISP_ENV_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
-
-	LISP_NAME_VALUE_LIST_ELEMENT * nameValueList;
-	struct LISP_ENV_STRUCT * next;
-} LISP_ENV;
-
 typedef struct LISP_PAIR_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -111,7 +105,7 @@ typedef struct LISP_CLOSURE_STRUCT {
 
 	LISP_VAR_LIST_ELEMENT * args;
 	struct LISP_EXPR_STRUCT * body;
-	struct LISP_ENV_STRUCT * env;
+	LISP_ENV * env;
 } LISP_CLOSURE; /* A value. Closures are part of Scheme, not LISP. */
 
 typedef struct LISP_EXPR_PAIR_LIST_ELEMENT_STRUCT {
@@ -197,8 +191,9 @@ enum {
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
 
-	schemeStructType_VariableListElement,
-	schemeStructType_NameValueListElement
+	schemeStructType_Environment,
+	schemeStructType_NameValueListElement,
+	schemeStructType_VariableListElement
 };
 
 /* void fatalError(char * str); */

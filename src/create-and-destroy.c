@@ -619,14 +619,23 @@ void freeNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
 }
 
 LISP_ENV * createEnvironment(LISP_ENV * next) {
-	LISP_ENV * env = (LISP_ENV *)mmAlloc(sizeof(LISP_ENV));
+	/* LISP_ENV * env = (LISP_ENV *)mmAlloc(sizeof(LISP_ENV));
 
 	if (env == NULL) {
 		fatalError("mmAlloc() failed in createEnvironment()");
 	}
 
 	env->nameValueList = NULL;
-	env->next = next;
+	env->next = next; */
+	SCHEME_UNIVERSAL_TYPE * env = createUniversalStruct(
+		schemeStructType_Environment,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		next
+	);
 
 	return env;
 }
