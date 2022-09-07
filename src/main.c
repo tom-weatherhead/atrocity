@@ -30,8 +30,8 @@ stringtosymbol ?
 #include "types.h"
 
 #include "char-source.h"
-
 #include "input-output.h"
+#include "memory-manager.h"
 #include "parse-and-evaluate.h"
 #include "tests.h"
 
@@ -78,6 +78,8 @@ int main(int argc, char * argv[]) {
 	} else {
 		readEvalPrintLoop();
 	}
+
+	mmPrintReport();
 
 	return 0; /* Zero (as a Unix exit code) means success. */
 }

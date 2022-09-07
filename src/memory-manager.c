@@ -4,124 +4,54 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
+/* #include <string.h> */
 /* #include <ctype.h> */
 /* #include <assert.h> */
 
-/* #include "types.h"
+#include "types.h"
 
-#include "char-source.h"
+/* #include "create-and-destroy.h" */
 
-#include "create-and-destroy.h"
+static int numMallocs = 0;
+static int numReallocs = 0;
+static int numFrees = 0;
 
-typedef struct POINTER_LIST_ELEMENT_STRUCT {
-	void * ptr;
-	struct POINTER_LIST_ELEMENT_STRUCT * next;
-} POINTER_LIST_ELEMENT;
+void * mmAlloc(int numBytes) {
+	void * result = malloc(numBytes);
 
-typedef struct {
-	int mark; / * All dynamically allocated structs must have this member * /
-} MARKED_STRUCT;
+	failIf(result == NULL, "mmAlloc() : malloc() returned NULL");
 
-/ * E.g.: * /
-POINTER_LIST_ELEMENT * lispValues = NULL;
+	++numMallocs;
 
-POINTER_LIST_ELEMENT * addPointerToList(POINTER_LIST_ELEMENT * list, void * ptr) {
-	POINTER_LIST_ELEMENT * ple = (POINTER_LIST_ELEMENT *)malloc(sizeof(POINTER_LIST_ELEMENT));
-
-	ple->ptr = ptr;
-	ple->next = list;
-
-	return ple;
-} */
-
-/*
-void clearMarks() {
-
-	for each (v in lispValues) {
-		/ * ((LISP_VALUE *)v->ptr)->mark = 0; * /
-		((MARKED_STRUCT *)v->ptr)->mark = 0;
-	}
-}
- */
-
-/*
-registerValueWithMemoryManager(LISP_VALUE * value) {
-	Add value to the list lispValues;
-	lispValues = addPointerToList(lispValues, value);
+	return result;
 }
 
+void * mmRealloc(void * ptr, int numBytes) {
+	failIf(ptr == NULL, "mmRealloc() : ptr is NULL");
 
-pair
-void setMarksIn() {
-	;
+	void * result = realloc(ptr, numBytes);
+
+	failIf(result == NULL, "mmRealloc() : realloc() returned NULL");
+
+	++numReallocs;
+
+	return result;
 }
 
-closure
-void setMarksIn() {
-	;
-}
+void mmFree(void * ptr) {
+	failIf(ptr == NULL, "mmFree() : ptr is NULL");
 
-var
-void setMarksIn() {
-	;
-}
-
-varList
-void setMarksIn() {
-	;
-}
-
-varExprPair
-void setMarksIn() {
-	;
-}
-
-expr
-void setMarksIn() {
-	;
-}
-
-exprList
-void setMarksIn() {
-	;
-}
-
-lambdaExpr
-void setMarksIn() {
-	;
-}
-
-functionCall
-void setMarksIn() {
-	;
-}
- */
-
-/*
-void setMarksInLispValue(LISP_VALUE * value) {
-	;
-}
-
-void setMarksInLispEnv(LISP_ENV * env) {
-
-	for (; env != NULL; env = env->next) {
-		for each (nvle in env->nameValueList) {
-			/ * There is nothing to mark in nvle->name * /
-			setMarksInLispValue(nvle->value);
-		}
+	if (ptr != NULL) {
+		free(ptr);
+		++numFrees;
 	}
 }
 
-void setMarks(LISP_ENV * globalEnv) {
-	setMarksInLispEnv(globalEnv);
+void mmPrintReport() {
+	printf("\nMemory manager report:\n");
+	printf("  Number of mallocs:  %d\n", numMallocs);
+	printf("  Number of reallocs: %d\n", numReallocs);
+	printf("  Number of frees:    %d\n\n", numFrees);
 }
-
-void collectGarbage(LISP_ENV * globalEnv) {
-	clearMarks();
-	setMarks(globalEnv);
-	freeUnmarkedStructs();
-}
- */
 
 /* **** The End **** */

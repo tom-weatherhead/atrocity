@@ -109,10 +109,10 @@ STRING_TYPE * createString(char * buf, int bufSize) {
 
 	bufSize = roundUpStringTypeBufferSize(bufSize);
 
-	STRING_TYPE * strObj = (STRING_TYPE *)malloc(sizeof(STRING_TYPE));
+	STRING_TYPE * strObj = (STRING_TYPE *)mmAlloc(sizeof(STRING_TYPE));
 
 	strObj->bufSize = bufSize;
-	strObj->buf = (char *)malloc(bufSize * sizeof(char));
+	strObj->buf = (char *)mmAlloc(bufSize * sizeof(char));
 	memset(strObj->buf, 0, bufSize);
 
 	if (buf != NULL) {
@@ -138,9 +138,9 @@ STRING_TYPE * appendToString(STRING_TYPE * strObj, char * strToAppend) {
 }
 
 void freeString(STRING_TYPE * strObj) {
-	free(strObj->buf);
+	mmFree(strObj->buf);
 	strObj->buf = NULL;
-	free(strObj);
+	mmFree(strObj);
 }
 / * END: Create a string or StringBuilder "class" with realloc() * /
 */

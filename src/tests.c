@@ -15,6 +15,7 @@
 /* #include "char-source.h" */
 #include "create-and-destroy.h"
 #include "environment.h"
+#include "memory-manager.h"
 #include "parse-and-evaluate.h"
 
 /* Function prototypes */
@@ -40,7 +41,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL"); */
 
 	const int sizeOfActualOutput = maxStringValueLength * sizeof(char);
-	char * actualOutput = malloc(sizeOfActualOutput);
+	char * actualOutput = mmAlloc(sizeOfActualOutput);
 	LISP_ENV * globalEnv = createGlobalEnvironment();
 
 	/* failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
@@ -86,7 +87,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		fprintf(stderr, "  Actual output: %s\n\n", actualOutput);
 	}
 
-	free(actualOutput);
+	mmFree(actualOutput);
 
 	if (!valuePrintedSuccessfully || !outputValuesMatch) {
 		exit(1);

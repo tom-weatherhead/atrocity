@@ -1,7 +1,5 @@
 /* atrocity/src/create-and-destroy.c */
 
-/* Contains 13 calls to malloc() */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,6 +9,8 @@
 #include "types.h"
 
 #include "create-and-destroy.h"
+#include "memory-manager.h"
+#include "utilities.h"
 
 /* **** Value struct creation functions **** */
 
@@ -19,7 +19,7 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 
 	/* In the future, we might do something like:
 	value->numCharsAllocatedToNameBuf = ...;
-	value->name = (char *)malloc(value->numCharsAllocatedToNameBuf * sizeof(char));
+	value->name = (char *)mmAlloc(value->numCharsAllocatedToNameBuf * sizeof(char));
 	memset(value->name, 0, value->numCharsAllocatedToNameBuf * sizeof(char));
 	*/
 	/* return value->numCharsAllocatedToNameBuf; */
@@ -28,10 +28,10 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 }
 
 LISP_VALUE * createUndefinedValue() {
-	LISP_VALUE * result = (LISP_VALUE *)malloc(sizeof(LISP_VALUE));
+	LISP_VALUE * result = (LISP_VALUE *)mmAlloc(sizeof(LISP_VALUE));
 
 	if (result == NULL) {
-		fatalError("malloc() failed in createUndefinedValue()");
+		fatalError("mmAlloc() failed in createUndefinedValue()");
 	}
 
 	result->type = lispValueType_Undefined;
@@ -107,10 +107,10 @@ LISP_VALUE * createPrimitiveOperator(char * value) {
 }
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
-	LISP_CLOSURE * closure = (LISP_CLOSURE *)malloc(sizeof(LISP_CLOSURE));
+	LISP_CLOSURE * closure = (LISP_CLOSURE *)mmAlloc(sizeof(LISP_CLOSURE));
 
 	if (closure == NULL) {
-		fatalError("malloc() failed in createClosure()");
+		fatalError("mmAlloc() failed in createClosure()");
 	}
 
 	closure->args = args;
@@ -142,7 +142,7 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 		closure->env = NULL;
 	}
 
-	free(closure);
+	mmFree(closure);
 } */
 
 /* TODO:
@@ -158,10 +158,10 @@ void freeThunk(LISP_VALUE * value) {
 }*/
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
-	LISP_PAIR * pair = (LISP_PAIR *)malloc(sizeof(LISP_PAIR));
+	LISP_PAIR * pair = (LISP_PAIR *)mmAlloc(sizeof(LISP_PAIR));
 
 	if (pair == NULL) {
-		fatalError("malloc() failed in createPair()");
+		fatalError("mmAlloc() failed in createPair()");
 	}
 
 	pair->head = head;
@@ -187,7 +187,7 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 		pair->tail = NULL;
 	}
 
-	free(pair);
+	mmFree(pair);
 } */
 
 LISP_VALUE * createNull() {
@@ -199,7 +199,7 @@ LISP_VALUE * createNull() {
 }
 
 /* void freeNull(LISP_VALUE * value) {
-	free(value);
+	mmFree(value);
 } */
 
 LISP_VALUE * cloneValue(LISP_VALUE * value) {
@@ -251,16 +251,16 @@ void freeValue(LISP_VALUE * value) {
 		value->closure = NULL;
 	}
 
-	free(value); */
+	mmFree(value); */
 }
 
 // **** Expression struct creation functions ****
 
 LISP_EXPR * createUndefinedExpression() {
-	LISP_EXPR * result = (LISP_EXPR *)malloc(sizeof(LISP_EXPR));
+	LISP_EXPR * result = (LISP_EXPR *)mmAlloc(sizeof(LISP_EXPR));
 
 	if (result == NULL) {
-		fatalError("malloc() failed in createUndefinedExpression()");
+		fatalError("mmAlloc() failed in createUndefinedExpression()");
 	}
 
 	result->type = lispExpressionType_Undefined;
@@ -278,10 +278,10 @@ LISP_EXPR * createUndefinedExpression() {
 }
 
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next) {
-	LISP_VAR_LIST_ELEMENT * result = (LISP_VAR_LIST_ELEMENT *)malloc(sizeof(LISP_VAR_LIST_ELEMENT));
+	LISP_VAR_LIST_ELEMENT * result = (LISP_VAR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_VAR_LIST_ELEMENT));
 
 	if (result == NULL) {
-		fatalError("malloc() failed in createVariableListElement()");
+		fatalError("mmAlloc() failed in createVariableListElement()");
 	}
 
 	result->var = var;
@@ -305,15 +305,15 @@ void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
 			varList->next = NULL;
 		}
 
-		free(varList);
+		mmFree(varList);
 	} */
 }
 
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next) {
-	LISP_EXPR_PAIR_LIST_ELEMENT * result = (LISP_EXPR_PAIR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_PAIR_LIST_ELEMENT));
+	LISP_EXPR_PAIR_LIST_ELEMENT * result = (LISP_EXPR_PAIR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_PAIR_LIST_ELEMENT));
 
 	if (result == NULL) {
-		fatalError("malloc() failed in createExpressionPairListElement()");
+		fatalError("mmAlloc() failed in createExpressionPairListElement()");
 	}
 
 	result->expr = expr;
@@ -342,15 +342,15 @@ void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 			exprPairList->next = NULL;
 		}
 
-		free(exprPairList);
+		mmFree(exprPairList);
 	} */
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
-	LISP_LAMBDA_EXPR * lambdaExpr = (LISP_LAMBDA_EXPR *)malloc(sizeof(LISP_LAMBDA_EXPR));
+	LISP_LAMBDA_EXPR * lambdaExpr = (LISP_LAMBDA_EXPR *)mmAlloc(sizeof(LISP_LAMBDA_EXPR));
 
 	if (lambdaExpr == NULL) {
-		fatalError("malloc() failed in createLambdaExpression()");
+		fatalError("mmAlloc() failed in createLambdaExpression()");
 	}
 
 	lambdaExpr->args = args;
@@ -377,7 +377,7 @@ void freeLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr) {
 		lambdaExpr->body = NULL;
 	}
 
-	free(lambdaExpr); */
+	mmFree(lambdaExpr); */
 }
 
 LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {
@@ -398,7 +398,7 @@ void freeFunctionCall(LISP_FUNCTION_CALL * functionCall) {
 	functionCall->firstExpr = NULL;
 	freeExpressionList(functionCall->actualParamExprs);
 	functionCall->actualParamExprs = NULL;
-	free(functionCall); */
+	mmFree(functionCall); */
 }
 
 void freeExpression(LISP_EXPR * expr) {
@@ -448,16 +448,16 @@ void freeExpression(LISP_EXPR * expr) {
 		expr->exprPairList = NULL;
 	} * /
 
-	free(expr); */
+	mmFree(expr); */
 }
 
 // **** Expression list struct creation functions ****
 
 LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR_LIST_ELEMENT * next) {
-	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_LIST_ELEMENT));
+	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_LIST_ELEMENT));
 
 	if (result == NULL) {
-		fatalError("malloc() failed in createExpressionListElement()");
+		fatalError("mmAlloc() failed in createExpressionListElement()");
 	}
 
 	result->expr = expr;
@@ -489,10 +489,10 @@ LISP_VAR * createVariable(char * name) {
 		fatalError("createVariable() : String contains an illegal character");
 	}
 
-	LISP_VAR * var = (LISP_VAR *)malloc(sizeof(LISP_VAR));
+	LISP_VAR * var = (LISP_VAR *)mmAlloc(sizeof(LISP_VAR));
 
 	if (var == NULL) {
-		fatalError("malloc() failed in createVariable()");
+		fatalError("mmAlloc() failed in createVariable()");
 	}
 
 	memset(var->name, 0, maxStringValueLength);
@@ -511,14 +511,14 @@ LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
 }
 
 void freeVariable(LISP_VAR * var) {
-	/* free(var); */
+	/* mmFree(var); */
 }
 
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
-	LISP_NAME_VALUE_LIST_ELEMENT * nvle = (LISP_NAME_VALUE_LIST_ELEMENT * )malloc(sizeof(LISP_NAME_VALUE_LIST_ELEMENT));
+	LISP_NAME_VALUE_LIST_ELEMENT * nvle = (LISP_NAME_VALUE_LIST_ELEMENT * )mmAlloc(sizeof(LISP_NAME_VALUE_LIST_ELEMENT));
 
 	if (nvle == NULL) {
-		fatalError("malloc() failed in createNameValueListElement()");
+		fatalError("mmAlloc() failed in createNameValueListElement()");
 	}
 
 	nvle->name = name;
@@ -537,15 +537,15 @@ void freeNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
 		nvle->value = NULL;
 		freeNameValueList(nvle->next);
 		nvle->next = NULL;
-		free(nvle);
+		mmFree(nvle);
 	} */
 }
 
 LISP_ENV * createEnvironment(LISP_ENV * next) {
-	LISP_ENV * env = (LISP_ENV *)malloc(sizeof(LISP_ENV));
+	LISP_ENV * env = (LISP_ENV *)mmAlloc(sizeof(LISP_ENV));
 
 	if (env == NULL) {
-		fatalError("malloc() failed in createEnvironment()");
+		fatalError("mmAlloc() failed in createEnvironment()");
 	}
 
 	env->nameValueList = NULL;
@@ -572,7 +572,7 @@ void freeEnvironment(LISP_ENV * env) {
 		env->next = NULL;
 		/ * } * /
 
-		free(env);
+		mmFree(env);
 	} */
 }
 
@@ -875,7 +875,7 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	SCHEME_UNIVERSAL_TYPE * value2,
 	SCHEME_UNIVERSAL_TYPE * next
 ) {
-	SCHEME_UNIVERSAL_TYPE * result = (SCHEME_UNIVERSAL_TYPE *)malloc(sizeof(SCHEME_UNIVERSAL_TYPE));
+	SCHEME_UNIVERSAL_TYPE * result = (SCHEME_UNIVERSAL_TYPE *)mmAlloc(sizeof(SCHEME_UNIVERSAL_TYPE));
 
 	++numMallocs;
 	result->mark = 0;
@@ -900,8 +900,8 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	SCHEME_UNIVERSAL_TYPE * next
 ) {
 	/* If name != NULL then copy it, and set maxNameLength = strlen(name) + 1 */
-	/* If name == NULL and maxNameLength > 1 then malloc(maxNameLength * sizeof(char)) and zero-fill it */
-	/* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then malloc and zero-fill */
+	/* If name == NULL and maxNameLength > 1 then mmAlloc(maxNameLength * sizeof(char)) and zero-fill it */
+	/* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then mmAlloc and zero-fill */
 
 	if (name != NULL) {
 		const int len = strlen(name);
@@ -914,7 +914,7 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 		maxNameLength = maxStringValueLength;
 	}
 
-	char * buf = (char *)malloc(maxNameLength * sizeof(char));
+	char * buf = (char *)mmAlloc(maxNameLength * sizeof(char));
 
 	++numMallocs;
 	memset(buf, 0, maxNameLength * sizeof(char));
@@ -929,7 +929,7 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 
 	if (expr->name != NULL) {
-		free(expr->name);
+		mmFree(expr->name);
 		++numFrees;
 		expr->name = NULL;
 	}
@@ -949,7 +949,7 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 		expr->next = NULL;
 	}
 
-	free(expr);
+	mmFree(expr);
 	++numFrees;
 }
 
@@ -975,7 +975,7 @@ void printMemMgrReport() {
 }
 
 void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
-	MEMMGR_RECORD * mmRec = (MEMMGR_RECORD *)malloc(sizeof(MEMMGR_RECORD));
+	MEMMGR_RECORD * mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 
 	++numMallocs;
 	mmRec->expr = item;
@@ -1039,7 +1039,7 @@ void freeUnmarkedStructs() {
 
 			mmRec->expr = NULL;
 			mmRec->next = NULL;
-			free(mmRec);
+			mmFree(mmRec);
 			++numFrees;
 			*ppmmRec = nextmmRec;
 		} else {

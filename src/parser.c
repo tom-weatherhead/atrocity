@@ -13,6 +13,7 @@
 #include "char-source.h"
 
 #include "create-and-destroy.h"
+#include "memory-manager.h"
 #include "parser.h"
 #include "utilities.h"
 
@@ -40,10 +41,10 @@ static char * primops[] = {
 static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 	LISP_EXPR_LIST_ELEMENT * exprList = parseExpressionList(cs);
 
-	LISP_FUNCTION_CALL * functionCall = (LISP_FUNCTION_CALL *)malloc(sizeof(LISP_FUNCTION_CALL));
+	LISP_FUNCTION_CALL * functionCall = (LISP_FUNCTION_CALL *)mmAlloc(sizeof(LISP_FUNCTION_CALL));
 
 	if (functionCall == NULL) {
-		fatalError("malloc() failed in parseFunctionCallExpression()");
+		fatalError("mmAlloc() failed in parseFunctionCallExpression()");
 	}
 
 	functionCall->firstExpr = exprList->expr;
@@ -51,7 +52,7 @@ static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 
 	exprList->expr = NULL;
 	exprList->next = NULL;
-	free(exprList);
+	mmFree(exprList);
 
 	LISP_EXPR * result = createUndefinedExpression();
 
@@ -156,10 +157,10 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 	}
 
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next = parseVarExpressionPairList(cs);
-	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * result = (LISP_VAR_EXPR_PAIR_LIST_ELEMENT *)malloc(sizeof(LISP_VAR_EXPR_PAIR_LIST_ELEMENT));
+	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * result = (LISP_VAR_EXPR_PAIR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_VAR_EXPR_PAIR_LIST_ELEMENT));
 
 	if (result == NULL) {
-		fatalError("malloc() failed in parseVarExpressionPairList()");
+		fatalError("mmAlloc() failed in parseVarExpressionPairList()");
 	}
 
 	result->var = var;
@@ -318,10 +319,10 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 	LISP_EXPR_LIST_ELEMENT * next = parseExpressionList(cs);
 
-	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)malloc(sizeof(LISP_EXPR_LIST_ELEMENT));
+	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_LIST_ELEMENT));
 
 	if (result == NULL) {
-		fatalError("malloc() failed in parseExpressionList()");
+		fatalError("mmAlloc() failed in parseExpressionList()");
 	}
 
 	result->expr = expr;

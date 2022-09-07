@@ -7,15 +7,16 @@
 #include "types.h"
 
 #include "char-source.h"
+#include "memory-manager.h"
 #include "utilities.h"
 
-// **** CharSource functions ****
+/* **** CharSource functions **** */
 
 CharSource * createCharSource(char * str) {
-	CharSource * cs = (CharSource *)malloc(sizeof(CharSource));
+	CharSource * cs = (CharSource *)mmAlloc(sizeof(CharSource));
 
 	if (cs == NULL) {
-		fatalError("malloc() failed in createCharSource()");
+		fatalError("mmAlloc() failed in createCharSource()");
 	}
 
 	/* TODO? : Clone the string? */
@@ -29,7 +30,7 @@ CharSource * createCharSource(char * str) {
 
 void freeCharSource(CharSource * cs) {
 	cs->str = NULL; /* Note bene: We don't call free() here */
-	free(cs);
+	mmFree(cs);
 }
 
 static BOOL isWhiteSpace(char c) {

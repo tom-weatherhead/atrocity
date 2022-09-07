@@ -12,6 +12,7 @@
 
 #include "create-and-destroy.h"
 #include "environment.h"
+#include "memory-manager.h"
 #include "parse-and-evaluate.h"
 #include "utilities.h"
 
@@ -42,10 +43,10 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 
 	const int bufSize = readScriptBufSize;
 	const int bufSizeInBytes = bufSize * sizeof(char);
-	char * str = (char *)malloc(bufSizeInBytes);
+	char * str = (char *)mmAlloc(bufSizeInBytes);
 
 	if (str == NULL) {
-		fatalError("malloc() failed in execScriptInFile()");
+		fatalError("mmAlloc() failed in execScriptInFile()");
 	}
 
 	int i = 0;
@@ -137,7 +138,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 		freeGlobalEnvironment(globalEnv);
 	}
 
-	free(str);
+	mmFree(str);
 
 	printf("\nScript execution complete.\n");
 }
@@ -151,7 +152,7 @@ of code (or NULL for EOF) as it needs them. */
 void readEvalPrintLoop() {
 	const int bufsize = replBufSize;
 	const int bufsizeInBytes = bufsize * sizeof(char);
-	char * buf = (char *)malloc(bufsizeInBytes);
+	char * buf = (char *)mmAlloc(bufsizeInBytes);
 	int i;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
 
@@ -196,7 +197,7 @@ void readEvalPrintLoop() {
 	}
 
 	freeGlobalEnvironment(globalEnv);
-	free(buf);
+	mmFree(buf);
 
 	printf("REPL complete.\n");
 }
