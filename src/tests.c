@@ -61,7 +61,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 			break;
 		}
 
-		printf("Testing: %s\n", input);
+		/* printf("Testing: %s\n", input); */
 
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
 

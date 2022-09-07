@@ -92,14 +92,6 @@ typedef struct LISP_VALUE_STRUCT {
 
 /* The NameValueList is a crude dictionary of values. */
 
-/* typedef struct LISP_NAME_VALUE_LIST_ELEMENT_STRUCT {
-	int mark; / * All dynamically allocated structs must have this member * /
-
-	char * name;
-	LISP_VALUE * value;
-	struct LISP_NAME_VALUE_LIST_ELEMENT_STRUCT * next;
-} LISP_NAME_VALUE_LIST_ELEMENT; */
-
 typedef struct LISP_ENV_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
