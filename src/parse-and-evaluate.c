@@ -24,6 +24,19 @@ extern LISP_VALUE * globalTrueValue;
 
 /* TODO: Try to eliminate code duplication in this file. */
 
+LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
+	CharSource * cs = createCharSource(str);
+	LISP_EXPR * parseTree = parseExpression(cs);
+	LISP_VALUE * value = evaluate(parseTree, globalEnv);
+
+	/* TODO? : freeExpression(parseTree); */
+	freeCharSource(cs);
+
+	return value;
+}
+
+/* This function is used to populate the global environment with
+'built-in' functions. */
 void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	LISP_ENV * originalGlobalEnv = globalEnv;
 

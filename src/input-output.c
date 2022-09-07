@@ -12,8 +12,9 @@
 
 #include "create-and-destroy.h"
 #include "environment.h"
-#include "parser.h"
-#include "evaluate.h"
+/* #include "parser.h"
+#include "evaluate.h" */
+#include "parse-and-evaluate.h"
 #include "utilities.h"
 
 /* External constants / variables */
@@ -104,21 +105,23 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 				continue;
 			}
 
-			/* printf("Parsing '%s' (length %lu)...\n", str, strlen(str)); */
+			LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
+
+			/* printf("Parsing '%s' (length %lu)...\n", str, strlen(str)); * /
 
 			CharSource * cs = createCharSource(str);
 
 			LISP_EXPR * parseTree = parseExpression(cs);
 
-			/* printf("Evaluating...\n"); */
+			/ * printf("Evaluating...\n"); * /
 
-			LISP_VALUE * value = evaluate(parseTree, globalEnv);
+			LISP_VALUE * value = evaluate(parseTree, globalEnv); */
 
 			/* printf("Output: "); */
 			printValue(value);
 			printf("\n");
 
-			freeCharSource(cs);
+			/* freeCharSource(cs); */
 
 			memset(str, 0, bufSizeInBytes);
 			i = 0;
@@ -211,23 +214,24 @@ void readEvalPrintLoop() {
 			continue;
 		}
 
-		/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); */
+		LISP_VALUE * value = parseStringAndEvaluate(buf, globalEnv);
+		/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); * /
 
 		CharSource * cs = createCharSource(buf);
 
-		/* printf("Parsing...\n"); */
+		/ * printf("Parsing...\n"); * /
 
 		LISP_EXPR * parseTree = parseExpression(cs);
 
-		/* printf("Evaluating...\n"); */
+		/ * printf("Evaluating...\n"); * /
 
-		LISP_VALUE * value = evaluate(parseTree, globalEnv);
+		LISP_VALUE * value = evaluate(parseTree, globalEnv); */
 
 		/* printf("Output: "); */
 		printValue(value);
 		printf("\n\n");
 
-		freeCharSource(cs);
+		/** freeCharSource(cs); */
 	}
 
 	freeGlobalEnvironment(globalEnv);
