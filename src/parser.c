@@ -148,7 +148,7 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 		fatalError("parseVarExpressionPairList() : Expected variable, found EOF");
 	}
 
-	LISP_VAR * var = createVariable(dstBuf);
+	/* LISP_VAR * var = createVariable(dstBuf); */
 
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
@@ -158,15 +158,17 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 	}
 
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next = parseVarExpressionPairList(cs);
-	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * result = (LISP_VAR_EXPR_PAIR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_VAR_EXPR_PAIR_LIST_ELEMENT));
+	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
+		schemeStructType_VariableExpressionPairListElement,
+		0,
+		0,
+		dstBuf,
+		NULL,
+		NULL,
+		next
+	);
 
-	if (result == NULL) {
-		fatalError("mmAlloc() failed in parseVarExpressionPairList()");
-	}
-
-	result->var = var;
 	result->expr = expr;
-	result->next = next;
 
 	return result;
 }
@@ -319,15 +321,6 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 
 	LISP_EXPR * expr = parseExpression(cs);
 	LISP_EXPR_LIST_ELEMENT * next = parseExpressionList(cs);
-
-	/* LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_LIST_ELEMENT));
-
-	if (result == NULL) {
-		fatalError("mmAlloc() failed in parseExpressionList()");
-	}
-
-	result->expr = expr;
-	result->next = next; */
 	LISP_EXPR_LIST_ELEMENT * result = createExpressionListElement(expr, next);
 
 	return result;

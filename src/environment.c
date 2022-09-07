@@ -56,11 +56,11 @@ LISP_VALUE * lookupVariableInEnvironment(LISP_VAR * var, LISP_ENV * env) {
 	return value;
 }
 
-BOOL updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR * var, LISP_VALUE * value) {
+BOOL updateNameIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, char * name, LISP_VALUE * value) {
 
 	while (nvle != NULL) {
 
-		if (!strcmp(nvle->name, var->name)) {
+		if (!strcmp(nvle->name, name)) {
 			nvle->value = value;
 			return TRUE;
 		}
@@ -69,6 +69,10 @@ BOOL updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR 
 	}
 
 	return FALSE;
+}
+
+BOOL updateIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, LISP_VAR * var, LISP_VALUE * value) {
+	return updateNameIfFoundInNameValueList(nvle, var->name, value);
 }
 
 static BOOL updateIfFoundInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
@@ -87,6 +91,10 @@ static BOOL updateIfFoundInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALU
 	return FALSE;
 }
 
+void addNameToEnvironment(LISP_ENV * env, char * name, LISP_VALUE * value) {
+	env->value1 = createNameValueListElement(name, value, env->value1);
+}
+
 void addToEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 
 	if (lookupVariableInEnvironment(var, env) != NULL) {
@@ -95,7 +103,7 @@ void addToEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 	}
 
 	/* env->nameValueList = createNameValueListElement(var->name, value, env->nameValueList); */
-	env->value1 = createNameValueListElement(var->name, value, env->value1);
+	addNameToEnvironment(env, var->name, value);
 }
 
 void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {

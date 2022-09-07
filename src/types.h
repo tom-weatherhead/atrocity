@@ -23,6 +23,7 @@ struct LISP_EXPR_STRUCT;
 /* Every expression can be evaluated to a value. */
 
 /* TODO: Migrate the data model to this single structure: */
+/* Currently, 6 structs are defined in this file. */
 typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* Contains eight members. */
 
@@ -80,6 +81,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
+#define LISP_VAR_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 
 typedef struct LISP_VALUE_STRUCT {
@@ -105,14 +107,6 @@ typedef struct LISP_CLOSURE_STRUCT {
 	struct LISP_EXPR_STRUCT * body;
 	LISP_ENV * env;
 } LISP_CLOSURE; /* A value. Closures are part of Scheme, not LISP. */
-
-typedef struct LISP_VAR_EXPR_PAIR_LIST_ELEMENT_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
-
-	LISP_VAR * var;
-	struct LISP_EXPR_STRUCT * expr;
-	struct LISP_VAR_EXPR_PAIR_LIST_ELEMENT_STRUCT * next;
-} LISP_VAR_EXPR_PAIR_LIST_ELEMENT;
 
 typedef struct LISP_EXPR_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -179,7 +173,8 @@ enum {
 	schemeStructType_ExpressionPairListElement,
 	schemeStructType_NameValueListElement,
 	schemeStructType_Pair,
-	schemeStructType_VariableListElement
+	schemeStructType_VariableListElement,
+	schemeStructType_VariableExpressionPairListElement
 };
 
 #define failIf(b, str) if (b) { fprintf(stderr, "Fatal error '%s' in file %s at line %d\n", str, __FILE__, __LINE__); exit(1); }

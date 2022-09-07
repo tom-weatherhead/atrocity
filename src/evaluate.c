@@ -582,7 +582,7 @@ static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		/* Note: This constructs the list in reverse order... */
 		/* TODO: Implement this using recursion instead. */
 		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
-		newEnv->value1 = createNameValueListElement(varExprPairList->var->name, value, newEnv->value1);
+		newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1);
 	}
 
 	newEnv->next = env;
@@ -606,7 +606,7 @@ static LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) 
 		}
 
 		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
-		newEnv->value1 = createNameValueListElement(varExprPairList->var->name, value, newEnv->value1);
+		newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1);
 
 		env = newEnv;
 		varExprPairList = varExprPairList->next;
@@ -621,7 +621,8 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 	for (; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
 		/* Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop. */
-		addToEnvironment(newEnv, varExprPairList->var, globalNullValue);
+		/* addToEnvironment(newEnv, varExprPairList->var, globalNullValue); */
+		addNameToEnvironment(newEnv, varExprPairList->name, globalNullValue);
 	}
 
 	for (varExprPairList = expr->varExprPairList; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
@@ -632,7 +633,7 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		}
 
 		/* updateIfFoundInNameValueList(newEnv->nameValueList, varExprPairList->var, value); */
-		updateIfFoundInNameValueList(newEnv->value1, varExprPairList->var, value);
+		updateNameIfFoundInNameValueList(newEnv->value1, varExprPairList->name, value);
 	}
 
 	return evaluate(expr->expr, newEnv);
