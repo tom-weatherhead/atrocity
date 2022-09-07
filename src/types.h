@@ -25,7 +25,7 @@ struct LISP_EXPR_LIST_ELEMENT_STRUCT;
 /* Every value is an expression. */
 /* Every expression can be evaluated to a value. */
 
-/* TODO: Migrate the data model to this: */
+/* TODO: Migrate the data model to this single structure: */
 typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* Contains eight members. */
 

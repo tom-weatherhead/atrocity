@@ -25,9 +25,13 @@ extern LISP_VALUE * globalTrueValue;
 /* TODO: Try to eliminate code duplication in this file. */
 
 LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
+	printf("parseStringAndEvaluate: Before createCharSource()\n");
 	CharSource * cs = createCharSource(str);
+	printf("parseStringAndEvaluate: After createCharSource()\n");
 	LISP_EXPR * parseTree = parseExpression(cs);
+	printf("parseStringAndEvaluate: After parseExpression()\n");
 	LISP_VALUE * value = evaluate(parseTree, globalEnv);
+	printf("parseStringAndEvaluate: After evaluate()\n");
 
 	freeExpression(parseTree);
 	freeCharSource(cs);
@@ -42,9 +46,11 @@ void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 
 	/* LISP_ENV * originalGlobalEnv = globalEnv; */
 
-	if (verbose) {
+	/* if (verbose) { */
 		printf("\nInput: '%s'\n", str);
-	}
+	/* } */
+
+	/* printf("globalEnv is %ld\n", globalEnv); */
 
 	/* if (globalEnv == NULL) {
 		globalEnv = createGlobalEnvironment();

@@ -32,8 +32,9 @@ static char * primops[] = {
 	"!=", /* For all value types, not just numbers */
 	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
 	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
-	"if", "print", "random", "throw", "call/cc", "and", "or", "??"
+	"if", "print", "random", "throw", "call/cc", "and", "or", "??",
 	/* Not yet implemented: "quote", "floor" */
+	NULL
 };
 
 /* Functions */
@@ -373,6 +374,8 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 /* Parse an expression */
 
 LISP_EXPR * parseExpression(CharSource * cs) {
+	printf("parseExpression: Begin\n");
+
 	/* Be careful to not assume that sizeof(char) is always 1. */
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
@@ -385,27 +388,39 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		return NULL;
 	}
 
-	/* printf("parseExpression() : dstBuf is '%s'\n", dstBuf); */
+	printf("parseExpression() : dstBuf is '%s'\n", dstBuf);
 
 	if (safeAtoi(dstBuf, &dstBufAsInt)) {
+		printf("parseExpression() : safeAtoi() returned true\n");
+
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
 	// } else if (!strcmp(dstBuf, "'")) {
 	} else if (isSingleQuoted) {
+		printf("parseExpression() : isSingleQuoted\n");
+
 		/* In the future, we will count quoted brackets, and keep track of
 		the current quote state (i.e. is quoted or is not quoted)
 		-> Or let the functions createQuotedValue() / createQuotedValue() match the quoted brackets (i.e. via recursive descent parsing) ?
 		We can keep track of state data in the CharSource, if necessary. */
 		return createExpressionFromValue(createQuotedValue(cs));
 	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
+		printf("parseExpression() : Calling createStringValue and createExpressionFromValue\n");
+
 		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (isStringInList(dstBuf, primops)) {
+		printf("parseExpression() : Calling createPrimitiveOperator and createExpressionFromValue\n");
+
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "(")) {
+		printf("parseExpression() : Calling parseBracketedExpression()\n");
+
 		return parseBracketedExpression(cs);
 	} else if (!strcmp(dstBuf, ")")) {
 		fatalError("parseExpression() : Encountered an unexpected ')'");
 		return NULL;
 	} else {
+		printf("parseExpression() : Calling createVariable and createExpressionFromVariable\n");
+
 		return createExpressionFromVariable(createVariable(dstBuf));
 	}
 }

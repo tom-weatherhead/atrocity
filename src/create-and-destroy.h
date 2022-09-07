@@ -30,6 +30,25 @@ LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next);
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next);
 
+/* SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
+	int type,
+	int integerValue,
+	int maxNameLength,
+	char * name,
+	SCHEME_UNIVERSAL_TYPE * value1,
+	SCHEME_UNIVERSAL_TYPE * value2,
+	SCHEME_UNIVERSAL_TYPE * next
+);
+SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
+	int type,
+	int integerValue,
+	int maxNameLength,
+	char * name,
+	SCHEME_UNIVERSAL_TYPE * value1,
+	SCHEME_UNIVERSAL_TYPE * value2,
+	SCHEME_UNIVERSAL_TYPE * next
+); */
+
 /* Free stuff */
 void freeValue(LISP_VALUE * value);
 
@@ -40,6 +59,8 @@ void freeExpressionList(LISP_EXPR_LIST_ELEMENT * exprList);
 void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList);
 void freeVariable(LISP_VAR * var);
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
+
+/* void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr); */
 
 /* DOM functions */
 BOOL isList(LISP_VALUE * value);

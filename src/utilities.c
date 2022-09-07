@@ -26,6 +26,8 @@ BOOL isStringAllWhitespace(char * str) {
 }
 
 BOOL safeAtoi(char * str, int * ptrToInt) {
+	printf("safeAtoi() : Begin\n");
+
 	const int len = strlen(str);
 	int i = 0;
 
@@ -34,17 +36,26 @@ BOOL safeAtoi(char * str, int * ptrToInt) {
 	}
 
 	if (i == len) {
+		printf("safeAtoi() : End 1\n");
+
 		return FALSE; /* str is just "" or "-" */
 	}
 
 	for (; i < len; ++i) {
 
 		if (str[i] < '0' || str[i] > '9') {
+			printf("safeAtoi() : End 2\n");
+
 			return FALSE;
 		}
 	}
 
+	printf("safeAtoi() : atoi()\n");
+
 	*ptrToInt = atoi(str);
+
+	printf("safeAtoi() : End 3\n");
+
 	return TRUE;
 }
 

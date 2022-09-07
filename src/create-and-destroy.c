@@ -15,6 +15,8 @@
 /* **** Value struct creation functions **** */
 
 int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
+	/* **** Deprecated **** */
+
 	/* Return the number of chars, not necessarily the number of bytes. */
 
 	/* In the future, we might do something like:
@@ -28,11 +30,13 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 }
 
 LISP_VALUE * createUndefinedValue() {
+	printf("createUndefinedValue() : Begin\n");
+
 	LISP_VALUE * result = (LISP_VALUE *)mmAlloc(sizeof(LISP_VALUE));
 
-	if (result == NULL) {
+	/* if (result == NULL) {
 		fatalError("mmAlloc() failed in createUndefinedValue()");
-	}
+	} */
 
 	result->type = lispValueType_Undefined;
 	result->value = 0;
@@ -44,19 +48,27 @@ LISP_VALUE * createUndefinedValue() {
 
 	/* registerValueWithMemoryManager(result); */
 
+	printf("createUndefinedValue() : End\n");
+
 	return result;
 }
 
 LISP_VALUE * createNumericValue(int value) {
+	printf("createNumericValue() : Begin\n");
+
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Number;
 	result->value = value;
 
+	printf("createNumericValue() : End\n");
+
 	return result;
 }
 
 LISP_VALUE * createStringValue(char * str) {
+	printf("createStringValue() : Begin\n");
+
 	int len = strlen(str);
 
 	if (len > 0 && str[0] == '"') {
@@ -79,10 +91,13 @@ LISP_VALUE * createStringValue(char * str) {
 	memcpy(result->name, str, len * sizeof(char));
 	/* printf("Created string: <%s>\n", result->name); */
 
+	printf("createStringValue() : End\n");
+
 	return result;
 }
 
 LISP_VALUE * createSymbolValue(char * value) {
+	printf("createSymbolValue() : Begin\n");
 
 	if (strlen(value) >= maxStringValueLength) {
 		fprintf(stderr, "The string '%s' is too long to be a string value.", value);
@@ -94,24 +109,32 @@ LISP_VALUE * createSymbolValue(char * value) {
 	result->type = lispValueType_Symbol;
 	strcpy(result->name, value);
 
+	printf("createSymbolValue() : End\n");
+
 	return result;
 }
 
 LISP_VALUE * createPrimitiveOperator(char * value) {
+	printf("createPrimitiveOperator() : Begin\n");
+
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_PrimitiveOperator;
 	strcpy(result->name, value);
 
+	printf("createPrimitiveOperator() : End\n");
+
 	return result;
 }
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
+	printf("createClosure() : Begin\n");
+
 	LISP_CLOSURE * closure = (LISP_CLOSURE *)mmAlloc(sizeof(LISP_CLOSURE));
 
-	if (closure == NULL) {
+	/* if (closure == NULL) {
 		fatalError("mmAlloc() failed in createClosure()");
-	}
+	} */
 
 	closure->args = args;
 	closure->body = body;
@@ -121,6 +144,8 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 
 	result->type = lispValueType_Closure;
 	result->closure = closure;
+
+	printf("createClosure() : End\n");
 
 	return result;
 }
@@ -158,11 +183,13 @@ void freeThunk(LISP_VALUE * value) {
 }*/
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
+	printf("createPair() : Begin\n");
+
 	LISP_PAIR * pair = (LISP_PAIR *)mmAlloc(sizeof(LISP_PAIR));
 
-	if (pair == NULL) {
+	/* if (pair == NULL) {
 		fatalError("mmAlloc() failed in createPair()");
-	}
+	} */
 
 	pair->head = head;
 	pair->tail = tail;
@@ -171,6 +198,8 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 
 	result->type = lispValueType_Pair;
 	result->pair = pair;
+
+	printf("createPair() : End\n");
 
 	return result;
 }
@@ -191,9 +220,13 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 } */
 
 LISP_VALUE * createNull() {
+	printf("createNull() : Begin\n");
+
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Null;
+
+	printf("createNull() : End\n");
 
 	return result;
 }
@@ -203,6 +236,7 @@ LISP_VALUE * createNull() {
 } */
 
 LISP_VALUE * cloneValue(LISP_VALUE * value) {
+	printf("cloneValue() : Begin\n");
 
 	switch (value->type) {
 		case lispValueType_Number:
@@ -240,6 +274,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 }
 
 void freeValue(LISP_VALUE * value) {
+	printf("freeValue() : Begin\n");
 
 	/* if (value->pair != NULL) {
 		freePair(value->pair);
@@ -257,11 +292,13 @@ void freeValue(LISP_VALUE * value) {
 // **** Expression struct creation functions ****
 
 LISP_EXPR * createUndefinedExpression() {
+	printf("createUndefinedExpression() : Begin\n");
+
 	LISP_EXPR * result = (LISP_EXPR *)mmAlloc(sizeof(LISP_EXPR));
 
-	if (result == NULL) {
+	/* if (result == NULL) {
 		fatalError("mmAlloc() failed in createUndefinedExpression()");
-	}
+	} */
 
 	result->type = lispExpressionType_Undefined;
 	result->value = NULL;
@@ -274,18 +311,24 @@ LISP_EXPR * createUndefinedExpression() {
 	result->varExprPairList = NULL;
 	result->exprPairList = NULL;
 
+	printf("createUndefinedExpression() : End\n");
+
 	return result;
 }
 
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next) {
+	printf("createVariableListElement() : Begin\n");
+
 	LISP_VAR_LIST_ELEMENT * result = (LISP_VAR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_VAR_LIST_ELEMENT));
 
-	if (result == NULL) {
+	/* if (result == NULL) {
 		fatalError("mmAlloc() failed in createVariableListElement()");
-	}
+	} */
 
 	result->var = var;
 	result->next = next;
+
+	printf("createVariableListElement() : End\n");
 
 	return result;
 }
@@ -863,10 +906,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 /* BEGIN SCHEME_UNIVERSAL_TYPE */
 
-static int numMallocs = 0;
-static int numFrees = 0;
-
-SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
+/* SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	int type,
 	int integerValue,
 	int maxNameLength,
@@ -877,7 +917,6 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 ) {
 	SCHEME_UNIVERSAL_TYPE * result = (SCHEME_UNIVERSAL_TYPE *)mmAlloc(sizeof(SCHEME_UNIVERSAL_TYPE));
 
-	++numMallocs;
 	result->mark = 0;
 	result->type = type;
 	result->integerValue = integerValue;
@@ -888,9 +927,13 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->next = next;
 
 	return result;
-}
+} */
 
-SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
+/* If name != NULL then copy it, and set maxNameLength = strlen(name) + 1 */
+/* If name == NULL and maxNameLength > 1 then mmAlloc(maxNameLength * sizeof(char)) and zero-fill it */
+/* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then mmAlloc and zero-fill */
+
+/* SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	int type,
 	int integerValue,
 	int maxNameLength,
@@ -899,9 +942,6 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	SCHEME_UNIVERSAL_TYPE * value2,
 	SCHEME_UNIVERSAL_TYPE * next
 ) {
-	/* If name != NULL then copy it, and set maxNameLength = strlen(name) + 1 */
-	/* If name == NULL and maxNameLength > 1 then mmAlloc(maxNameLength * sizeof(char)) and zero-fill it */
-	/* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then mmAlloc and zero-fill */
 
 	if (name != NULL) {
 		const int len = strlen(name);
@@ -909,14 +949,13 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 		if (maxNameLength <= len) {
 			maxNameLength = len + 1;
 		}
-		/* This allows you to allocate a buffer longer than len + 1 chars if you wish */
+		/ * This allows you to allocate a buffer longer than len + 1 chars if you wish * /
 	} else if (maxNameLength <= 0) {
 		maxNameLength = maxStringValueLength;
 	}
 
 	char * buf = (char *)mmAlloc(maxNameLength * sizeof(char));
 
-	++numMallocs;
 	memset(buf, 0, maxNameLength * sizeof(char));
 
 	if (name != NULL) {
@@ -924,13 +963,12 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	}
 
 	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
-}
+} */
 
-void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
+/* void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 
 	if (expr->name != NULL) {
 		mmFree(expr->name);
-		++numFrees;
 		expr->name = NULL;
 	}
 
@@ -950,123 +988,8 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 	}
 
 	mmFree(expr);
-	++numFrees;
-}
+} */
 
 /* END SCHEME_UNIVERSAL_TYPE */
-
-/* **** BEGIN Memory manager version 1 **** */
-
-typedef struct MEMMGR_RECORD_STRUCT {
-	SCHEME_UNIVERSAL_TYPE * expr;
-	struct MEMMGR_RECORD_STRUCT * next;
-} MEMMGR_RECORD;
-
-MEMMGR_RECORD * memmgrRecords = NULL;
-
-void printMemMgrReport() {
-	printf("  Memory manager: %d mallocs, %d frees", numMallocs, numFrees);
-
-	if (numMallocs > numFrees) {
-		printf(" : **** LEAKAGE ****");
-	}
-
-	printf("\n");
-}
-
-void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
-	MEMMGR_RECORD * mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
-
-	++numMallocs;
-	mmRec->expr = item;
-	mmRec->next = memmgrRecords;
-	memmgrRecords = mmRec;
-}
-
-int getNumMemMgrRecords() {
-	int n = 0;
-	MEMMGR_RECORD * mmRec;
-
-	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
-		++n;
-	}
-
-	return n;
-}
-
-void clearMarks() {
-	MEMMGR_RECORD * mmRec;
-
-	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
-		mmRec->expr->mark = 0;
-	}
-}
-
-void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
-	/* Do this recursively */
-	expr->mark = 1;
-
-	if (expr->value1 != NULL) {
-		setMarksInExprTree(expr->value1);
-	}
-
-	if (expr->value2 != NULL) {
-		setMarksInExprTree(expr->value2);
-	}
-
-	if (expr->next != NULL) {
-		setMarksInExprTree(expr->next);
-	}
-}
-
-void freeUnmarkedStructs() {
-	MEMMGR_RECORD ** ppmmRec = &memmgrRecords;
-	MEMMGR_RECORD * mmRec = *ppmmRec;
-
-	while (mmRec != NULL) {
-
-		if (mmRec->expr->mark == 0) {
-			/* Free mmRec->expr. Do not free recursively.
-			Allow mmRec->expr->name to be freed. */
-			mmRec->expr->value1 = NULL;
-			mmRec->expr->value2 = NULL;
-			mmRec->expr->next = NULL;
-			freeUniversalStruct(mmRec->expr);
-			mmRec->expr = NULL;
-
-			/* Then free mmRec, preserving the integrity of the linked list */
-			MEMMGR_RECORD * nextmmRec = mmRec->next;
-
-			mmRec->expr = NULL;
-			mmRec->next = NULL;
-			mmFree(mmRec);
-			++numFrees;
-			*ppmmRec = nextmmRec;
-		} else {
-			ppmmRec = &mmRec->next;
-		}
-
-		mmRec = *ppmmRec;
-	}
-}
-
-void collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]) {
-	int i;
-
-	clearMarks();
-
-	for (i = 0; exprTreesToMark[i] != NULL; ++i) {
-		setMarksInExprTree(exprTreesToMark[i]);
-	}
-
-	freeUnmarkedStructs();
-}
-
-void freeAllStructs() {
-	clearMarks();
-	freeUnmarkedStructs();
-}
-
-/* **** END Memory manager version 1 **** */
 
 /* **** The End **** */
