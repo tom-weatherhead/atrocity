@@ -307,7 +307,7 @@ void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
 }
 
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next) {
-	LISP_EXPR_PAIR_LIST_ELEMENT * result = (LISP_EXPR_PAIR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_PAIR_LIST_ELEMENT));
+	/* LISP_EXPR_PAIR_LIST_ELEMENT * result = (LISP_EXPR_PAIR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_PAIR_LIST_ELEMENT));
 
 	if (result == NULL) {
 		fatalError("mmAlloc() failed in createExpressionPairListElement()");
@@ -315,7 +315,19 @@ LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, 
 
 	result->expr = expr;
 	result->expr2 = expr2;
-	result->next = next;
+	result->next = next; */
+	LISP_EXPR_PAIR_LIST_ELEMENT * result = createUniversalStruct(
+		schemeStructType_ExpressionPairListElement,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		next
+	);
+
+	result->expr = expr;
+	result->expr2 = expr2;
 
 	return result;
 }

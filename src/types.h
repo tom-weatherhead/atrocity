@@ -76,6 +76,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define LISP_ENV SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
+#define LISP_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
@@ -104,14 +105,6 @@ typedef struct LISP_CLOSURE_STRUCT {
 	struct LISP_EXPR_STRUCT * body;
 	LISP_ENV * env;
 } LISP_CLOSURE; /* A value. Closures are part of Scheme, not LISP. */
-
-typedef struct LISP_EXPR_PAIR_LIST_ELEMENT_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
-
-	struct LISP_EXPR_STRUCT * expr;
-	struct LISP_EXPR_STRUCT * expr2;
-	struct LISP_EXPR_PAIR_LIST_ELEMENT_STRUCT * next;
-} LISP_EXPR_PAIR_LIST_ELEMENT;
 
 typedef struct LISP_VAR_EXPR_PAIR_LIST_ELEMENT_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -183,6 +176,7 @@ enum {
 
 	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,
+	schemeStructType_ExpressionPairListElement,
 	schemeStructType_NameValueListElement,
 	schemeStructType_Pair,
 	schemeStructType_VariableListElement
