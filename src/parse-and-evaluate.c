@@ -11,7 +11,7 @@
 #include "char-source.h"
 
 #include "create-and-destroy.h"
-#include "environment.h"
+/* #include "environment.h" */
 #include "parser.h"
 #include "evaluate.h"
 
@@ -29,7 +29,7 @@ LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
 	LISP_EXPR * parseTree = parseExpression(cs);
 	LISP_VALUE * value = evaluate(parseTree, globalEnv);
 
-	/* TODO? : freeExpression(parseTree); */
+	freeExpression(parseTree);
 	freeCharSource(cs);
 
 	return value;
@@ -40,23 +40,20 @@ LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
 void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	failIf(globalEnv == NULL, "globalEnv is NULL");
 
-	LISP_ENV * originalGlobalEnv = globalEnv;
+	/* LISP_ENV * originalGlobalEnv = globalEnv; */
 
 	if (verbose) {
 		printf("\nInput: '%s'\n", str);
 	}
 
-	if (globalEnv == NULL) {
+	/* if (globalEnv == NULL) {
 		globalEnv = createGlobalEnvironment();
-	}
+	} */
 
 	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
 	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
 	LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
-	/* CharSource * cs = createCharSource(str);
-	LISP_EXPR * parseTree = parseExpression(cs);
-	LISP_VALUE * value = evaluate(parseTree, globalEnv); */
 
 	if (verbose) {
 		printf("Output: ");
@@ -67,12 +64,10 @@ void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	/* Note bene: freeClosure is currently mostly disabled to avoid
 	 * double-freeing things. We must fix this. */
 	freeValue(value);
-	/* freeExpression(parseTree);
-	freeCharSource(cs); */
 
-	if (originalGlobalEnv == NULL) {
+	/* if (originalGlobalEnv == NULL) {
 		freeGlobalEnvironment(globalEnv);
-	}
+	} */
 }
 
 /* **** The End **** */

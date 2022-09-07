@@ -10,20 +10,18 @@
 /* #include <ctype.h> */
 /* #include <assert.h> */
 
-#include "types.h" /* Needed to provide BOOL for char-source.h */
+#include "types.h" /* Needed to provide BOOL */
 
-#include "char-source.h"
+/* #include "char-source.h" */
 #include "create-and-destroy.h"
 #include "environment.h"
-#include "parser.h"
-#include "evaluate.h"
-/* #include "parse-and-evaluate.h" */
+#include "parse-and-evaluate.h"
 
 /* Function prototypes */
 
 /* Functions */
 
-void testGetIdentifier(char * str) {
+/* void testGetIdentifier(char * str) {
 	char dstBuf[maxStringValueLength];
 	int i = 0;
 	CharSource * cs = createCharSource(str);
@@ -35,15 +33,14 @@ void testGetIdentifier(char * str) {
 	}
 
 	freeCharSource(cs);
-}
+} */
 
-/* Note: This is very similar to parseAndEvaluateStringList()
-in parse-and-evaluate.c */
 static void multitest(char * inputs[], char * expectedOutputs[]) {
 	/* failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
 	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL"); */
 
-	char actualOutput[maxStringValueLength];
+	const int sizeOfActualOutput = maxStringValueLength * sizeof(char);
+	char * actualOutput = malloc(sizeOfActualOutput);
 	LISP_ENV * globalEnv = createGlobalEnvironment();
 
 	/* failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
@@ -63,20 +60,17 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 			break;
 		}
 
-		CharSource * cs = createCharSource(input);
-		LISP_EXPR * parseTree = parseExpression(cs);
-		LISP_VALUE * value = evaluate(parseTree, globalEnv);
+		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
 
-		memset(actualOutput, 0, maxStringValueLength * sizeof(char));
+		memset(actualOutput, 0, sizeOfActualOutput);
 
 		valuePrintedSuccessfully = printValueToString(value, actualOutput, maxStringValueLength);
-		outputValuesMatch = !strcmp(actualOutput, expectedOutput);
 
 		/* Note bene: freeClosure is currently mostly disabled to avoid
 		 * double-freeing things. We must fix this. */
 		freeValue(value);
-		freeExpression(parseTree);
-		freeCharSource(cs);
+
+		outputValuesMatch = !strcmp(actualOutput, expectedOutput);
 	}
 
 	freeGlobalEnvironment(globalEnv);
@@ -85,12 +79,16 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		fprintf(stderr, "\nTest failed: Output string truncated\n");
 		fprintf(stderr, "  Input: %s\n", input);
 		fprintf(stderr, "  Expected output: %s\n", expectedOutput);
-		exit(1);
 	} else if (!outputValuesMatch) {
 		fprintf(stderr, "\nTest failed:\n");
 		fprintf(stderr, "  Input: %s\n", input);
 		fprintf(stderr, "  Expected output: %s\n", expectedOutput);
 		fprintf(stderr, "  Actual output: %s\n\n", actualOutput);
+	}
+
+	free(actualOutput);
+
+	if (!valuePrintedSuccessfully || !outputValuesMatch) {
 		exit(1);
 	}
 }
@@ -226,12 +224,6 @@ void runTests() {
 	};
 
 	multitest(inputs6, expectedResults6);
-
-	/* char * strs[] = {, NULL}; */
-
-	/* parseAndEvaluate(""); */
-
-	/* parseAndEvaluateStringList(["", "", "", ..., NULL]); */
 
 	/* Tests from thaw-grammar:
 test('LL(1) Scheme let* non-recursive test', () => {
