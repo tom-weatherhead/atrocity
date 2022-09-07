@@ -53,7 +53,7 @@ static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 
 	exprList->expr = NULL;
 	exprList->next = NULL;
-	mmFree(exprList);
+	/* mmFree(exprList); */
 
 	LISP_EXPR * result = createUndefinedExpression();
 
@@ -320,14 +320,15 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 	LISP_EXPR_LIST_ELEMENT * next = parseExpressionList(cs);
 
-	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_LIST_ELEMENT));
+	/* LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_LIST_ELEMENT));
 
 	if (result == NULL) {
 		fatalError("mmAlloc() failed in parseExpressionList()");
 	}
 
 	result->expr = expr;
-	result->next = next;
+	result->next = next; */
+	LISP_EXPR_LIST_ELEMENT * result = createExpressionListElement(expr, next);
 
 	return result;
 }

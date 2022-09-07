@@ -451,14 +451,25 @@ void freeExpression(LISP_EXPR * expr) {
 // **** Expression list struct creation functions ****
 
 LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR_LIST_ELEMENT * next) {
-	LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_LIST_ELEMENT));
+	/* LISP_EXPR_LIST_ELEMENT * result = (LISP_EXPR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_EXPR_LIST_ELEMENT));
 
 	if (result == NULL) {
 		fatalError("mmAlloc() failed in createExpressionListElement()");
 	}
 
 	result->expr = expr;
-	result->next = next;
+	result->next = next; */
+	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+		schemeStructType_ExpressionListElement,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		next
+	);
+
+	result->expr = expr;
 
 	return result;
 }
@@ -887,6 +898,8 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->value = NULL; /* Temporary */
 	result->head = NULL; /* Temporary */
 	result->tail = NULL; /* Temporary */
+	result->expr = NULL; /* Temporary */
+	result->expr2 = NULL; /* Temporary */
 
 	addItemToMemMgrRecords(result);
 
@@ -954,6 +967,8 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 	expr->value = NULL; /* Temporary member */
 	expr->head = NULL; /* Temporary member */
 	expr->tail = NULL; /* Temporary member */
+	expr->expr = NULL; /* Temporary member */
+	expr->expr2 = NULL; /* Temporary member */
 
 	mmFree(expr);
 }

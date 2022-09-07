@@ -15,7 +15,6 @@
 /* Forward declarations of some structs */
 
 struct LISP_EXPR_STRUCT;
-struct LISP_EXPR_LIST_ELEMENT_STRUCT;
 
 /* Type definitions */
 
@@ -46,6 +45,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct LISP_VALUE_STRUCT * value;
 	struct LISP_VALUE_STRUCT * head;
 	struct LISP_VALUE_STRUCT * tail;
+	struct LISP_EXPR_STRUCT * expr;
+	struct LISP_EXPR_STRUCT * expr2;
 	/* END Temporary members */
 
 	/* Closure uses (LISP_VAR_LIST_ELEMENT_STRUCT * args), (LISP_EXPR * body), and env */
@@ -74,6 +75,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 } SCHEME_UNIVERSAL_TYPE;
 
 #define LISP_ENV SCHEME_UNIVERSAL_TYPE
+#define LISP_EXPR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
@@ -125,7 +127,7 @@ typedef struct LISP_EXPR_STRUCT {
 	int type;
 	LISP_VALUE * value;
 	LISP_VAR * var;
-	struct LISP_EXPR_LIST_ELEMENT_STRUCT * exprList;
+	LISP_EXPR_LIST_ELEMENT * exprList;
 	struct LISP_LAMBDA_EXPR_STRUCT * lambdaExpr;
 	struct LISP_FUNCTION_CALL_STRUCT * functionCall;
 	struct LISP_EXPR_STRUCT * expr; /* For e.g. set! */
@@ -133,13 +135,6 @@ typedef struct LISP_EXPR_STRUCT {
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList; /* For let, let*, letrec */
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList;
 } LISP_EXPR;
-
-typedef struct LISP_EXPR_LIST_ELEMENT_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
-
-	LISP_EXPR * expr;
-	struct LISP_EXPR_LIST_ELEMENT_STRUCT * next;
-} LISP_EXPR_LIST_ELEMENT;
 
 typedef struct LISP_LAMBDA_EXPR_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -187,6 +182,7 @@ enum {
 	lispExpressionType_CallCC,
 
 	schemeStructType_Environment,
+	schemeStructType_ExpressionListElement,
 	schemeStructType_NameValueListElement,
 	schemeStructType_Pair,
 	schemeStructType_VariableListElement
