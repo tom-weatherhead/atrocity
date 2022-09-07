@@ -79,6 +79,7 @@ int main(int argc, char * argv[]) {
 		readEvalPrintLoop();
 	}
 
+	freeAllStructs();
 	mmPrintReport();
 
 	return 0; /* Zero (as a Unix exit code) means success. */

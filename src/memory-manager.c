@@ -69,7 +69,7 @@ void mmPrintReport() {
 
 /* **** BEGIN Memory manager version 1 **** */
 
-/* typedef struct MEMMGR_RECORD_STRUCT {
+typedef struct MEMMGR_RECORD_STRUCT {
 	SCHEME_UNIVERSAL_TYPE * expr;
 	struct MEMMGR_RECORD_STRUCT * next;
 } MEMMGR_RECORD;
@@ -84,9 +84,9 @@ void printMemMgrReport() {
 	}
 
 	printf("\n");
-} */
+}
 
-/* void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
+void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 	MEMMGR_RECORD * mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 
 	++numMallocs;
@@ -115,7 +115,7 @@ void clearMarks() {
 }
 
 void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
-	/ * Do this recursively * /
+	/* Do this recursively */
 	expr->mark = 1;
 
 	if (expr->value1 != NULL) {
@@ -138,15 +138,15 @@ void freeUnmarkedStructs() {
 	while (mmRec != NULL) {
 
 		if (mmRec->expr->mark == 0) {
-			/ * Free mmRec->expr. Do not free recursively.
-			Allow mmRec->expr->name to be freed. * /
+			/* Free mmRec->expr. Do not free recursively.
+			Allow mmRec->expr->name to be freed. */
 			mmRec->expr->value1 = NULL;
 			mmRec->expr->value2 = NULL;
 			mmRec->expr->next = NULL;
 			freeUniversalStruct(mmRec->expr);
 			mmRec->expr = NULL;
 
-			/ * Then free mmRec, preserving the integrity of the linked list * /
+			/* Then free mmRec, preserving the integrity of the linked list */
 			MEMMGR_RECORD * nextmmRec = mmRec->next;
 
 			mmRec->expr = NULL;
@@ -177,7 +177,7 @@ void collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]) {
 void freeAllStructs() {
 	clearMarks();
 	freeUnmarkedStructs();
-} */
+}
 
 /* **** END Memory manager version 1 **** */
 

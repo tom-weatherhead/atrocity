@@ -60,7 +60,7 @@ void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList);
 void freeVariable(LISP_VAR * var);
 void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
 
-/* void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr); */
+void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr);
 
 /* DOM functions */
 BOOL isList(LISP_VALUE * value);

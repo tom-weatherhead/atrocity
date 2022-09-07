@@ -545,14 +545,23 @@ LISP_VAR * createVariable(char * name) {
 		fatalError("createVariable() : String contains an illegal character");
 	}
 
-	LISP_VAR * var = (LISP_VAR *)mmAlloc(sizeof(LISP_VAR));
+	/* LISP_VAR * var = (LISP_VAR *)mmAlloc(sizeof(LISP_VAR));
 
 	if (var == NULL) {
 		fatalError("mmAlloc() failed in createVariable()");
 	}
 
 	memset(var->name, 0, maxStringValueLength);
-	strcpy(var->name, name);
+	strcpy(var->name, name); */
+	SCHEME_UNIVERSAL_TYPE * var = allocateStringAndCreateUniversalStruct(
+		lispExpressionType_Variable,
+		0,
+		0,
+		name,
+		NULL,
+		NULL,
+		NULL
+	);
 
 	return var;
 }
@@ -939,6 +948,8 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->value2 = value2;
 	result->next = next;
 
+	addItemToMemMgrRecords(result);
+
 	return result;
 }
 
@@ -978,7 +989,7 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
 }
 
-/* void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
+void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 
 	if (expr->name != NULL) {
 		mmFree(expr->name);
@@ -1001,7 +1012,7 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	}
 
 	mmFree(expr);
-} */
+}
 
 /* END SCHEME_UNIVERSAL_TYPE */
 
