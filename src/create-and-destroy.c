@@ -145,6 +145,18 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 	free(closure);
 } */
 
+/* TODO:
+A thunk is a suspended computation; used to implement lazy evaluation in SASL.
+A thunk is implemented as a closure thqt takes no arguments.
+
+LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env) {
+	return createClosure(NULL, body, env);
+}
+
+void freeThunk(LISP_VALUE * value) {
+	freeClosure(value);
+}*/
+
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	LISP_PAIR * pair = (LISP_PAIR *)malloc(sizeof(LISP_PAIR));
 
@@ -669,6 +681,7 @@ void printValue(LISP_VALUE * value) {
 
 BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	/* Returns FALSE iff there is no more room to print in buf. */
+	/* TODO: Use a StringBuilder */
 
 	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else:
 	memset(buf, 0, bufsize * sizeof(char)); */

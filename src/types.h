@@ -189,6 +189,7 @@ enum {
 	lispValueType_Closure,
 	lispValueType_Pair,
 	lispValueType_Null, /* 7 */ /* TODO? Interpret the NULL pointer as a Null value? */
+	/* lispValueType_Thunk, -> A suspended computation; used to implement lazy evaluation in SASL */
 	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,

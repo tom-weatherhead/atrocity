@@ -4,28 +4,28 @@
 ; BEGIN Define commonly-used lambda expressions here.
 ; Of particular importance are combine, compose, and curry.
 
-(set id (lambda (x) x))
+; (set id (lambda (x) x))
 
-(set combine (lambda (f sum zero) ; Version 2, using letrec: see page 126
-	(letrec
-		((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l)))))))
-		loop
-	)
-))
+; (set combine (lambda (f sum zero) ; Version 2, using letrec: see page 126
+; 	(letrec
+; 		((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l)))))))
+; 		loop
+; 	)
+; ))
 
-(set compose (lambda (f g) (lambda (x) (g (f x)))))
+; (set compose (lambda (f g) (lambda (x) (g (f x)))))
 
-(set curry (lambda (f) (lambda (x) (lambda (y) (f x y)))))
+; (set curry (lambda (f) (lambda (x) (lambda (y) (f x y)))))
 
-(set compose2args (lambda (f g) (lambda (x y) (g (f x y)))))
-(set reverse2args (lambda (f) (lambda (x y) (f y x))))
+; (set compose2args (lambda (f g) (lambda (x y) (g (f x y)))))
+; (set reverse2args (lambda (f) (lambda (x y) (f y x))))
 
 ; (set > (reverse2args <)) ; Comment out if Scheme implements > as a primop
-(set not (lambda (x) (if x '() 'T)))
-(set and (lambda (x y) (if x y x)))
-(set or (lambda (x y) (if x x y)))
-(set mod (lambda (m n) (- m (* n (/ m n)))))
-(set gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))
+; (set not (lambda (x) (if x '() 'T)))
+; (set and (lambda (x y) (if x y x)))
+; (set or (lambda (x y) (if x x y)))
+; (set mod (lambda (m n) (- m (* n (/ m n)))))
+; (set gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))
 
 ; (set atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
 ; (set atom? (compose list? not)) ; Version 2

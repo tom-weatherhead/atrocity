@@ -8,12 +8,10 @@
 
 #include "types.h"
 
-#include "char-source.h"
+/* #include "char-source.h" */
 
 #include "create-and-destroy.h"
 #include "environment.h"
-/* #include "parser.h"
-#include "evaluate.h" */
 #include "parse-and-evaluate.h"
 #include "utilities.h"
 

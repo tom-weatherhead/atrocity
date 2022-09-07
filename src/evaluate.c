@@ -181,6 +181,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	if (actualParamExprs != NULL && actualParamExprs->expr != NULL) {
 		LISP_EXPR * operand1Expr = actualParamExprs->expr;
 
+		/* BEGIN : Value type predicates */
 		if (!strcmp(op, "null?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Null);
 		} else if (!strcmp(op, "number?")) {
@@ -200,7 +201,9 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_PrimitiveOperator);
 		} else if (!strcmp(op, "closure?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_Closure);
-		} else if (!strcmp(op, "print")) {
+		}
+		/* END : Value type predicates */
+		else if (!strcmp(op, "print")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
 			printValue(operand1Value);
@@ -282,7 +285,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* The arg must be a lambda expr that takes exactly one arg. */
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
-			/* Remember: Evaluating a laambda expression results in a closure.
+			/* Remember: Evaluating a lambda expression results in a closure.
 			This is different from calling a closure. */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {

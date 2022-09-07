@@ -23,10 +23,8 @@ extern LISP_VALUE * globalTrueValue;
 static LISP_VALUE * lookupVariableInNameValueList(LISP_VAR * var, LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
 
 	while (nvle != NULL) {
-		/* printf("  Comparing var name '%s' to '%s'...\n", var->name, nvle->name); */
 
 		if (!strcmp(nvle->name, var->name)) {
-			/* printf("  Match\n"); */
 			return nvle->value;
 		}
 
@@ -40,17 +38,11 @@ LISP_VALUE * lookupVariableInEnvironment(LISP_VAR * var, LISP_ENV * env) {
 	LISP_VALUE * value = NULL;
 
 	while (env != NULL) {
-		/* printf("lookupVariableInEnvironment: Looking for '%s' in nameValueList\n", var->name); */
 		value = lookupVariableInNameValueList(var, env->nameValueList);
 
 		if (value != NULL) {
 			break;
 		}
-
-		/* printf("lookupVariableInEnvironment: Moving to the next env frame\n");
-		printf("  env->nameValueList is %ld\n", (long)env->nameValueList);
-		printf("  env is %ld\n", (long)env);
-		printf("  env->next is %ld\n", (long)env->next); */
 
 		if (env == env->next) {
 			fprintf(stderr, "lookupVariableInEnvironment: env == env->next; breaking...\n");
@@ -59,8 +51,6 @@ LISP_VALUE * lookupVariableInEnvironment(LISP_VAR * var, LISP_ENV * env) {
 
 		env = env->next;
 	}
-
-	/* printf("lookupVariableInEnvironment: Looked up var '%s', returning value %ld\n", var->name, value); */
 
 	return value;
 }
@@ -123,7 +113,7 @@ void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 	}
 }
 
-void printEnvironment(LISP_ENV * env) {
+/* void printEnvironment(LISP_ENV * env) {
 	int i = 0;
 
 	printf("printEnvironment:\n");
@@ -145,7 +135,7 @@ void printEnvironment(LISP_ENV * env) {
 	}
 
 	printf("End of printEnvironment\n");
-}
+} */
 
 LISP_ENV * createGlobalEnvironment() {
 	failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
@@ -184,17 +174,33 @@ LISP_ENV * createGlobalEnvironment() {
 
 	parseAndEvaluateEx("(set! id (lambda (x) x))", globalEnv, FALSE);
 
-	/*
-(set! compose2args (lambda (f g) (lambda (x y) (g (f x y)))))
-(set! reverse2args (lambda (f) (lambda (x y) (f y x))))
+	/* TODO? : We could write 'soft' implementations of:
+	mod > <= >= !=
+	(set! mod (lambda (m n) (- m (* n (/ m n)))))
+	(set! > (lambda (x y) (< y x))) ; or (set! > (reverse2args <))
+	(set! <= (compose2args > not))
+	(set! >= (compose2args < not))
+	(set! != (compose2args = not)) */
 
+	/* We could also implement Boolean logic functionally:
+	(set! true (lambda (t f) t))
+	(set! false (lambda (t f) f))
+	(set! if (lambda (b x y) (b x y)))
+	(set! and (lambda (x y) (if x y x)))
+	(set! or (lambda (x y) (if x x y)))
+	(set! not (lambda (x) (if x false true))) */
+
+	parseAndEvaluateEx("(set! compose2args (lambda (f g) (lambda (x y) (g (f x y)))))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! reverse2args (lambda (f) (lambda (x y) (f y x))))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set! not (lambda (x) (if x '() 'T)))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! mod %)", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))", globalEnv, FALSE);
+	/*
 ; (set! > (reverse2args <)) ; Comment out if Scheme implements > as a primop
-(set! not (lambda (x) (if x '() 'T)))
 ; (set! and (lambda (x y) (if x y x)))
 ; (set! or (lambda (x y) (if x x y)))
 ; (set! mod (lambda (m n) (- m (* n (/ m n)))))
-(set! mod %)
-(set! gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))
 
 ; (set! atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
 ; (set! atom? (compose list? not)) ; Version 2
