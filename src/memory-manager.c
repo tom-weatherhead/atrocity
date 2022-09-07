@@ -17,7 +17,9 @@ static int numReallocs = 0;
 static int numFrees = 0;
 
 void * mmAlloc(int numBytes) {
-	printf("mmAlloc() : Allocating %d bytes\n", numBytes);
+	/* printf("mmAlloc() : Allocating %d bytes\n", numBytes); */
+
+	failIf(numBytes <= 0, "mmAlloc() : numBytes <= 0");
 
 	void * result = malloc(numBytes);
 
@@ -26,7 +28,7 @@ void * mmAlloc(int numBytes) {
 	++numMallocs;
 	memset(result, 0, numBytes);
 
-	printf("mmAlloc() : Done.\n");
+	/* printf("mmAlloc() : Done.\n"); */
 
 	return result;
 }

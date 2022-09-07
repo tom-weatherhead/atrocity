@@ -30,7 +30,7 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 }
 
 LISP_VALUE * createUndefinedValue() {
-	printf("createUndefinedValue() : Begin\n");
+	/* printf("createUndefinedValue() : Begin\n"); */
 
 	LISP_VALUE * result = (LISP_VALUE *)mmAlloc(sizeof(LISP_VALUE));
 
@@ -48,20 +48,20 @@ LISP_VALUE * createUndefinedValue() {
 
 	/* registerValueWithMemoryManager(result); */
 
-	printf("createUndefinedValue() : End\n");
+	/* printf("createUndefinedValue() : End\n"); */
 
 	return result;
 }
 
 LISP_VALUE * createNumericValue(int value) {
-	printf("createNumericValue() : Begin\n");
+	/* printf("createNumericValue() : Begin\n"); */
 
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Number;
 	result->value = value;
 
-	printf("createNumericValue() : End\n");
+	/* printf("createNumericValue() : End\n"); */
 
 	return result;
 }
@@ -183,7 +183,7 @@ void freeThunk(LISP_VALUE * value) {
 }*/
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
-	printf("createPair() : Begin\n");
+	/* printf("createPair() : Begin\n"); */
 
 	LISP_PAIR * pair = (LISP_PAIR *)mmAlloc(sizeof(LISP_PAIR));
 
@@ -199,7 +199,7 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	result->type = lispValueType_Pair;
 	result->pair = pair;
 
-	printf("createPair() : End\n");
+	/* printf("createPair() : End\n"); */
 
 	return result;
 }
@@ -236,7 +236,7 @@ LISP_VALUE * createNull() {
 } */
 
 LISP_VALUE * cloneValue(LISP_VALUE * value) {
-	printf("cloneValue() : Begin\n");
+	/* printf("cloneValue() : Begin\n"); */
 
 	switch (value->type) {
 		case lispValueType_Number:
@@ -319,14 +319,27 @@ LISP_EXPR * createUndefinedExpression() {
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next) {
 	printf("createVariableListElement() : Begin\n");
 
-	LISP_VAR_LIST_ELEMENT * result = (LISP_VAR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_VAR_LIST_ELEMENT));
+	failIf(var == NULL, "createVariableListElement() : var == NULL");
+	failIf(var->name == NULL, "createVariableListElement() : var->name == NULL");
+
+	/* LISP_VAR_LIST_ELEMENT * result = (LISP_VAR_LIST_ELEMENT *)mmAlloc(sizeof(LISP_VAR_LIST_ELEMENT)); */
+
+	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
+		schemeStructType_VariableListElement,
+		0,
+		0,
+		var->name,
+		NULL,
+		NULL,
+		next
+	);
 
 	/* if (result == NULL) {
 		fatalError("mmAlloc() failed in createVariableListElement()");
 	} */
 
-	result->var = var;
-	result->next = next;
+	/* result->var = var; / * Replace result->var->name with (universal) result->name * /
+	result->next = next; */
 
 	printf("createVariableListElement() : End\n");
 
@@ -906,7 +919,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 /* BEGIN SCHEME_UNIVERSAL_TYPE */
 
-/* SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
+SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	int type,
 	int integerValue,
 	int maxNameLength,
@@ -927,13 +940,13 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	result->next = next;
 
 	return result;
-} */
+}
 
 /* If name != NULL then copy it, and set maxNameLength = strlen(name) + 1 */
 /* If name == NULL and maxNameLength > 1 then mmAlloc(maxNameLength * sizeof(char)) and zero-fill it */
 /* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then mmAlloc and zero-fill */
 
-/* SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
+SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	int type,
 	int integerValue,
 	int maxNameLength,
@@ -949,7 +962,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		if (maxNameLength <= len) {
 			maxNameLength = len + 1;
 		}
-		/ * This allows you to allocate a buffer longer than len + 1 chars if you wish * /
+		/* This allows you to allocate a buffer longer than len + 1 chars if you wish */
 	} else if (maxNameLength <= 0) {
 		maxNameLength = maxStringValueLength;
 	}
@@ -963,7 +976,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 	}
 
 	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
-} */
+}
 
 /* void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 

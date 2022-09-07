@@ -15,7 +15,7 @@
 /* Forward declarations of some structs */
 
 struct LISP_PAIR_STRUCT;
-struct LISP_VAR_LIST_ELEMENT_STRUCT;
+/* struct LISP_VAR_LIST_ELEMENT_STRUCT; */
 struct LISP_EXPR_STRUCT;
 struct LISP_EXPR_LIST_ELEMENT_STRUCT;
 
@@ -44,6 +44,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
 
+	/* Temporary
+	... * var; */
+
 	/* Closure uses (LISP_VAR_LIST_ELEMENT_STRUCT * args), (LISP_EXPR * body), and env */
 
 	/* LISP_NAME_VALUE_LIST_ELEMENT uses name, value, and next */
@@ -68,6 +71,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* int continuationId; -> Use integerValue instead */
 	/* struct SCHEME_UNIVERSAL_STRUCT * continuationReturnValue; -> use value (above) */
 } SCHEME_UNIVERSAL_TYPE;
+
+#define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 
 typedef struct LISP_VALUE_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -110,7 +115,7 @@ typedef struct LISP_PAIR_STRUCT {
 typedef struct LISP_CLOSURE_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
-	struct LISP_VAR_LIST_ELEMENT_STRUCT * args;
+	LISP_VAR_LIST_ELEMENT * args;
 	struct LISP_EXPR_STRUCT * body;
 	struct LISP_ENV_STRUCT * env;
 } LISP_CLOSURE; /* A value. Closures are part of Scheme, not LISP. */
@@ -121,12 +126,12 @@ typedef struct {
 	char name[maxStringValueLength];
 } LISP_VAR; /* An expression */
 
-typedef struct LISP_VAR_LIST_ELEMENT_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
+/* typedef struct LISP_VAR_LIST_ELEMENT_STRUCT {
+	int mark; / * All dynamically allocated structs must have this member * /
 
 	LISP_VAR * var;
 	struct LISP_VAR_LIST_ELEMENT_STRUCT * next;
-} LISP_VAR_LIST_ELEMENT;
+} LISP_VAR_LIST_ELEMENT; */
 
 typedef struct LISP_EXPR_PAIR_LIST_ELEMENT_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -209,7 +214,9 @@ enum {
 	lispExpressionType_Cond,
 	lispExpressionType_Car,
 	lispExpressionType_Cdr,
-	lispExpressionType_CallCC
+	lispExpressionType_CallCC,
+
+	schemeStructType_VariableListElement
 };
 
 /* void fatalError(char * str); */

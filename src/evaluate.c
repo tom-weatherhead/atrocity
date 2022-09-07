@@ -476,13 +476,16 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 			return NULL;
 		}
 
+		failIf(np->type != schemeStructType_VariableListElement, "evaluateClosureCall() : np->type != schemeStructType_VariableListElement");
+
 		LISP_VALUE * value = evaluate(ep->expr, env); /* TODO: env or closure->env ? */
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
 		}
 
-		newEnv->nameValueList = createNameValueListElement(np->var->name, value, newEnv->nameValueList);
+		/* newEnv->nameValueList = createNameValueListElement(np->var->name, value, newEnv->nameValueList); */
+		newEnv->nameValueList = createNameValueListElement(np->name, value, newEnv->nameValueList);
 		/* freeValue(value); */
 		np = np->next;
 		ep = ep->next;
