@@ -29,47 +29,53 @@
 
 ; (set atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
 ; (set atom? (compose list? not)) ; Version 2
-(set atom? (compose pair? not)) ; Version 3; '() is a list but not a pair
+; (set atom? (compose pair? not)) ; Version 3; '() is a list but not a pair
 
 ; (set equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
 (set equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
 
 ; (set >= (compose2args < not)) ; Comment out if Scheme implements >= as a primop
 ; (set <= (compose2args > not)) ; Comment out if Scheme implements <= as a primop
-(set <> (compose2args = not))
-(set any (lambda (l) (if (null? l) '() (if (car l) 'T (any (cdr l))))))
-(set all (lambda (l) (if (null? l) 'T (if (not (car l)) '() (all (cdr l))))))
+; (set <> (compose2args = not))
+; (set any (lambda (l) (if (null? l) '() (if (car l) 'T (any (cdr l))))))
+; (set all (lambda (l) (if (null? l) 'T (if (not (car l)) '() (all (cdr l))))))
 
 ; (set mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
 ; (set mapc (curry mapcar)) ; Original definition.  From page 101.
-(set mapc (lambda (f) (combine f cons '()))) ; Second definition.
-(set mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
+; (set mapc (lambda (f) (combine f cons '()))) ; Second definition.
+; (set mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
 
-(set any2 (combine id or '()))
-(set all2 (combine id and 'T))
+; (set any2 (combine id or '()))
+; (set all2 (combine id and 'T))
 
 ; (set +1 (lambda (n) (+ n 1))) ; Version 1
-(set +1 ((curry +) 1)) ; Version 2
+; (set +1 ((curry +) 1)) ; Version 2
 
 ; (set append (lambda (l1 l2) (if (null? l1) l2 (cons (car l1) (append (cdr l1) l2))))) ; Version 1
-(set append (lambda (l1 l2) ((combine id cons l2) l1))) ; Version 2
+; (set append (lambda (l1 l2) ((combine id cons l2) l1))) ; Version 2
 
-(set reverse (lambda (l) (letrec ((rev-aux (lambda (l1 l2) (if (null? l1) l2 (rev-aux (cdr l1) (cons (car l1) l2)))))) (rev-aux l '()))))
-(set skip (lambda (n l) (if (or (null? l) (= n 0)) l (skip (- n 1) (cdr l)))))
-(set take (lambda (n l) (if (or (null? l) (= n 0)) '() (cons (car l) (take (- n 1) (cdr l))))))
-(set abs (lambda (n) (if (< n 0) (- 0 n) n)))
+; (set reverse (lambda (l) (letrec ((rev-aux (lambda (l1 l2) (if (null? l1) l2 (rev-aux (cdr l1) (cons (car l1) l2)))))) (rev-aux l '()))))
+; (set skip (lambda (n l) (if (or (null? l) (= n 0)) l (skip (- n 1) (cdr l)))))
+; (set take (lambda (n l) (if (or (null? l) (= n 0)) '() (cons (car l) (take (- n 1) (cdr l))))))
+; (set abs (lambda (n) (if (< n 0) (- 0 n) n)))
 
 ; (set cadr (lambda (l) (car (cdr l)))) ; Version 1
 (set cadr (compose cdr car)) ; Version 2
 
-(set length (lambda (l) (if (null? l) 0 (+1 (length (cdr l)))))) ; Adapted from page 29.
+; (set length (lambda (l) (if (null? l) 0 (+1 (length (cdr l)))))) ; Adapted from Kamin page 29.
 
 ; (set find (lambda (pred lis) ; From page 104
 ; (if (null? lis) '()
 ; (if (pred (car lis)) 'T (find pred (cdr lis)))))) ; Version 1
 
-; Version 2
-(set find (lambda (pred lis) (cond ((null? lis) '()) ((pred (car lis)) 'T) ('T (find pred (cdr lis))) ) ))
+; Version 2 (or use combine ?)
+(set find (lambda (pred lis)
+	(cond
+		((null? lis) '())
+		((pred (car lis)) 'T)
+		('T (find pred (cdr lis)))
+	)
+))
 
 (set nth (lambda (n l) (if (= n 0) (car l) (nth (- n 1) (cdr l))))) ; Adapted from page 43.
 
@@ -86,13 +92,13 @@
 		('T (assoc x (cdr alist)))
 	)
 ))
-(set mkassoc (lambda (x y alist)
-	(cond
-		((null? alist) (list (list x y)))
-		((= x (caar alist)) (cons (list x y) (cdr alist)))
-		('T (cons (car alist) (mkassoc x y (cdr alist))))
-	)
-))
+; (set mkassoc (lambda (x y alist)
+;	(cond
+;		((null? alist) (list (list x y)))
+;		((= x (caar alist)) (cons (list x y) (cdr alist)))
+;		('T (cons (car alist) (mkassoc x y (cdr alist))))
+;	)
+; ))
 
 (set assoc-contains-key (lambda (x alist) (find (compose car ((curry =) x)) alist)))
 
@@ -108,6 +114,7 @@
 
 ; loadPreset filter
 
+; TODO: Try using combine ?
 (set filter (lambda (pred l) ; Returns only the elements of l for which pred is true.
 	(cond
 		((null? l) '())
@@ -122,7 +129,7 @@
 ; loadPreset queue
 
 ; Queue functions (adapted from page 37)
-(set empty-queue '())
+; (set empty-queue '())
 (set front car)
 (set rm-front cdr)
 
@@ -137,19 +144,19 @@
 (set nullset '())
 (set member? (lambda (x s) (find ((curry equal) x) s)))
 (set addelt (lambda (x s) (if (member? x s) s (cons x s))))
-(set union (lambda (s1 s2) ((combine id addelt s1) s2)))
+; (set union (lambda (s1 s2) ((combine id addelt s1) s2)))
 
 ; loadPreset stack
 
-(set empty-stack '())
+; (set empty-stack '())
 (set push cons)
 (set peek car)
 (set pop cdr)
-(set empty-stack? null?)
+; (set empty-stack? null?)
 
 ; loadPreset sublist
 
-(set sublist (lambda (l start len) (cond ((or (<= len 0) (null? l)) '()) ((> start 0) (sublist (cdr l) (- start 1) len)) ('T (cons (car l) (sublist (cdr l) 0 (- len 1)))))))
+; (set sublist (lambda (l start len) (cond ((or (<= len 0) (null? l)) '()) ((> start 0) (sublist (cdr l) (- start 1) len)) ('T (cons (car l) (sublist (cdr l) 0 (- len 1)))))))
 
 (set removesublist (lambda (l start len) (cond ((or (<= len 0) (null? l)) l) ((> start 0) (cons (car l) (removesublist (cdr l) (- start 1) len))) ('T (removesublist (cdr l) 0 (- len 1))))))
 
@@ -159,7 +166,7 @@
 (set levelNumber car)
 (set roomNumber cadr)
 
-; (to 0 5) yields (0 1 2 3 4 5)
+; I.e. (to 0 5) yields (0 1 2 3 4 5)
 (set to (lambda (start end) (if (> start end) '() (cons start (to (+1 start) end)))))
 
 (set generatePossibleNeighboursOnLevel (lambda (room newLevel numberOfRoomsPerLevel)

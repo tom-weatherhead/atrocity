@@ -196,36 +196,38 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set! not (lambda (x) (if x '() 'T)))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! mod %)", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))", globalEnv, FALSE);
+
+	/* (set! <> (compose2args = not)) ... or: */
+	parseAndEvaluateEx("(set! <> !=)", globalEnv, FALSE);
+
+	/* atom? Version 3; '() is a list but not a pair */
+	parseAndEvaluateEx("(set! atom? (compose pair? not))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set! any (combine id or '()))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! all (combine id and 'T))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! mapc (lambda (f) (combine f cons '())))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! mapcar (lambda (f l) ((mapc f) l)))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set! append (lambda (l1 l2) ((combine id cons l2) l1)))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! reverse (lambda (l) (letrec ((rev-aux (lambda (l1 l2) (if (null? l1) l2 (rev-aux (cdr l1) (cons (car l1) l2)))))) (rev-aux l '()))))", globalEnv, FALSE);
+
+	/* length : Adapted from Kamin page 29 */
+	parseAndEvaluateEx("(set! length (lambda (l) (if (null? l) 0 (+1 (length (cdr l))))))", globalEnv, FALSE);
 	/*
+	parseAndEvaluateEx("(set! )", globalEnv, FALSE);
+
 ; (set! > (reverse2args <)) ; Comment out if Scheme implements > as a primop
-; (set! and (lambda (x y) (if x y x)))
-; (set! or (lambda (x y) (if x x y)))
-; (set! mod (lambda (m n) (- m (* n (/ m n)))))
 
 ; (set! atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
 ; (set! atom? (compose list? not)) ; Version 2
-(set! atom? (compose pair? not)) ; Version 3; '() is a list but not a pair
 
 ; (set! equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
 (set! equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
 
-; (set! >= (compose2args < not)) ; Comment out if Scheme implements >= as a primop
-; (set! <= (compose2args > not)) ; Comment out if Scheme implements <= as a primop
-; (set! <> (compose2args = not))
-(set! <> !=)
-(set! any (lambda (l) (if (null? l) '() (if (car l) 'T (any (cdr l))))))
-(set! all (lambda (l) (if (null? l) 'T (if (not (car l)) '() (all (cdr l))))))
-
-(set! any2 (combine id or '()))
-(set! all2 (combine id and 'T))
-
 ; (set! mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
 ; (set! mapc (curry mapcar)) ; Original definition.  From page 101.
-(set! mapc (lambda (f) (combine f cons '()))) ; Second definition.
-(set! mapcar (lambda (f l) ((mapc f) l))) ; Second definition.
 	*/
 
-	/* ; (set! +1 (lambda (n) (+ n 1))) ; Version 1 */
 	/* Version 2: */
 	parseAndEvaluateEx("(set! +1 ((curry +) 1))", globalEnv, FALSE);
 
