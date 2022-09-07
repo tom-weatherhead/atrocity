@@ -601,7 +601,7 @@ void printValue(LISP_VALUE * value) {
 		printf("NULL");
 
 		return;
-	} else if (isList(value) && value->type != lispValueType_Null) {
+	} else if (isList(value) /* && value->type != lispValueType_Null */) {
 		char separator = '\0';
 
 		printf("(");
@@ -647,9 +647,9 @@ void printValue(LISP_VALUE * value) {
 			printf(")");
 			break;
 
-		case lispValueType_Null:
+		/* case lispValueType_Null:
 			printf("()");
-			break;
+			break; */
 
 		case lispPseudoValueType_Continuation:
 			printf("<continuation; id %d>", value->continuationId);

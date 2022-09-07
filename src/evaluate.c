@@ -228,7 +228,9 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
 			} else if (operand1Value->type != lispValueType_Pair) {
-				fprintf(stderr, "evaluatePrimitiveOperatorCall() : car : Operand is not a pair; type %d\n", operand1Value->type);
+				fprintf(stderr, "evaluatePrimitiveOperatorCall() : car : Operand is not a pair; type %d\nOperand is: ", operand1Value->type);
+				printValue(operand1Value);
+				fprintf(stderr, "\noperand1Expr type is %d\n", operand1Expr->type);
 				fatalError("evaluatePrimitiveOperatorCall() : car : Operand is not a pair");
 			}
 
@@ -254,6 +256,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list");
 			}
 
+			/* TODO: Use a StringBuilder */
 			LISP_VALUE * result = createStringValue("");
 
 			if (!printValueToString(operand1Value, result->name, getNumCharsAllocatedToNameBufInValue(result))) {

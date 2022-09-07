@@ -71,9 +71,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 
 		char c = (char)cn;
 
-		/* printf("Char: '%c' (int %d)\n", c, cn);
-		printf("str: '%s'\n", str); */
-
 		if (c == commentChar) {
 
 			do {
@@ -107,21 +104,9 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 
 			LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
 
-			/* printf("Parsing '%s' (length %lu)...\n", str, strlen(str)); * /
-
-			CharSource * cs = createCharSource(str);
-
-			LISP_EXPR * parseTree = parseExpression(cs);
-
-			/ * printf("Evaluating...\n"); * /
-
-			LISP_VALUE * value = evaluate(parseTree, globalEnv); */
-
-			/* printf("Output: "); */
 			printValue(value);
+			/* collectGarbage(); */
 			printf("\n");
-
-			/* freeCharSource(cs); */
 
 			memset(str, 0, bufSizeInBytes);
 			i = 0;
@@ -141,6 +126,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 			str[i++] = c;
 
 			if (i >= bufSize) {
+				/* TODO: Use a StringBuilder */
 				fprintf(stderr, "execScriptInFile: Text buffer overflow\n");
 				break;
 			}
@@ -171,9 +157,6 @@ void readEvalPrintLoop() {
 	int i;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
 
-	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
-	failIf(globalNullValue == NULL, "globalNullValue is NULL");
-
 	printf("\nStarting the read-eval-print loop...\n\n");
 
 	for (i = 0; ; ++i) {
@@ -191,47 +174,27 @@ void readEvalPrintLoop() {
 			buf[len - 1] = '\0';
 		}
 
-		/* printf("strlen(buf) is: %lu\n", strlen(buf));
-		printf("buf is: '%s'\n", buf); */
-
 		if (strlen(buf) == 0) {
 			printf("buf is empty.\n\n");
-			continue;
 		} /* else if (!strcmp(buf, "help") || !strcmp(buf, "?")) {
 			printf("This is the help information (TODO).\n\n");
-			continue;
 		} */ else if (!strcmp(buf, "exit") || !strcmp(buf, "quit") || !strcmp(buf, "bye")) {
 			printf("\nExiting...\n");
 			break;
-		/* } else if (!strncmp(buf, "load ", 5)) { */
 		} else if (!strcmp(buf, "load")) {
-			/* TODO: Load script from file into REPL environment.
-			E.g. load ../scripts/labyrinth.scm
-			fatalError("fsck"); */
-
-			/* execScriptInFile(buf + 5, globalEnv); */
 			execScriptInFile("../scripts/labyrinth.scm", globalEnv);
-			continue;
+		} else if (!strncmp(buf, "load ", 5)) {
+			/* TODO: Load script from file into REPL environment.
+			E.g. load ../scripts/labyrinth.scm */
+
+			execScriptInFile(buf + 5, globalEnv);
+		} else {
+			LISP_VALUE * value = parseStringAndEvaluate(buf, globalEnv);
+
+			printValue(value);
+			printf("\n\n");
+			/* collectGarbage(); */
 		}
-
-		LISP_VALUE * value = parseStringAndEvaluate(buf, globalEnv);
-		/* printf("Evaluating '%s' (length %lu)...\n", str, strlen(str)); * /
-
-		CharSource * cs = createCharSource(buf);
-
-		/ * printf("Parsing...\n"); * /
-
-		LISP_EXPR * parseTree = parseExpression(cs);
-
-		/ * printf("Evaluating...\n"); * /
-
-		LISP_VALUE * value = evaluate(parseTree, globalEnv); */
-
-		/* printf("Output: "); */
-		printValue(value);
-		printf("\n\n");
-
-		/** freeCharSource(cs); */
 	}
 
 	freeGlobalEnvironment(globalEnv);

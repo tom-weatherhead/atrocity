@@ -181,21 +181,21 @@ typedef struct LISP_FUNCTION_CALL_STRUCT {
 } LISP_FUNCTION_CALL; /* An expression */
 
 enum {
-	lispValueType_Undefined,
+	lispValueType_Undefined, /* 0 */
 	lispValueType_Number,
 	lispValueType_String,
 	lispValueType_Symbol,
 	lispValueType_PrimitiveOperator,
 	lispValueType_Closure,
 	lispValueType_Pair,
-	lispValueType_Null, /* TODO? Interpret the NULL pointer as a Null value? */
+	lispValueType_Null, /* 7 */ /* TODO? Interpret the NULL pointer as a Null value? */
 	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
 
 	lispExpressionType_Undefined,
 	lispExpressionType_Value,
-	lispExpressionType_Variable,
+	lispExpressionType_Variable, /* 12 */
 	lispExpressionType_LambdaExpr,
 	lispExpressionType_FunctionCall,
 	lispExpressionType_SetExpr,

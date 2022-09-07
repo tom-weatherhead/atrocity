@@ -197,7 +197,8 @@ LISP_ENV * createGlobalEnvironment() {
 (set! gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))
 
 ; (set! atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
-(set! atom? (compose list? not)) ; Version 2
+; (set! atom? (compose list? not)) ; Version 2
+(set! atom? (compose pair? not)) ; Version 3; '() is a list but not a pair
 
 ; (set! equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
 (set! equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
@@ -225,6 +226,9 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set! null '())", globalEnv, FALSE);
 
 	/* END: Predefined variables in the global environment */
+
+	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
+	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
 	return globalEnv;
 }

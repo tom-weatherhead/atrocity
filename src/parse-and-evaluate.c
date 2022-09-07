@@ -38,6 +38,8 @@ LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
 /* This function is used to populate the global environment with
 'built-in' functions. */
 void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
+	failIf(globalEnv == NULL, "globalEnv is NULL");
+
 	LISP_ENV * originalGlobalEnv = globalEnv;
 
 	if (verbose) {
@@ -51,9 +53,10 @@ void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
 	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
-	CharSource * cs = createCharSource(str);
+	LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
+	/* CharSource * cs = createCharSource(str);
 	LISP_EXPR * parseTree = parseExpression(cs);
-	LISP_VALUE * value = evaluate(parseTree, globalEnv);
+	LISP_VALUE * value = evaluate(parseTree, globalEnv); */
 
 	if (verbose) {
 		printf("Output: ");
@@ -64,43 +67,12 @@ void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 	/* Note bene: freeClosure is currently mostly disabled to avoid
 	 * double-freeing things. We must fix this. */
 	freeValue(value);
-	freeExpression(parseTree);
-	freeCharSource(cs);
+	/* freeExpression(parseTree);
+	freeCharSource(cs); */
 
 	if (originalGlobalEnv == NULL) {
 		freeGlobalEnvironment(globalEnv);
 	}
 }
-
-/* void parseAndEvaluate(char * str) {
-	/ * LISP_VALUE * value = * / parseAndEvaluateEx(str, NULL, TRUE);
-} */
-
-/* void parseAndEvaluateStringList(char * strs[]) {
-	LISP_ENV * globalEnv = createGlobalEnvironment();
-	int i;
-
-	for (i = 0; ; ++i) {
-		char * str = strs[i];
-
-		if (str == NULL) {
-			break;
-		}
-
-		printf("\nInput %d: '%s'\n", i, str);
-
-		CharSource * cs = createCharSource(str);
-		LISP_EXPR * parseTree = parseExpression(cs);
-		LISP_VALUE * value = evaluate(parseTree, globalEnv);
-
-		printf("Output %d: ", i);
-		printValue(value);
-		printf("\n");
-
-		freeCharSource(cs);
-	}
-
-	freeGlobalEnvironment(globalEnv);
-} */
 
 /* **** The End **** */
