@@ -46,7 +46,7 @@ void * mmAlloc(int numBytes) {
 } */
 
 void mmFree(void * ptr) {
-	printf("mmFree() : Begin.\n");
+	/* printf("mmFree() : Begin.\n"); */
 
 	failIf(ptr == NULL, "mmFree() : ptr is NULL");
 
@@ -57,7 +57,7 @@ void mmFree(void * ptr) {
 		printf("mmFree() : ptr == NULL\n");
 	}
 
-	printf("mmFree() : Done.\n");
+	/* printf("mmFree() : Done.\n"); */
 }
 
 void mmPrintReport() {
