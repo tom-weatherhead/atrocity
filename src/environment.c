@@ -218,14 +218,34 @@ LISP_ENV * createGlobalEnvironment() {
 
 ; (set! > (reverse2args <)) ; Comment out if Scheme implements > as a primop
 
-; (set! atom? (lambda (x) (or (null? x) (or (number? x) (or (symbol? x) (string? x)))))) ; What about primop? and closure? ?
-; (set! atom? (compose list? not)) ; Version 2
-
-; (set! equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
 (set! equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
 
-; (set! mapcar (lambda (f l) (if (null? l) '() (cons (f (car l)) (mapcar f (cdr l)))))) ; Original definition.
-; (set! mapc (curry mapcar)) ; Original definition.  From page 101.
+; Version 2 (or use combine ?)
+(set find (lambda (pred lis)
+	(cond
+		((null? lis) '())
+		((pred (car lis)) 'T)
+		('T (find pred (cdr lis)))
+	)
+))
+
+; TODO: filter : Try using combine and/or flatten1 ?
+; flatten1: (flatten1 '((a) () (b) (c d))) -> '(a b c d)
+(set! flatten1 (combine id append '()))
+
+; pred2list :
+(set! pred2list (lambda (f a) (if (f a) (list a) '())))
+; Then:
+(set! filter (lambda (pred l) (combine ...)))
+
+; Original:
+(set filter (lambda (pred l) ; Returns only the elements of l for which pred is true.
+	(cond
+		((null? l) '())
+		((pred (car l)) (cons (car l) (filter pred (cdr l))))
+		('T (filter pred (cdr l)))
+	)
+))
 	*/
 
 	/* Version 2: */
