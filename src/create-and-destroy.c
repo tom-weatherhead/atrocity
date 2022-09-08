@@ -15,19 +15,9 @@
 /* **** Value struct creation functions **** */
 
 int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
-	/* **** Deprecated **** */
-
 	/* Return the number of chars, not necessarily the number of bytes. */
 
-	/* In the future, we might do something like:
-	value->numCharsAllocatedToNameBuf = ...;
-	value->name = (char *)mmAlloc(value->numCharsAllocatedToNameBuf * sizeof(char));
-	memset(value->name, 0, value->numCharsAllocatedToNameBuf * sizeof(char));
-	*/
-
 	return value->maxNameLength;
-
-	/* return maxStringValueLength; */
 }
 
 LISP_VALUE * createNumericValue(int value) {
@@ -120,37 +110,13 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 	return closure;
 }
 
-/* static void freeClosure(LISP_CLOSURE * closure) {
-
-	if (closure->args != NULL) {
-		freeVariableList(closure->args);
-		closure->args = NULL;
-	}
-
-	if (closure->body != NULL) {
-		freeExpression(closure->body);
-		closure->body = NULL;
-	}
-
-	if (closure->env != NULL) {
-		freeEnvironment(closure->env);
-		closure->env = NULL;
-	}
-
-	mmFree(closure);
-} */
-
 /* TODO:
 A thunk is a suspended computation; used to implement lazy evaluation in SASL.
 A thunk is implemented as a closure thqt takes no arguments.
 
 LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env) {
 	return createClosure(NULL, body, env);
-}
-
-void freeThunk(LISP_VALUE * value) {
-	freeClosure(value);
-}*/
+} */
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	return createUniversalStruct(
@@ -163,21 +129,6 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 		NULL
 	);
 }
-
-/* static void freePair(LISP_PAIR * pair) {
-
-	if (pair->head != NULL) {
-		/ * freeValue(pair->head); * /
-		pair->head = NULL;
-	}
-
-	if (pair->tail != NULL) {
-		/ * freeValue(pair->tail); * /
-		pair->tail = NULL;
-	}
-
-	mmFree(pair);
-} */
 
 LISP_VALUE * createNull() {
 	/* TODO: Just return NULL; */
@@ -192,10 +143,6 @@ LISP_VALUE * createNull() {
 		NULL
 	);
 }
-
-/* void freeNull(LISP_VALUE * value) {
-	mmFree(value);
-} */
 
 LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
@@ -234,22 +181,6 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 	return NULL;
 }
 
-void freeValue(LISP_VALUE * value) {
-	/* printf("freeValue() : Begin\n"); */
-
-	/* if (value->pair != NULL) {
-		freePair(value->pair);
-		value->pair = NULL;
-	}
-
-	if (value->closure != NULL) {
-		freeClosure(value->closure);
-		value->closure = NULL;
-	}
-
-	mmFree(value); */
-}
-
 // **** Expression struct creation functions ****
 
 LISP_EXPR * createUndefinedExpression() {
@@ -286,25 +217,6 @@ LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_
 	return result;
 }
 
-void freeVariableList(LISP_VAR_LIST_ELEMENT * varList) {
-
-	/* if (varList != NULL) {
-
-		if (varList->var != NULL) {
-			/ * printf("freeVariableList() : Freeing a variable named '%s'\n", varList->var->name); * /
-			freeVariable(varList->var);
-			varList->var = NULL;
-		}
-
-		if (varList->next != NULL) {
-			freeVariableList(varList->next);
-			varList->next = NULL;
-		}
-
-		mmFree(varList);
-	} */
-}
-
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next) {
 	LISP_EXPR_PAIR_LIST_ELEMENT * result = createUniversalStruct(
 		schemeStructType_ExpressionPairListElement,
@@ -320,29 +232,6 @@ LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, 
 	result->expr2 = expr2;
 
 	return result;
-}
-
-void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
-
-	/* if (exprPairList != NULL) {
-
-		if (exprPairList->expr != NULL) {
-			freeExpression(exprPairList->expr);
-			exprPairList->expr = NULL;
-		}
-
-		if (exprPairList->expr2 != NULL) {
-			freeExpression(exprPairList->expr2);
-			exprPairList->expr2 = NULL;
-		}
-
-		if (exprPairList->next != NULL) {
-			freeExpressionPairList(exprPairList->next);
-			exprPairList->next = NULL;
-		}
-
-		mmFree(exprPairList);
-	} */
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
@@ -366,22 +255,6 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 	return result;
 }
 
-void freeLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr) {
-	/* printf("Freeing LambdaExpression...\n"); */
-
-	/* if (lambdaExpr->args != NULL) {
-		freeVariableList(lambdaExpr->args);
-		lambdaExpr->args = NULL;
-	}
-
-	if (lambdaExpr->body != NULL) {
-		freeExpression(lambdaExpr->body);
-		lambdaExpr->body = NULL;
-	}
-
-	mmFree(lambdaExpr); */
-}
-
 LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {
 	LISP_EXPR * result = createUndefinedExpression();
 
@@ -390,67 +263,6 @@ LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {
 	result->expr = expr;
 
 	return result;
-}
-
-/* void freeSetExpression(LISP_EXPR * setExpr) {
-} */
-
-void freeFunctionCall(LISP_FUNCTION_CALL * functionCall) {
-	/* freeExpression(functionCall->firstExpr);
-	functionCall->firstExpr = NULL;
-	freeExpressionList(functionCall->actualParamExprs);
-	functionCall->actualParamExprs = NULL;
-	mmFree(functionCall); */
-}
-
-void freeExpression(LISP_EXPR * expr) {
-
-	/* if (expr->value != NULL) {
-		freeValue(expr->value);
-		expr->value = NULL;
-	}
-
-	/ * if (expr->var != NULL) {
-		freeVariable(expr->var);
-		expr->var = NULL;
-	} * /
-
-	/ * if (expr->exprList != NULL) {
-		freeExpressionList(expr->exprList);
-		expr->exprList = NULL;
-	} * /
-
-	if (expr->lambdaExpr != NULL) {
-		freeLambdaExpression(expr->lambdaExpr);
-		expr->lambdaExpr = NULL;
-	}
-
-	if (expr->functionCall != NULL) {
-		freeFunctionCall(expr->functionCall);
-		expr->functionCall = NULL;
-	}
-
-	/ * if (expr->expr != NULL) {
-		freeExpression(expr->expr);
-		expr->expr = NULL;
-	}
-
-	if (expr->expr2 != NULL) {
-		freeExpression(expr->expr2);
-		expr->expr2 = NULL;
-	} * /
-
-	/ * if (expr->varExprPairList != NULL) {
-		freeVarExprPairList(expr->varExprPairList);
-		expr->varExprPairList = NULL;
-	} * /
-
-	/ * if (expr->exprPairList != NULL) {
-		freeExprPairList(expr->exprPairList);
-		expr->exprPairList = NULL;
-	} * /
-
-	mmFree(expr); */
 }
 
 // **** Expression list struct creation functions ****
@@ -469,15 +281,6 @@ LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR
 	result->expr = expr;
 
 	return result;
-}
-
-void freeExpressionList(LISP_EXPR_LIST_ELEMENT * exprList) {
-
-	/* while (exprList != NULL) {
-		freeExpression(exprList->expr);
-		exprList->expr = NULL; / * So we don't try to free it again * /
-		exprList = exprList->next;
-	} */
 }
 
 /* A variable is an Expression but not a Value. */
@@ -516,10 +319,6 @@ LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
 	return expr;
 }
 
-void freeVariable(LISP_VAR * var) {
-	/* mmFree(var); */
-}
-
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
 	SCHEME_UNIVERSAL_TYPE * nvle = allocateStringAndCreateUniversalStruct(
 		schemeStructType_NameValueListElement,
@@ -534,19 +333,6 @@ LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALU
 	return nvle;
 }
 
-void freeNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle) {
-
-	/* if (nvle != NULL) {
-		/ * Do not free name. * /
-		nvle->name = NULL;
-		/ * Do not free value. * /
-		nvle->value = NULL;
-		freeNameValueList(nvle->next);
-		nvle->next = NULL;
-		mmFree(nvle);
-	} */
-}
-
 LISP_ENV * createEnvironment(LISP_ENV * next) {
 	SCHEME_UNIVERSAL_TYPE * env = createUniversalStruct(
 		schemeStructType_Environment,
@@ -559,28 +345,6 @@ LISP_ENV * createEnvironment(LISP_ENV * next) {
 	);
 
 	return env;
-}
-
-void freeEnvironment(LISP_ENV * env) {
-
-	/* if (env != NULL) {
-
-		if (env->nameValueList != NULL) {
-			freeNameValueList(env->nameValueList);
-			env->nameValueList = NULL;
-		}
-
-		/ * If we free the entire list of environment frames,
-		 * then freeing any frame will free the global environment.
-		 * /
-
-		/ * if (env->next != NULL) {
-			freeEnvironment(env->next); * /
-		env->next = NULL;
-		/ * } * /
-
-		mmFree(env);
-	} */
 }
 
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {

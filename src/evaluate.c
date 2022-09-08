@@ -493,7 +493,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 		if (np == NULL || ep == NULL) {
 			/* The formal and actual parameter lists have different lengths. */
 			fprintf(stderr, "evaluateClosureCall() : The formal and actual parameter lists have different lengths.\n");
-			freeEnvironment(newEnv);
+			/* freeEnvironment(newEnv); */
 			fatalError("evaluateClosureCall() : The formal and actual parameter lists have different lengths.");
 			return NULL;
 		}

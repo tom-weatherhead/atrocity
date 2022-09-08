@@ -71,7 +71,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 
 		/* Note bene: freeClosure is currently mostly disabled to avoid
 		 * double-freeing things. We must fix this. */
-		freeValue(value);
+		/* freeValue(value); */
 
 		outputValuesMatch = !strcmp(actualOutput, expectedOutput);
 	}

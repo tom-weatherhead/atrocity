@@ -273,10 +273,10 @@ LISP_ENV * createGlobalEnvironment() {
 }
 
 void freeGlobalEnvironment(LISP_ENV * globalEnv) {
-	freeEnvironment(globalEnv);
-	freeValue(globalTrueValue);
+	/* freeEnvironment(globalEnv); */
+	/* freeValue(globalTrueValue); */
 	globalTrueValue = NULL;
-	freeValue(globalNullValue);
+	/* freeValue(globalNullValue); */
 	globalNullValue = NULL;
 }
 

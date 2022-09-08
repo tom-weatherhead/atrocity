@@ -29,7 +29,7 @@ LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
 	LISP_EXPR * parseTree = parseExpression(cs);
 	LISP_VALUE * value = evaluate(parseTree, globalEnv);
 
-	freeExpression(parseTree);
+	/* freeExpression(parseTree); */
 	freeCharSource(cs);
 
 	return value;
@@ -65,7 +65,7 @@ void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 
 	/* Note bene: freeClosure is currently mostly disabled to avoid
 	 * double-freeing things. We must fix this. */
-	freeValue(value);
+	/* freeValue(value); */
 
 	/* if (originalGlobalEnv == NULL) {
 		freeGlobalEnvironment(globalEnv);

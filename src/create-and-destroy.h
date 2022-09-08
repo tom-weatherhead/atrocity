@@ -49,15 +49,7 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 );
 
 /* Free stuff */
-void freeValue(LISP_VALUE * value);
-
-void freeExpression(LISP_EXPR * expr);
-
-void freeEnvironment(LISP_ENV * env);
-void freeExpressionList(LISP_EXPR_LIST_ELEMENT * exprList);
-void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList);
-void freeVariable(LISP_VAR * var);
-void freeVariableList(LISP_VAR_LIST_ELEMENT * varList);
+/* void freeEnvironment(LISP_ENV * env); */
 
 void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr);
 
