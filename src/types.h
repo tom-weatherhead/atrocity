@@ -79,6 +79,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_ENV SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
+#define LISP_LAMBDA_EXPR SCHEME_UNIVERSAL_TYPE
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
@@ -88,6 +89,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getArgsInClosure(c) ((c)->value1)
 #define getBodyInClosure(c) ((c)->expr)
 #define getEnvInClosure(c) ((c)->value2)
+
+#define getArgsInLambdaExpr(le) ((le)->value1)
+#define getBodyInLambdaExpr(le) ((le)->expr)
 
 typedef struct LISP_VALUE_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -105,18 +109,6 @@ typedef struct LISP_VALUE_STRUCT {
 
 /* The NameValueList is a crude dictionary of values. */
 
-/* typedef struct LISP_CLOSURE_STRUCT {
-	int mark; / * All dynamically allocated structs must have this member * /
-
-	LISP_VAR_LIST_ELEMENT * args;
-	struct LISP_EXPR_STRUCT * body;
-	LISP_ENV * env;
-} LISP_CLOSURE; / * A value. Closures are part of Scheme, not LISP. * /
-#define getArgsInClosure(c) ((c)->args)
-#define getBodyInClosure(c) ((c)->body)
-#define getEnvInClosure(c) ((c)->env)
-*/
-
 typedef struct LISP_EXPR_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -124,7 +116,7 @@ typedef struct LISP_EXPR_STRUCT {
 	LISP_VALUE * value;
 	LISP_VAR * var;
 	LISP_EXPR_LIST_ELEMENT * exprList;
-	struct LISP_LAMBDA_EXPR_STRUCT * lambdaExpr;
+	LISP_LAMBDA_EXPR * lambdaExpr;
 	struct LISP_FUNCTION_CALL_STRUCT * functionCall;
 	struct LISP_EXPR_STRUCT * expr; /* For e.g. set! */
 	struct LISP_EXPR_STRUCT * expr2; /* For e.g. cons */
@@ -132,12 +124,15 @@ typedef struct LISP_EXPR_STRUCT {
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList;
 } LISP_EXPR;
 
-typedef struct LISP_LAMBDA_EXPR_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
+/* typedef struct LISP_LAMBDA_EXPR_STRUCT {
+	int mark; / * All dynamically allocated structs must have this member * /
 
 	LISP_VAR_LIST_ELEMENT * args;
 	LISP_EXPR * body;
-} LISP_LAMBDA_EXPR; /* An expression */
+} LISP_LAMBDA_EXPR; / * An expression * /
+#define getArgsInLambdaExpr(le) ((le)->args)
+#define getBodyInLambdaExpr(le) ((le)->body)
+*/
 
 typedef struct LISP_FUNCTION_CALL_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -181,6 +176,7 @@ enum {
 	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,
 	schemeStructType_ExpressionPairListElement,
+	schemeStructType_LambdaExpr,
 	schemeStructType_NameValueListElement,
 	schemeStructType_Pair,
 	schemeStructType_VariableListElement,

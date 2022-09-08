@@ -103,11 +103,6 @@ LISP_VALUE * createPrimitiveOperator(char * value) {
 }
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
-	/* LISP_CLOSURE * closure = (LISP_CLOSURE *)mmAlloc(sizeof(LISP_CLOSURE));
-
-	closure->args = args;
-	closure->body = body;
-	closure->env = env; */
 	SCHEME_UNIVERSAL_TYPE * closure = createUniversalStruct(
 		schemeStructType_Closure,
 		0,
@@ -358,14 +353,25 @@ void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
-	LISP_LAMBDA_EXPR * lambdaExpr = (LISP_LAMBDA_EXPR *)mmAlloc(sizeof(LISP_LAMBDA_EXPR));
+	/* LISP_LAMBDA_EXPR * lambdaExpr = (LISP_LAMBDA_EXPR *)mmAlloc(sizeof(LISP_LAMBDA_EXPR));
 
 	if (lambdaExpr == NULL) {
 		fatalError("mmAlloc() failed in createLambdaExpression()");
 	}
 
 	lambdaExpr->args = args;
-	lambdaExpr->body = body;
+	lambdaExpr->body = body; */
+	SCHEME_UNIVERSAL_TYPE * lambdaExpr = createUniversalStruct(
+		schemeStructType_LambdaExpr,
+		0,
+		0,
+		NULL,
+		args,
+		NULL,
+		NULL
+	);
+
+	lambdaExpr->expr = body;
 
 	LISP_EXPR * result = createUndefinedExpression();
 
