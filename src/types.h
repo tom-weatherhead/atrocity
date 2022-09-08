@@ -15,6 +15,7 @@
 /* Forward declarations of some structs */
 
 struct LISP_EXPR_STRUCT;
+struct LISP_VALUE_STRUCT;
 
 /* Type definitions */
 
@@ -23,7 +24,7 @@ struct LISP_EXPR_STRUCT;
 /* Every expression can be evaluated to a value. */
 
 /* TODO: Migrate the data model to this single structure: */
-/* Currently, 6 structs are defined in this file. */
+/* Currently, 3 structs are defined in this file. */
 typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* Contains eight members. */
 
@@ -110,6 +111,12 @@ typedef struct LISP_VALUE_STRUCT {
 	int continuationId;
 	struct LISP_VALUE_STRUCT * continuationReturnValue;
 } LISP_VALUE;
+#define getIntegerValueInValue(v) ((v)->value)
+#define getNameInValue(v) ((v)->name)
+#define getPairInValue(v) ((v)->pair)
+#define getClosureInValue(v) ((v)->closure)
+#define getContinuationIdInValue(v) ((v)->continuationId)
+#define getContinuationReturnValueInValue(v) ((v)->continuationReturnValue)
 
 /* The NameValueList is a crude dictionary of values. */
 
@@ -127,16 +134,6 @@ typedef struct LISP_EXPR_STRUCT {
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList; /* For let, let*, letrec */
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList;
 } LISP_EXPR;
-
-/* typedef struct LISP_FUNCTION_CALL_STRUCT {
-	int mark; / * All dynamically allocated structs must have this member * /
-
-	LISP_EXPR * firstExpr;
-	LISP_EXPR_LIST_ELEMENT * actualParamExprs;
-} LISP_FUNCTION_CALL; / * An expression * /
-#define getFirstExprInFunctionCall(fc) ((fc)->firstExpr)
-#define getActualParamExprsInFunctionCall(fc) ((fc)->actualParamExprs)
-*/
 
 enum {
 	lispValueType_Undefined, /* 0 */
