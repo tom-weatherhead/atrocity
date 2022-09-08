@@ -103,11 +103,22 @@ LISP_VALUE * createPrimitiveOperator(char * value) {
 }
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
-	LISP_CLOSURE * closure = (LISP_CLOSURE *)mmAlloc(sizeof(LISP_CLOSURE));
+	/* LISP_CLOSURE * closure = (LISP_CLOSURE *)mmAlloc(sizeof(LISP_CLOSURE));
 
 	closure->args = args;
 	closure->body = body;
-	closure->env = env;
+	closure->env = env; */
+	SCHEME_UNIVERSAL_TYPE * closure = createUniversalStruct(
+		schemeStructType_Closure,
+		0,
+		0,
+		NULL,
+		args,
+		env,
+		NULL
+	);
+
+	closure->expr = body;
 
 	LISP_VALUE * result = createUndefinedValue();
 
@@ -214,7 +225,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 			return createPrimitiveOperator(value->name);
 
 		case lispValueType_Closure:
-			return createClosure(value->closure->args, value->closure->body, value->closure->env);
+			return createClosure(getArgsInClosure(value->closure), getBodyInClosure(value->closure), getEnvInClosure(value->closure));
 
 		case lispValueType_Pair:
 			return createPair(value->pair->head, value->pair->tail);

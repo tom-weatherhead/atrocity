@@ -293,7 +293,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			} else if (operand1Value->type != lispValueType_Closure) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure");
-			} else if (operand1Value->closure->args == NULL || operand1Value->closure->args->next != NULL) {
+			} else if (getArgsInClosure(operand1Value->closure) == NULL || getArgsInClosure(operand1Value->closure)->next != NULL) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
@@ -461,9 +461,9 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 }
 
 static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	LISP_ENV * newEnv = createEnvironment(closure->env);
+	LISP_ENV * newEnv = createEnvironment(getEnvInClosure(closure));
 
-	LISP_VAR_LIST_ELEMENT * np = closure->args;
+	LISP_VAR_LIST_ELEMENT * np = getArgsInClosure(closure); /* closure->args; */
 	LISP_EXPR_LIST_ELEMENT * ep = actualParamExprs;
 
 	while (np != NULL || ep != NULL) {
@@ -491,7 +491,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 		ep = ep->next;
 	}
 
-	LISP_VALUE * result = evaluate(closure->body, newEnv);
+	LISP_VALUE * result = evaluate(getBodyInClosure(closure), newEnv);
 
 	/* ThAW 2022-08-18 : Don't free newEnv: Someone is still using it. E.g.:
 	parseAndEvaluate("(((lambda (x) (lambda (y) x)) 5) 8)"); */

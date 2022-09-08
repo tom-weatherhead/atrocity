@@ -75,6 +75,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* struct SCHEME_UNIVERSAL_STRUCT * continuationReturnValue; -> use value (above) */
 } SCHEME_UNIVERSAL_TYPE;
 
+#define LISP_CLOSURE SCHEME_UNIVERSAL_TYPE
 #define LISP_ENV SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
@@ -84,6 +85,10 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_VAR_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 
+#define getArgsInClosure(c) ((c)->value1)
+#define getBodyInClosure(c) ((c)->expr)
+#define getEnvInClosure(c) ((c)->value2)
+
 typedef struct LISP_VALUE_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -92,7 +97,7 @@ typedef struct LISP_VALUE_STRUCT {
 	int value;
 	char name[maxStringValueLength]; /* Used by ValueTypes String and PrimitiveOperator */
 	LISP_PAIR * pair;
-	struct LISP_CLOSURE_STRUCT * closure;
+	LISP_CLOSURE * closure;
 
 	int continuationId;
 	struct LISP_VALUE_STRUCT * continuationReturnValue;
@@ -100,13 +105,17 @@ typedef struct LISP_VALUE_STRUCT {
 
 /* The NameValueList is a crude dictionary of values. */
 
-typedef struct LISP_CLOSURE_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
+/* typedef struct LISP_CLOSURE_STRUCT {
+	int mark; / * All dynamically allocated structs must have this member * /
 
 	LISP_VAR_LIST_ELEMENT * args;
 	struct LISP_EXPR_STRUCT * body;
 	LISP_ENV * env;
-} LISP_CLOSURE; /* A value. Closures are part of Scheme, not LISP. */
+} LISP_CLOSURE; / * A value. Closures are part of Scheme, not LISP. * /
+#define getArgsInClosure(c) ((c)->args)
+#define getBodyInClosure(c) ((c)->body)
+#define getEnvInClosure(c) ((c)->env)
+*/
 
 typedef struct LISP_EXPR_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
@@ -168,6 +177,7 @@ enum {
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
 
+	schemeStructType_Closure,
 	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,
 	schemeStructType_ExpressionPairListElement,
