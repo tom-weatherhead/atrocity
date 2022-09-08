@@ -43,9 +43,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
 
 	/* BEGIN Temporary members */
-	struct SCHEME_UNIVERSAL_STRUCT * value; /* TODO: Rename this to test for old references to int value; in LISP_VALUE */
-	struct SCHEME_UNIVERSAL_STRUCT * head;
-	struct SCHEME_UNIVERSAL_STRUCT * tail;
+	/* struct SCHEME_UNIVERSAL_STRUCT * value3; TODO: Rename this to test for old references to int value; in LISP_VALUE */
+	/* struct SCHEME_UNIVERSAL_STRUCT * head;
+	struct SCHEME_UNIVERSAL_STRUCT * tail; */
 	struct LISP_EXPR_STRUCT * expr;
 	struct LISP_EXPR_STRUCT * expr2;
 	/* END Temporary members */

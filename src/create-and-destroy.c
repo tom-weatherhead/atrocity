@@ -612,12 +612,12 @@ LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALU
 		0,
 		0,
 		name,
-		NULL,
+		value,
 		NULL,
 		next
 	);
 
-	nvle->value = value; /* Temporary member */
+	/* nvle->value = value; Temporary member */
 
 	return nvle;
 }
@@ -978,9 +978,6 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->value2 = value2;
 	result->next = next;
 
-	result->value = NULL; /* Temporary */
-	result->head = NULL; /* Temporary */
-	result->tail = NULL; /* Temporary */
 	result->expr = NULL; /* Temporary */
 	result->expr2 = NULL; /* Temporary */
 
@@ -1047,9 +1044,6 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 		expr->next = NULL;
 	}
 
-	expr->value = NULL; /* Temporary member */
-	expr->head = NULL; /* Temporary member */
-	expr->tail = NULL; /* Temporary member */
 	expr->expr = NULL; /* Temporary member */
 	expr->expr2 = NULL; /* Temporary member */
 

@@ -25,7 +25,7 @@ static LISP_VALUE * lookupVariableInNameValueList(LISP_VAR * var, LISP_NAME_VALU
 	while (nvle != NULL) {
 
 		if (!strcmp(nvle->name, var->name)) {
-			return nvle->value;
+			return nvle->value1;
 		}
 
 		nvle = nvle->next;
@@ -61,7 +61,7 @@ BOOL updateNameIfFoundInNameValueList(LISP_NAME_VALUE_LIST_ELEMENT * nvle, char 
 	while (nvle != NULL) {
 
 		if (!strcmp(nvle->name, name)) {
-			nvle->value = value;
+			nvle->value1 = value;
 			return TRUE;
 		}
 
