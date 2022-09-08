@@ -12,6 +12,8 @@
 #include "memory-manager.h"
 #include "utilities.h"
 
+extern int numMallocsForExpressions;
+
 /* **** Value struct creation functions **** */
 
 int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
@@ -185,6 +187,8 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 LISP_EXPR * createUndefinedExpression() {
 	LISP_EXPR * result = (LISP_EXPR *)mmAlloc(sizeof(LISP_EXPR));
+
+	++numMallocsForExpressions;
 
 	result->type = lispExpressionType_Undefined;
 	result->value = NULL;

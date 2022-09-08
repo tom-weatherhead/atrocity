@@ -87,15 +87,15 @@ typedef struct LISP_EXPR_STRUCT {
 
 	int type;
 	/* TODO: All of the pointers below will become pointers to SCHEME_UNIVERSAL_TYPE */
-	LISP_VALUE * value;
-	LISP_VAR * var;
-	LISP_EXPR_LIST_ELEMENT * exprList;
-	LISP_LAMBDA_EXPR * lambdaExpr;
-	LISP_FUNCTION_CALL * functionCall;
+	SCHEME_UNIVERSAL_TYPE * value;
+	SCHEME_UNIVERSAL_TYPE * var;
+	SCHEME_UNIVERSAL_TYPE * exprList;
+	SCHEME_UNIVERSAL_TYPE * lambdaExpr;
+	SCHEME_UNIVERSAL_TYPE * functionCall;
 	struct LISP_EXPR_STRUCT * expr; /* For e.g. set! */
 	struct LISP_EXPR_STRUCT * expr2; /* For e.g. cons */
-	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList; /* For let, let*, letrec */
-	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList;
+	SCHEME_UNIVERSAL_TYPE * varExprPairList; /* For let, let*, letrec */
+	SCHEME_UNIVERSAL_TYPE * exprPairList;
 } LISP_EXPR;
 
 enum {
