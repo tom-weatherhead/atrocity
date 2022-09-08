@@ -500,7 +500,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 }
 
 static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
-	LISP_VALUE * callableValue = evaluate(functionCall->firstExpr, env);
+	LISP_VALUE * callableValue = evaluate(getFirstExprInFunctionCall(functionCall), env);
 
 	if (callableValue->type == lispPseudoValueType_ContinuationReturn) {
 		return callableValue;
@@ -510,21 +510,21 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 
 	switch (callableValue->type) {
 		case lispValueType_PrimitiveOperator:
-			return evaluatePrimitiveOperatorCall(callableValue->name, functionCall->actualParamExprs, env);
+			return evaluatePrimitiveOperatorCall(callableValue->name, getActualParamExprsInFunctionCall(functionCall), env);
 
 		case lispValueType_Closure:
-			return evaluateClosureCall(callableValue->closure, functionCall->actualParamExprs, env);
+			return evaluateClosureCall(callableValue->closure, getActualParamExprsInFunctionCall(functionCall), env);
 
 		case lispPseudoValueType_Continuation:
 			/* There must be exactly one actual parameter */
 
-			if (functionCall->actualParamExprs == NULL || functionCall->actualParamExprs->next != NULL) {
+			if (getActualParamExprsInFunctionCall(functionCall) == NULL || getActualParamExprsInFunctionCall(functionCall)->next != NULL) {
 				fprintf(stderr, "evaluateFunctionCall() : Bad number of parameters (!= 1) when calling a continuation\n");
 				fatalError("evaluateFunctionCall() : Bad number of parameters (!= 1) when calling a continuation");
 				return NULL;
 			}
 
-			LISP_VALUE * actualParamValue = evaluate(functionCall->actualParamExprs->expr, env);
+			LISP_VALUE * actualParamValue = evaluate(getActualParamExprsInFunctionCall(functionCall)->expr, env);
 
 			if (actualParamValue->type == lispPseudoValueType_ContinuationReturn) {
 				return actualParamValue;

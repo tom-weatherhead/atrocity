@@ -353,14 +353,6 @@ void freeExpressionPairList(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
-	/* LISP_LAMBDA_EXPR * lambdaExpr = (LISP_LAMBDA_EXPR *)mmAlloc(sizeof(LISP_LAMBDA_EXPR));
-
-	if (lambdaExpr == NULL) {
-		fatalError("mmAlloc() failed in createLambdaExpression()");
-	}
-
-	lambdaExpr->args = args;
-	lambdaExpr->body = body; */
 	SCHEME_UNIVERSAL_TYPE * lambdaExpr = createUniversalStruct(
 		schemeStructType_LambdaExpr,
 		0,

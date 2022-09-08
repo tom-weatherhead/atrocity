@@ -42,14 +42,25 @@ static char * primops[] = {
 static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 	LISP_EXPR_LIST_ELEMENT * exprList = parseExpressionList(cs);
 
-	LISP_FUNCTION_CALL * functionCall = (LISP_FUNCTION_CALL *)mmAlloc(sizeof(LISP_FUNCTION_CALL));
+	/* LISP_FUNCTION_CALL * functionCall = (LISP_FUNCTION_CALL *)mmAlloc(sizeof(LISP_FUNCTION_CALL));
 
 	if (functionCall == NULL) {
 		fatalError("mmAlloc() failed in parseFunctionCallExpression()");
 	}
 
 	functionCall->firstExpr = exprList->expr;
-	functionCall->actualParamExprs = exprList->next;
+	functionCall->actualParamExprs = exprList->next; */
+	SCHEME_UNIVERSAL_TYPE * functionCall = createUniversalStruct(
+		schemeStructType_FunctionCall,
+		0,
+		0,
+		NULL,
+		exprList->next,
+		NULL,
+		NULL
+	);
+
+	functionCall->expr = exprList->expr;
 
 	exprList->expr = NULL;
 	exprList->next = NULL;
