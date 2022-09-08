@@ -84,6 +84,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_LAMBDA_EXPR SCHEME_UNIVERSAL_TYPE
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
+/* #define LISP_VALUE SCHEME_UNIVERSAL_TYPE */
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
@@ -97,6 +98,15 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getArgsInLambdaExpr(le) ((le)->value1)
 #define getBodyInLambdaExpr(le) ((le)->expr)
+
+/*
+#define getIntegerValueInValue(v) ((v)->integerValue)
+#define getNameInValue(v) ((v)->name)
+#define getPairInValue(v) (v)
+#define getClosureInValue(v) (v)
+#define getContinuationIdInValue(v) ((v)->integerValue)
+#define getContinuationReturnValueInValue(v) ((v)->value1)
+*/
 
 typedef struct LISP_VALUE_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
