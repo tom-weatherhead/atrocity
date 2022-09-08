@@ -313,10 +313,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
 
-			/* LISP_VALUE * currentContinuation = createUndefinedValue();
-
-			currentContinuation->type = lispPseudoValueType_Continuation;
-			getContinuationIdInValue(currentContinuation) = nextContinuationId++; */
 			SCHEME_UNIVERSAL_TYPE * currentContinuation = createUniversalStruct(
 				lispPseudoValueType_Continuation,
 				nextContinuationId,
@@ -510,8 +506,8 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 			return value;
 		}
 
-		/* newEnv->nameValueList = createNameValueListElement(np->var->name, value, newEnv->nameValueList); */
-		newEnv->value1 = createNameValueListElement(np->name, value, newEnv->value1);
+		/* newEnv->value1 = createNameValueListElement(np->name, value, newEnv->value1); */
+		addNameToEnvironment(newEnv, np->name, value);
 		/* freeValue(value); */
 		np = np->next;
 		ep = ep->next;
@@ -531,8 +527,6 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 	if (callableValue->type == lispPseudoValueType_ContinuationReturn) {
 		return callableValue;
 	}
-
-	/* LISP_VALUE * continuationReturnValue = NULL; */
 
 	switch (callableValue->type) {
 		case lispValueType_PrimitiveOperator:
@@ -556,12 +550,6 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 				return actualParamValue;
 			}
 
-			/* continuationReturnValue = createUndefinedValue();
-			continuationReturnValue->type = lispPseudoValueType_ContinuationReturn;
-			getContinuationIdInValue(continuationReturnValue) = getContinuationIdInValue(callableValue);
-			getContinuationReturnValueInValue(continuationReturnValue) = actualParamValue;
-
-			return continuationReturnValue; */
 			return createUniversalStruct(
 				lispPseudoValueType_ContinuationReturn,
 				getContinuationIdInValue(callableValue),
@@ -640,7 +628,6 @@ static LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) 
 			return value;
 		}
 
-		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
 		newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1);
 
 		env = newEnv;
@@ -656,7 +643,6 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 	for (; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
 		/* Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop. */
-		/* addToEnvironment(newEnv, varExprPairList->var, globalNullValue); */
 		addNameToEnvironment(newEnv, varExprPairList->name, globalNullValue);
 	}
 
@@ -667,7 +653,6 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 			return value;
 		}
 
-		/* updateIfFoundInNameValueList(newEnv->nameValueList, varExprPairList->var, value); */
 		updateNameIfFoundInNameValueList(newEnv->value1, varExprPairList->name, value);
 	}
 

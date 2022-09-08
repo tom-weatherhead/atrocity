@@ -123,14 +123,13 @@ typedef struct LISP_EXPR_STRUCT {
 } LISP_EXPR;
 
 enum {
-	lispValueType_Undefined, /* 0 */
-	lispValueType_Number,
+	lispValueType_Number, /* 0 */
 	lispValueType_String,
 	lispValueType_Symbol,
 	lispValueType_PrimitiveOperator,
 	lispValueType_Closure,
 	lispValueType_Pair,
-	lispValueType_Null, /* 7 */ /* TODO? Interpret the NULL pointer as a Null value? */
+	lispValueType_Null, /* 6 */ /* TODO? Interpret the NULL pointer as a Null value? */
 	/* lispValueType_Thunk, -> A suspended computation; used to implement lazy evaluation in SASL */
 	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
@@ -138,7 +137,7 @@ enum {
 
 	lispExpressionType_Undefined,
 	lispExpressionType_Value,
-	lispExpressionType_Variable, /* 12 */
+	lispExpressionType_Variable, /* 11 */
 	lispExpressionType_LambdaExpr,
 	lispExpressionType_FunctionCall,
 	lispExpressionType_SetExpr,
@@ -153,14 +152,12 @@ enum {
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
 
-	schemeStructType_Closure,
 	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,
 	schemeStructType_ExpressionPairListElement,
 	schemeStructType_FunctionCall,
 	schemeStructType_LambdaExpr,
 	schemeStructType_NameValueListElement,
-	schemeStructType_Pair,
 	schemeStructType_VariableListElement,
 	schemeStructType_VariableExpressionPairListElement
 };

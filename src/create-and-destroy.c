@@ -30,24 +30,7 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 	/* return maxStringValueLength; */
 }
 
-/* LISP_VALUE * createUndefinedValue() {
-	return createUniversalStruct(
-		lispValueType_Undefined,
-		0,
-		0,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	);
-} */
-
 LISP_VALUE * createNumericValue(int value) {
-	/* LISP_VALUE * result = createUndefinedValue();
-
-	result->type = lispValueType_Number;
-	result->integerValue = value; */
-
 	return createUniversalStruct(
 		lispValueType_Number,
 		value,
@@ -76,14 +59,6 @@ LISP_VALUE * createStringValue(char * str) {
 		fatalError("createStringValue() : String too long");
 	}
 
-	/* LISP_VALUE * result = createUndefinedValue();
-
-	result->type = lispValueType_String;
-	memcpy(result->name, str, len * sizeof(char));
-	printf("Created string: <%s>\n", result->name);
-
-	return result; */
-
 	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
 		lispValueType_String,
 		0,
@@ -106,13 +81,6 @@ LISP_VALUE * createSymbolValue(char * value) {
 		fatalError("createSymbolValue() : String too long");
 	}
 
-	/* LISP_VALUE * result = createUndefinedValue();
-
-	result->type = lispValueType_Symbol;
-	strcpy(result->name, value);
-
-	return result; */
-
 	return allocateStringAndCreateUniversalStruct(
 		lispValueType_Symbol,
 		0,
@@ -125,13 +93,6 @@ LISP_VALUE * createSymbolValue(char * value) {
 }
 
 LISP_VALUE * createPrimitiveOperator(char * value) {
-	/* LISP_VALUE * result = createUndefinedValue();
-
-	result->type = lispValueType_PrimitiveOperator;
-	strcpy(result->name, value);
-
-	return result; */
-
 	return allocateStringAndCreateUniversalStruct(
 		lispValueType_PrimitiveOperator,
 		0,
@@ -144,26 +105,6 @@ LISP_VALUE * createPrimitiveOperator(char * value) {
 }
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
-	/* SCHEME_UNIVERSAL_TYPE * closure = createUniversalStruct(
-		schemeStructType_Closure,
-		0,
-		0,
-		NULL,
-		args,
-		env,
-		NULL
-	);
-
-	closure->expr = body;
-
-	LISP_VALUE * result = createUndefinedValue();
-
-	result->type = lispValueType_Closure;
-	result->closure = closure;
-
-	return result;
-	*/
-
 	SCHEME_UNIVERSAL_TYPE * closure = createUniversalStruct(
 		lispValueType_Closure,
 		0,
@@ -212,25 +153,6 @@ void freeThunk(LISP_VALUE * value) {
 }*/
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
-	/* SCHEME_UNIVERSAL_TYPE * pair = createUniversalStruct(
-		schemeStructType_Pair,
-		0,
-		0,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	);
-
-	pair->head = head;
-	pair->tail = tail;
-
-	LISP_VALUE * result = createUndefinedValue();
-
-	result->type = lispValueType_Pair;
-	result->pair = pair;
-
-	return result; */
 	return createUniversalStruct(
 		lispValueType_Pair,
 		0,
@@ -260,11 +182,6 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 LISP_VALUE * createNull() {
 	/* TODO: Just return NULL; */
 
-	/* LISP_VALUE * result = createUndefinedValue();
-
-	result->type = lispValueType_Null;
-
-	return result; */
 	return createUniversalStruct(
 		lispValueType_Null,
 		0,
@@ -613,8 +530,6 @@ LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALU
 		NULL,
 		next
 	);
-
-	/* nvle->value = value; Temporary member */
 
 	return nvle;
 }
@@ -1021,7 +936,6 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 
 void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 
-	/* TODO: 2022-09-08 : Temporarily commented out.
 	if (expr->name != NULL) {
 		mmFree(expr->name);
 		expr->name = NULL;
@@ -1040,7 +954,7 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 	if (expr->next != NULL) {
 		freeUniversalStruct(expr->next);
 		expr->next = NULL;
-	} */
+	}
 
 	expr->expr = NULL; /* Temporary member */
 	expr->expr2 = NULL; /* Temporary member */

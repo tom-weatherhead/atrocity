@@ -65,6 +65,10 @@ void mmPrintReport() {
 	printf("  Number of mallocs:  %d\n", numMallocs);
 	printf("  Number of reallocs: %d\n", numReallocs);
 	printf("  Number of frees:    %d\n\n", numFrees);
+
+	if (numFrees < numMallocs) {
+		printf("  Number of leaks:    %d\n\n", numMallocs - numFrees);
+	}
 }
 
 /* **** BEGIN Memory manager version 1 **** */
@@ -75,16 +79,6 @@ typedef struct MEMMGR_RECORD_STRUCT {
 } MEMMGR_RECORD;
 
 static MEMMGR_RECORD * memmgrRecords = NULL;
-
-void printMemMgrReport() {
-	printf("  Memory manager: %d mallocs, %d frees", numMallocs, numFrees);
-
-	if (numMallocs > numFrees) {
-		printf(" : **** LEAKAGE ****");
-	}
-
-	printf("\n");
-}
 
 void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 	MEMMGR_RECORD * mmRec = NULL;
@@ -98,12 +92,6 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 			return;
 		}
 	} 105730894296169 */
-
-	/* if (item == (SCHEME_UNIVERSAL_TYPE *)105730894296169) {
-		fprintf(stderr, "addItemToMemMgrRecords() : BREAK\n");
-		fprintf(stderr, "addItemToMemMgrRecords() : Item type is %d\n", item->type);
-		exit(1);
-	} */
 
 	mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 

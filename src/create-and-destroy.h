@@ -3,7 +3,6 @@
 int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value);
 
 /* Create values */
-LISP_VALUE * createUndefinedValue();
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env);
 LISP_ENV * createEnvironment(LISP_ENV * next);
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next);
