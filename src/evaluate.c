@@ -68,15 +68,15 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 			return TRUE;
 
 		case lispValueType_Number:
-			return v1->value == v2->value;
+			return getIntegerValueInValue(v1) == getIntegerValueInValue(v2);
 
 		case lispValueType_String:
 		case lispValueType_Symbol:
 		case lispValueType_PrimitiveOperator:
-			return !strcmp(v1->name, v2->name);
+			return !strcmp(getNameInValue(v1), getNameInValue(v2));
 
 		case lispValueType_Pair:
-			return areValuesEqual(v1->pair->head, v2->pair->head) && areValuesEqual(v1->pair->tail, v2->pair->tail);
+			return areValuesEqual(getHeadInPair(getPairInValue(v1)), getHeadInPair(getPairInValue(v2))) && areValuesEqual(getTailInPair(getPairInValue(v1)), getTailInPair(getPairInValue(v2)));
 
 		case lispValueType_Closure:
 			return FALSE;
@@ -219,12 +219,14 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				return operand1Value;
 			}
 
-			if (operand1Value->type != lispValueType_Number || operand1Value->value <= 0) {
+			if (operand1Value->type != lispValueType_Number || getIntegerValueInValue(operand1Value) <= 0) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : random : Bad parameter\n");
+				fprintf(stderr, "  operand1Value->type is: %d\n", operand1Value->type);
+				fprintf(stderr, "  getIntegerValueInValue(operand1Value) is: %d\n", getIntegerValueInValue(operand1Value));
 				fatalError("evaluatePrimitiveOperatorCall() : random : Bad parameter");
 			}
 
-			return createNumericValue(rand() % operand1Value->value);
+			return createNumericValue(rand() % getIntegerValueInValue(operand1Value));
 		} else if (!strcmp(op, "car")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -237,7 +239,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : car : Operand is not a pair");
 			}
 
-			return operand1Value->pair->head;
+			return getHeadInPair(getPairInValue(operand1Value));
 		} else if (!strcmp(op, "cdr")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -248,7 +250,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : cdr : Operand is not a pair");
 			}
 
-			return operand1Value->pair->tail;
+			return getTailInPair(getPairInValue(operand1Value));
 		} else if (!strcmp(op, "listtostring")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -293,7 +295,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			} else if (operand1Value->type != lispValueType_Closure) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure");
-			} else if (getArgsInClosure(operand1Value->closure) == NULL || getArgsInClosure(operand1Value->closure)->next != NULL) {
+			} else if (getArgsInClosure(getClosureInValue(operand1Value)) == NULL || getArgsInClosure(getClosureInValue(operand1Value))->next != NULL) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
@@ -301,17 +303,17 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			LISP_VALUE * currentContinuation = createUndefinedValue();
 
 			currentContinuation->type = lispPseudoValueType_Continuation;
-			currentContinuation->continuationId = nextContinuationId++;
+			getContinuationIdInValue(currentContinuation) = nextContinuationId++;
 
 			/* Now call the closure (operand1Value), passing in
 			the currentContinuation as the one and only parameter */
 
-			LISP_VALUE * result = evaluateClosureCall(operand1Value->closure, createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
+			LISP_VALUE * result = evaluateClosureCall(getClosureInValue(operand1Value), createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
 
-			if (result->type == lispPseudoValueType_ContinuationReturn && result->continuationId == currentContinuation->continuationId) {
+			if (result->type == lispPseudoValueType_ContinuationReturn && getContinuationIdInValue(result) == getContinuationIdInValue(currentContinuation)) {
 				/* Unwrap the value inside */
 
-				return result->continuationReturnValue;
+				return getContinuationReturnValueInValue(result);
 			}
 
 			return result;
@@ -386,7 +388,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 						fatalError("evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair");
 					}
 
-					operand1Value->pair->head = operand2Value;
+					getHeadInPair(getPairInValue(operand1Value)) = operand2Value;
 
 					return operand2Value;
 				} else if (!strcmp(op, "rplacd")) {
@@ -396,13 +398,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 						fatalError("evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair");
 					}
 
-					operand1Value->pair->tail = operand2Value;
+					getTailInPair(getPairInValue(operand1Value)) = operand2Value;
 
 					return operand2Value;
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
 					/* Both operands must be numeric */
-					const int operand1 = operand1Value->value;
-					const int operand2 = operand2Value->value;
+					const int operand1 = getIntegerValueInValue(operand1Value);
+					const int operand2 = getIntegerValueInValue(operand2Value);
 
 					if (!strcmp(op, "+")) {
 						result = createNumericValue(operand1 + operand2);
@@ -513,7 +515,7 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 			return evaluatePrimitiveOperatorCall(callableValue->name, getActualParamExprsInFunctionCall(functionCall), env);
 
 		case lispValueType_Closure:
-			return evaluateClosureCall(callableValue->closure, getActualParamExprsInFunctionCall(functionCall), env);
+			return evaluateClosureCall(getClosureInValue(callableValue), getActualParamExprsInFunctionCall(functionCall), env);
 
 		case lispPseudoValueType_Continuation:
 			/* There must be exactly one actual parameter */
@@ -532,8 +534,8 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 
 			continuationReturnValue = createUndefinedValue();
 			continuationReturnValue->type = lispPseudoValueType_ContinuationReturn;
-			continuationReturnValue->continuationId = callableValue->continuationId;
-			continuationReturnValue->continuationReturnValue = actualParamValue;
+			getContinuationIdInValue(continuationReturnValue) = getContinuationIdInValue(callableValue);
+			getContinuationReturnValueInValue(continuationReturnValue) = actualParamValue;
 
 			return continuationReturnValue;
 

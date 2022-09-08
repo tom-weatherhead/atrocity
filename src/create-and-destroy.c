@@ -30,7 +30,7 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 }
 
 LISP_VALUE * createUndefinedValue() {
-	LISP_VALUE * result = (LISP_VALUE *)mmAlloc(sizeof(LISP_VALUE));
+	/* LISP_VALUE * result = (LISP_VALUE *)mmAlloc(sizeof(LISP_VALUE));
 
 	result->type = lispValueType_Undefined;
 	result->value = 0;
@@ -40,14 +40,24 @@ LISP_VALUE * createUndefinedValue() {
 	result->continuationId = 0;
 	result->continuationReturnValue = NULL;
 
-	return result;
+	return result; */
+
+	return createUniversalStruct(
+		lispValueType_Undefined,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	);
 }
 
 LISP_VALUE * createNumericValue(int value) {
 	LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Number;
-	result->value = value;
+	result->integerValue = value;
 
 	return result;
 }
@@ -69,11 +79,25 @@ LISP_VALUE * createStringValue(char * str) {
 		fatalError("createStringValue() : String too long");
 	}
 
-	LISP_VALUE * result = createUndefinedValue();
+	/* LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_String;
 	memcpy(result->name, str, len * sizeof(char));
-	/* printf("Created string: <%s>\n", result->name); */
+	printf("Created string: <%s>\n", result->name);
+
+	return result; */
+
+	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
+		lispValueType_String,
+		0,
+		0,
+		str,
+		NULL,
+		NULL,
+		NULL
+	);
+
+	result->name[len] = '\0'; /* Overwrite any closing double-quote */
 
 	return result;
 }
@@ -81,29 +105,49 @@ LISP_VALUE * createStringValue(char * str) {
 LISP_VALUE * createSymbolValue(char * value) {
 
 	if (strlen(value) >= maxStringValueLength) {
-		fprintf(stderr, "The string '%s' is too long to be a string value.", value);
+		fprintf(stderr, "The string '%s' is too long to be a symbol value.", value);
 		fatalError("createSymbolValue() : String too long");
 	}
 
-	LISP_VALUE * result = createUndefinedValue();
+	/* LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Symbol;
 	strcpy(result->name, value);
 
-	return result;
+	return result; */
+
+	return allocateStringAndCreateUniversalStruct(
+		lispValueType_Symbol,
+		0,
+		0,
+		value,
+		NULL,
+		NULL,
+		NULL
+	);
 }
 
 LISP_VALUE * createPrimitiveOperator(char * value) {
-	LISP_VALUE * result = createUndefinedValue();
+	/* LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_PrimitiveOperator;
 	strcpy(result->name, value);
 
-	return result;
+	return result; */
+
+	return allocateStringAndCreateUniversalStruct(
+		lispValueType_PrimitiveOperator,
+		0,
+		0,
+		value,
+		NULL,
+		NULL,
+		NULL
+	);
 }
 
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env) {
-	SCHEME_UNIVERSAL_TYPE * closure = createUniversalStruct(
+	/* SCHEME_UNIVERSAL_TYPE * closure = createUniversalStruct(
 		schemeStructType_Closure,
 		0,
 		0,
@@ -121,6 +165,21 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 	result->closure = closure;
 
 	return result;
+	*/
+
+	SCHEME_UNIVERSAL_TYPE * closure = createUniversalStruct(
+		lispValueType_Closure,
+		0,
+		0,
+		NULL,
+		args,
+		env,
+		NULL
+	);
+
+	closure->expr = body;
+
+	return closure;
 }
 
 /* static void freeClosure(LISP_CLOSURE * closure) {
@@ -156,7 +215,7 @@ void freeThunk(LISP_VALUE * value) {
 }*/
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
-	SCHEME_UNIVERSAL_TYPE * pair = createUniversalStruct(
+	/* SCHEME_UNIVERSAL_TYPE * pair = createUniversalStruct(
 		schemeStructType_Pair,
 		0,
 		0,
@@ -174,7 +233,16 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	result->type = lispValueType_Pair;
 	result->pair = pair;
 
-	return result;
+	return result; */
+	return createUniversalStruct(
+		lispValueType_Pair,
+		0,
+		0,
+		NULL,
+		head,
+		tail,
+		NULL
+	);
 }
 
 /* static void freePair(LISP_PAIR * pair) {
@@ -193,11 +261,22 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 } */
 
 LISP_VALUE * createNull() {
-	LISP_VALUE * result = createUndefinedValue();
+	/* TODO: Just return NULL; */
+
+	/* LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Null;
 
-	return result;
+	return result; */
+	return createUniversalStruct(
+		lispValueType_Null,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	);
 }
 
 /* void freeNull(LISP_VALUE * value) {
@@ -208,22 +287,22 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 	switch (value->type) {
 		case lispValueType_Number:
-			return createNumericValue(value->value);
+			return createNumericValue(getIntegerValueInValue(value));
 
 		case lispValueType_String:
-			return createStringValue(value->name);
+			return createStringValue(getNameInValue(value));
 
 		case lispValueType_Symbol:
-			return createSymbolValue(value->name);
+			return createSymbolValue(getNameInValue(value));
 
 		case lispValueType_PrimitiveOperator:
-			return createPrimitiveOperator(value->name);
+			return createPrimitiveOperator(getNameInValue(value));
 
 		case lispValueType_Closure:
-			return createClosure(getArgsInClosure(value->closure), getBodyInClosure(value->closure), getEnvInClosure(value->closure));
+			return createClosure(getArgsInClosure(getClosureInValue(value)), getBodyInClosure(getClosureInValue(value)), getEnvInClosure(getClosureInValue(value)));
 
 		case lispValueType_Pair:
-			return createPair(value->pair->head, value->pair->tail);
+			return createPair(getHeadInPair(getPairInValue(value)), getTailInPair(getPairInValue(value)));
 
 		case lispValueType_Null:
 			return createNull();
@@ -614,7 +693,7 @@ BOOL isList(LISP_VALUE * value) {
 			return TRUE;
 
 		case lispValueType_Pair:
-			return isList(value->pair->tail);
+			return isList(getTailInPair(getPairInValue(value)));
 
 		default:
 			break;
@@ -636,9 +715,9 @@ void printValue(LISP_VALUE * value) {
 
 		while (value->type != lispValueType_Null) {
 			printf("%c", separator);
-			printValue(value->pair->head);
+			printValue(getHeadInPair(getPairInValue(value)));
 			separator = ' ';
-			value = value->pair->tail;
+			value = getTailInPair(getPairInValue(value));
 		}
 
 		printf(")");
@@ -648,19 +727,19 @@ void printValue(LISP_VALUE * value) {
 
 	switch (value->type) {
 		case lispValueType_Number:
-			printf("%d", value->value);
+			printf("%d", getIntegerValueInValue(value));
 			break;
 
 		case lispValueType_String:
-			printf("\"%s\"", value->name);
+			printf("\"%s\"", getNameInValue(value));
 			break;
 
 		case lispValueType_Symbol:
-			printf("'%s", value->name);
+			printf("'%s", getNameInValue(value));
 			break;
 
 		case lispValueType_PrimitiveOperator:
-			printf("%s", value->name);
+			printf("%s", getNameInValue(value));
 			break;
 
 		case lispValueType_Closure:
@@ -669,9 +748,9 @@ void printValue(LISP_VALUE * value) {
 
 		case lispValueType_Pair:
 			printf("Pair: (");
-			printValue(value->pair->head);
+			printValue(getHeadInPair(getPairInValue(value)));
 			printf(" . ");
-			printValue(value->pair->tail);
+			printValue(getTailInPair(getPairInValue(value)));
 			printf(")");
 			break;
 
@@ -680,12 +759,12 @@ void printValue(LISP_VALUE * value) {
 			break; */
 
 		case lispPseudoValueType_Continuation:
-			printf("<continuation; id %d>", value->continuationId);
+			printf("<continuation; id %d>", getContinuationIdInValue(value));
 			break;
 
 		case lispPseudoValueType_ContinuationReturn:
-			printf("<continuation return; id %d, value: ", value->continuationId);
-			printValue(value->continuationReturnValue);
+			printf("<continuation return; id %d, value: ", getContinuationIdInValue(value));
+			printValue(getContinuationReturnValueInValue(value));
 			printf(">");
 			break;
 
@@ -725,7 +804,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 			buf += separatorLen;
 			bufsize -= separatorLen;
 
-			if (!printValueToString(value->pair->head, buf, bufsize)) {
+			if (!printValueToString(getHeadInPair(getPairInValue(value)), buf, bufsize)) {
 				return FALSE;
 			}
 
@@ -736,7 +815,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 			separator = ' ';
 			separatorLen = 1;
-			value = value->pair->tail;
+			value = getTailInPair(getPairInValue(value));
 		}
 
 		if (bufsize <= 1) {
@@ -757,7 +836,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		*buf++ = '(';
 		--bufsize;
 
-		if (!printValueToString(value->pair->head, buf, bufsize)) {
+		if (!printValueToString(getHeadInPair(getPairInValue(value)), buf, bufsize)) {
 			return FALSE;
 		}
 
@@ -776,7 +855,7 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 		*buf++ = ' ';
 		bufsize -= 3;
 
-		if (!printValueToString(value->pair->tail, buf, bufsize)) {
+		if (!printValueToString(getTailInPair(getPairInValue(value)), buf, bufsize)) {
 			return FALSE;
 		}
 
@@ -844,13 +923,13 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 	switch (value->type) {
 		case lispValueType_Number:
-			sprintf(buf, "%d", value->value);
+			sprintf(buf, "%d", getIntegerValueInValue(value));
 			break;
 
 		case lispValueType_PrimitiveOperator:
 		case lispValueType_String:
 		case lispValueType_Symbol:
-			strcpy(buf, value->name);
+			strcpy(buf, getNameInValue(value));
 			break;
 
 		case lispValueType_Closure:

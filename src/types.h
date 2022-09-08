@@ -15,7 +15,6 @@
 /* Forward declarations of some structs */
 
 struct LISP_EXPR_STRUCT;
-struct LISP_VALUE_STRUCT;
 
 /* Type definitions */
 
@@ -44,9 +43,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
 
 	/* BEGIN Temporary members */
-	struct LISP_VALUE_STRUCT * value;
-	struct LISP_VALUE_STRUCT * head;
-	struct LISP_VALUE_STRUCT * tail;
+	struct SCHEME_UNIVERSAL_STRUCT * value; /* TODO: Rename this to test for old references to int value; in LISP_VALUE */
+	struct SCHEME_UNIVERSAL_STRUCT * head;
+	struct SCHEME_UNIVERSAL_STRUCT * tail;
 	struct LISP_EXPR_STRUCT * expr;
 	struct LISP_EXPR_STRUCT * expr2;
 	/* END Temporary members */
@@ -84,7 +83,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_LAMBDA_EXPR SCHEME_UNIVERSAL_TYPE
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
-/* #define LISP_VALUE SCHEME_UNIVERSAL_TYPE */
+#define LISP_VALUE SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
@@ -99,22 +98,23 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getArgsInLambdaExpr(le) ((le)->value1)
 #define getBodyInLambdaExpr(le) ((le)->expr)
 
-/*
+#define getHeadInPair(p) ((p)->value1)
+#define getTailInPair(p) ((p)->value2)
+
 #define getIntegerValueInValue(v) ((v)->integerValue)
 #define getNameInValue(v) ((v)->name)
 #define getPairInValue(v) (v)
 #define getClosureInValue(v) (v)
 #define getContinuationIdInValue(v) ((v)->integerValue)
 #define getContinuationReturnValueInValue(v) ((v)->value1)
-*/
 
-typedef struct LISP_VALUE_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
+/* typedef struct LISP_VALUE_STRUCT {
+	int mark; / * All dynamically allocated structs must have this member * /
 
 	int type;
-	/* TODO: Use a union */
+	/ * TODO: Use a union * /
 	int value;
-	char name[maxStringValueLength]; /* Used by ValueTypes String and PrimitiveOperator */
+	char name[maxStringValueLength]; / * Used by ValueTypes String and PrimitiveOperator * /
 	LISP_PAIR * pair;
 	LISP_CLOSURE * closure;
 
@@ -127,6 +127,7 @@ typedef struct LISP_VALUE_STRUCT {
 #define getClosureInValue(v) ((v)->closure)
 #define getContinuationIdInValue(v) ((v)->continuationId)
 #define getContinuationReturnValueInValue(v) ((v)->continuationReturnValue)
+*/
 
 /* The NameValueList is a crude dictionary of values. */
 
