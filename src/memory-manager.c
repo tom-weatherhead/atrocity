@@ -91,7 +91,7 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 			fprintf(stderr, "addItemToMemMgrRecords() : Attempted duplication of item of type %d\n", item->type);
 			return;
 		}
-	} 105730894296169 */
+	} */
 
 	mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 
@@ -113,18 +113,11 @@ int getNumMemMgrRecords() {
 }
 
 void clearMarks() {
-	/* printf("BEGIN clearMarks()\n"); */
-
 	MEMMGR_RECORD * mmRec;
 
 	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
-		/* printf("mmRec is %ld\n", mmRec);
-		printf("  mmRec->expr is %ld\n", mmRec->expr); */
 		mmRec->expr->mark = 0;
-		/* printf("  Mark cleared\n"); */
 	}
-
-	/* printf("END clearMarks()\n"); */
 }
 
 void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {

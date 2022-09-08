@@ -37,15 +37,9 @@
 } */
 
 static void multitest(char * inputs[], char * expectedOutputs[]) {
-	/* failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
-	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL"); */
-
 	const int sizeOfActualOutput = maxStringValueLength * sizeof(char);
 	char * actualOutput = mmAlloc(sizeOfActualOutput);
 	LISP_ENV * globalEnv = createGlobalEnvironment();
-
-	/* failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
-	failIf(globalNullValue == NULL, "globalNullValue is NULL"); */
 
 	BOOL valuePrintedSuccessfully = TRUE;
 	BOOL outputValuesMatch = TRUE;
@@ -60,8 +54,6 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		if (input == NULL || expectedOutput == NULL) {
 			break;
 		}
-
-		/* printf("Testing: %s\n", input); */
 
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
 
@@ -167,11 +159,7 @@ void runTests() {
 	test("(begin 1 2 4 3)", "3");
 	test("(begin (set! n 2) (+ n 3))", "5");
 
-	/* This {} syntax only works as an initializer; i.e. when strs is declared
-	char * strs[] = {"(begin (set! n 2) (+ n 3))", NULL};
-
-	parseAndEvaluateStringList(strs); */
-
+	/* This {} syntax only works as an initializer; i.e. when strs is declared */
 	char * inputs2[] = {
 		"(set! add (lambda (a b) (+ a b)))",
 		"(add 13 21)",

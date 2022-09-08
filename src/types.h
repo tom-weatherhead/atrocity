@@ -9,7 +9,6 @@
 #define TRUE 1
 #endif
 
-/* const int maxStringValueLength = 8; */
 #define maxStringValueLength 128
 
 /* Forward declarations of some structs */
@@ -23,9 +22,9 @@ struct LISP_EXPR_STRUCT;
 /* Every expression can be evaluated to a value. */
 
 /* TODO: Migrate the data model to this single structure: */
-/* Currently, 3 structs are defined in this file. */
+/* Currently, 2 structs are defined in this file. */
 typedef struct SCHEME_UNIVERSAL_STRUCT {
-	/* Contains eight members. */
+	/* Contains eight permanent members. */
 
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -37,8 +36,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	char * name; /* Or use the char name[1]; trick at the end of the struct? */
 
 	/* Pair */
-	struct SCHEME_UNIVERSAL_STRUCT * value1; /* Was head. Rename to value1 ? */
-	struct SCHEME_UNIVERSAL_STRUCT * value2; /* Was tail. Rename to value2 ? */
+	struct SCHEME_UNIVERSAL_STRUCT * value1;
+	struct SCHEME_UNIVERSAL_STRUCT * value2;
 
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
 
@@ -46,30 +45,6 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct LISP_EXPR_STRUCT * expr;
 	struct LISP_EXPR_STRUCT * expr2;
 	/* END Temporary members */
-
-	/* Closure uses (LISP_VAR_LIST_ELEMENT_STRUCT * args), (LISP_EXPR * body), and env */
-
-	/* LISP_NAME_VALUE_LIST_ELEMENT uses name, value, and next */
-	/* struct SCHEME_UNIVERSAL_STRUCT * value; / * Use value1 instead? */
-
-	/* LISP_ENV uses value (as nameValueList) and next */
-
-	/* LISP_VAR uses name */
-
-	/* LISP_VAR_LIST_ELEMENT uses value (as LISP_VAR) and next */
-
-	/* LISP_EXPR_PAIR_LIST_ELEMENT uses head (as expr), tail (as expr2), and next */
-
-	/* LISP_VAR_EXPR_PAIR_LIST_ELEMENT uses value (as LISP_VAR), head or tail (as expr), and next */
-
-	/* LISP_EXPR_LIST_ELEMENT uses value (as expr) and next */
-
-	/* LISP_LAMBDA_EXPR uses head (as LISP_VAR_LIST_ELEMENT) and tail (as expr) */
-
-	/* LISP_FUNCTION_CALL uses head (as expr) and tail (as EXPR_LIST) */
-
-	/* int continuationId; -> Use integerValue instead */
-	/* struct SCHEME_UNIVERSAL_STRUCT * continuationReturnValue; -> use value (above) */
 } SCHEME_UNIVERSAL_TYPE;
 
 #define LISP_CLOSURE SCHEME_UNIVERSAL_TYPE
@@ -111,6 +86,7 @@ typedef struct LISP_EXPR_STRUCT {
 	int mark; /* All dynamically allocated structs must have this member */
 
 	int type;
+	/* TODO: All of the pointers below will become pointers to SCHEME_UNIVERSAL_TYPE */
 	LISP_VALUE * value;
 	LISP_VAR * var;
 	LISP_EXPR_LIST_ELEMENT * exprList;
@@ -136,6 +112,9 @@ enum {
 	lispPseudoValueType_ContinuationReturn,
 
 	lispExpressionType_Undefined,
+	/* TODO: For each type of expression, determine which members
+	of SCHEME_UNIVERSAL_TYPE will be used to hold what data.
+	Will we need to add a value3 to SCHEME_UNIVERSAL_TYPE ? */
 	lispExpressionType_Value,
 	lispExpressionType_Variable, /* 11 */
 	lispExpressionType_LambdaExpr,
