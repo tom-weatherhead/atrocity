@@ -24,24 +24,13 @@ int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
 	value->name = (char *)mmAlloc(value->numCharsAllocatedToNameBuf * sizeof(char));
 	memset(value->name, 0, value->numCharsAllocatedToNameBuf * sizeof(char));
 	*/
-	/* return value->numCharsAllocatedToNameBuf; */
 
-	return maxStringValueLength;
+	return value->maxNameLength;
+
+	/* return maxStringValueLength; */
 }
 
-LISP_VALUE * createUndefinedValue() {
-	/* LISP_VALUE * result = (LISP_VALUE *)mmAlloc(sizeof(LISP_VALUE));
-
-	result->type = lispValueType_Undefined;
-	result->value = 0;
-	memset(result->name, 0, maxStringValueLength * sizeof(char));
-	result->pair = NULL;
-	result->closure = NULL;
-	result->continuationId = 0;
-	result->continuationReturnValue = NULL;
-
-	return result; */
-
+/* LISP_VALUE * createUndefinedValue() {
 	return createUniversalStruct(
 		lispValueType_Undefined,
 		0,
@@ -51,15 +40,23 @@ LISP_VALUE * createUndefinedValue() {
 		NULL,
 		NULL
 	);
-}
+} */
 
 LISP_VALUE * createNumericValue(int value) {
-	LISP_VALUE * result = createUndefinedValue();
+	/* LISP_VALUE * result = createUndefinedValue();
 
 	result->type = lispValueType_Number;
-	result->integerValue = value;
+	result->integerValue = value; */
 
-	return result;
+	return createUniversalStruct(
+		lispValueType_Number,
+		value,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	);
 }
 
 LISP_VALUE * createStringValue(char * str) {
@@ -1024,6 +1021,7 @@ SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 
 void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 
+	/* TODO: 2022-09-08 : Temporarily commented out.
 	if (expr->name != NULL) {
 		mmFree(expr->name);
 		expr->name = NULL;
@@ -1042,7 +1040,7 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 	if (expr->next != NULL) {
 		freeUniversalStruct(expr->next);
 		expr->next = NULL;
-	}
+	} */
 
 	expr->expr = NULL; /* Temporary member */
 	expr->expr2 = NULL; /* Temporary member */

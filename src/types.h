@@ -43,9 +43,6 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
 
 	/* BEGIN Temporary members */
-	/* struct SCHEME_UNIVERSAL_STRUCT * value3; TODO: Rename this to test for old references to int value; in LISP_VALUE */
-	/* struct SCHEME_UNIVERSAL_STRUCT * head;
-	struct SCHEME_UNIVERSAL_STRUCT * tail; */
 	struct LISP_EXPR_STRUCT * expr;
 	struct LISP_EXPR_STRUCT * expr2;
 	/* END Temporary members */
@@ -107,27 +104,6 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getClosureInValue(v) (v)
 #define getContinuationIdInValue(v) ((v)->integerValue)
 #define getContinuationReturnValueInValue(v) ((v)->value1)
-
-/* typedef struct LISP_VALUE_STRUCT {
-	int mark; / * All dynamically allocated structs must have this member * /
-
-	int type;
-	/ * TODO: Use a union * /
-	int value;
-	char name[maxStringValueLength]; / * Used by ValueTypes String and PrimitiveOperator * /
-	LISP_PAIR * pair;
-	LISP_CLOSURE * closure;
-
-	int continuationId;
-	struct LISP_VALUE_STRUCT * continuationReturnValue;
-} LISP_VALUE;
-#define getIntegerValueInValue(v) ((v)->value)
-#define getNameInValue(v) ((v)->name)
-#define getPairInValue(v) ((v)->pair)
-#define getClosureInValue(v) ((v)->closure)
-#define getContinuationIdInValue(v) ((v)->continuationId)
-#define getContinuationReturnValueInValue(v) ((v)->continuationReturnValue)
-*/
 
 /* The NameValueList is a crude dictionary of values. */
 

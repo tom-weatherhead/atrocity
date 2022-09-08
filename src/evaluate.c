@@ -262,14 +262,27 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			}
 
 			/* TODO: Use a StringBuilder */
-			LISP_VALUE * result = createStringValue("");
+			/* LISP_VALUE * result = createUniversalStruct(
+				lispValueType_String,
+				0,
+				maxStringValueLength,
+				NULL,
+				NULL,
+				NULL,
+				NULL
+			);
 
 			if (!printValueToString(operand1Value, result->name, getNumCharsAllocatedToNameBufInValue(result))) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : listtostring : Destination string buffer overflow\n");
 				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Destination string buffer overflow");
 			}
 
-			return result;
+			return result; */
+			printf("listtostring was called:");
+			printValue(operand1Value);
+			printf("\n");
+
+			return globalNullValue;
 		} else if (!strcmp(op, "throw")) {
 			fprintf(stderr, "An exception has been thrown.\n");
 
@@ -300,10 +313,21 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
 
-			LISP_VALUE * currentContinuation = createUndefinedValue();
+			/* LISP_VALUE * currentContinuation = createUndefinedValue();
 
 			currentContinuation->type = lispPseudoValueType_Continuation;
-			getContinuationIdInValue(currentContinuation) = nextContinuationId++;
+			getContinuationIdInValue(currentContinuation) = nextContinuationId++; */
+			SCHEME_UNIVERSAL_TYPE * currentContinuation = createUniversalStruct(
+				lispPseudoValueType_Continuation,
+				nextContinuationId,
+				0,
+				NULL,
+				NULL,
+				NULL,
+				NULL
+			);
+
+			nextContinuationId++;
 
 			/* Now call the closure (operand1Value), passing in
 			the currentContinuation as the one and only parameter */
@@ -508,7 +532,7 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 		return callableValue;
 	}
 
-	LISP_VALUE * continuationReturnValue = NULL;
+	/* LISP_VALUE * continuationReturnValue = NULL; */
 
 	switch (callableValue->type) {
 		case lispValueType_PrimitiveOperator:
@@ -532,12 +556,21 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 				return actualParamValue;
 			}
 
-			continuationReturnValue = createUndefinedValue();
+			/* continuationReturnValue = createUndefinedValue();
 			continuationReturnValue->type = lispPseudoValueType_ContinuationReturn;
 			getContinuationIdInValue(continuationReturnValue) = getContinuationIdInValue(callableValue);
 			getContinuationReturnValueInValue(continuationReturnValue) = actualParamValue;
 
-			return continuationReturnValue;
+			return continuationReturnValue; */
+			return createUniversalStruct(
+				lispPseudoValueType_ContinuationReturn,
+				getContinuationIdInValue(callableValue),
+				0,
+				NULL,
+				actualParamValue,
+				NULL,
+				NULL
+			);
 
 		default:
 			fprintf(stderr, "evaluateFunctionCall() : Attempted to call an uncallable value\n");

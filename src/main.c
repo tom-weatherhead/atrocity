@@ -79,7 +79,7 @@ int main(int argc, char * argv[]) {
 		readEvalPrintLoop();
 	}
 
-	freeAllStructs();
+	freeAllStructs(); /* BUG: This currently causes a crash. */
 	mmPrintReport();
 
 	return 0; /* Zero (as a Unix exit code) means success. */

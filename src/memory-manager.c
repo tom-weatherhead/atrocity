@@ -87,7 +87,25 @@ void printMemMgrReport() {
 }
 
 void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
-	MEMMGR_RECORD * mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
+	MEMMGR_RECORD * mmRec = NULL;
+
+	/* for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
+		/ * TODO: Speed this search up by using a tree instead of a list. * /
+
+		if (mmRec->expr == item) {
+			/ * The item is already in the list. * /
+			fprintf(stderr, "addItemToMemMgrRecords() : Attempted duplication of item of type %d\n", item->type);
+			return;
+		}
+	} 105730894296169 */
+
+	/* if (item == (SCHEME_UNIVERSAL_TYPE *)105730894296169) {
+		fprintf(stderr, "addItemToMemMgrRecords() : BREAK\n");
+		fprintf(stderr, "addItemToMemMgrRecords() : Item type is %d\n", item->type);
+		exit(1);
+	} */
+
+	mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 
 	++numMallocs;
 	mmRec->expr = item;
@@ -107,11 +125,18 @@ int getNumMemMgrRecords() {
 }
 
 void clearMarks() {
+	/* printf("BEGIN clearMarks()\n"); */
+
 	MEMMGR_RECORD * mmRec;
 
 	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
+		/* printf("mmRec is %ld\n", mmRec);
+		printf("  mmRec->expr is %ld\n", mmRec->expr); */
 		mmRec->expr->mark = 0;
+		/* printf("  Mark cleared\n"); */
 	}
+
+	/* printf("END clearMarks()\n"); */
 }
 
 void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
@@ -143,8 +168,9 @@ void freeUnmarkedStructs() {
 			mmRec->expr->value1 = NULL;
 			mmRec->expr->value2 = NULL;
 			mmRec->expr->next = NULL;
+			mmRec->expr->expr = NULL;
+			mmRec->expr->expr2 = NULL;
 			freeUniversalStruct(mmRec->expr);
-			mmRec->expr = NULL;
 
 			/* Then free mmRec, preserving the integrity of the linked list */
 			MEMMGR_RECORD * nextmmRec = mmRec->next;
