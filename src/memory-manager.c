@@ -44,18 +44,12 @@ void * mmAlloc(int numBytes) {
 } */
 
 void mmFree(void * ptr) {
-	/* printf("mmFree() : Begin.\n"); */
-
 	failIf(ptr == NULL, "mmFree() : ptr is NULL");
 
 	if (ptr != NULL) {
 		free(ptr);
 		++numFrees;
-	} else {
-		printf("mmFree() : ptr == NULL\n");
 	}
-
-	/* printf("mmFree() : Done.\n"); */
 }
 
 void mmPrintReport() {
@@ -94,7 +88,6 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 
 	mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 
-	++numMallocs;
 	mmRec->expr = item;
 	mmRec->next = memmgrRecords;
 	memmgrRecords = mmRec;
@@ -158,7 +151,6 @@ void freeUnmarkedStructs() {
 			mmRec->expr = NULL;
 			mmRec->next = NULL;
 			mmFree(mmRec);
-			++numFrees;
 			*ppmmRec = nextmmRec;
 		} else {
 			ppmmRec = &mmRec->next;
