@@ -13,7 +13,7 @@
 
 /* Forward declarations of some structs */
 
-struct LISP_EXPR_STRUCT;
+/* struct LISP_EXPR_STRUCT; */
 
 /* Type definitions */
 
@@ -42,13 +42,14 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
 
 	/* BEGIN Temporary members */
-	struct LISP_EXPR_STRUCT * expr;
-	struct LISP_EXPR_STRUCT * expr2;
+	struct SCHEME_UNIVERSAL_STRUCT * expr;
+	struct SCHEME_UNIVERSAL_STRUCT * expr2;
 	/* END Temporary members */
 } SCHEME_UNIVERSAL_TYPE;
 
 #define LISP_CLOSURE SCHEME_UNIVERSAL_TYPE
 #define LISP_ENV SCHEME_UNIVERSAL_TYPE
+#define LISP_EXPR SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_FUNCTION_CALL SCHEME_UNIVERSAL_TYPE
@@ -80,7 +81,6 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getContinuationIdInValue(v) ((v)->integerValue)
 #define getContinuationReturnValueInValue(v) ((v)->value1)
 
-/*
 #define getExprListInExpr(e) ((e)->value1)
 #define getLambdaExprInExpr(e) ((e)->value1)
 #define getFunctionCallInExpr(e) ((e)->value1)
@@ -91,23 +91,22 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getValueInExpr(e) ((e)->value1)
 #define getVarInExpr(e) ((e)->value1)
-*/
 
 /* The NameValueList is a crude dictionary of values. */
 
-typedef struct LISP_EXPR_STRUCT {
-	int mark; /* All dynamically allocated structs must have this member */
+/* typedef struct LISP_EXPR_STRUCT {
+	int mark; / * All dynamically allocated structs must have this member * /
 
 	int type;
-	/* TODO: All of the pointers below will become pointers to SCHEME_UNIVERSAL_TYPE */
+	/ * TODO: All of the pointers below will become pointers to SCHEME_UNIVERSAL_TYPE * /
 	SCHEME_UNIVERSAL_TYPE * value;
 	SCHEME_UNIVERSAL_TYPE * var;
 	SCHEME_UNIVERSAL_TYPE * exprList;
 	SCHEME_UNIVERSAL_TYPE * lambdaExpr;
 	SCHEME_UNIVERSAL_TYPE * functionCall;
-	struct LISP_EXPR_STRUCT * expr; /* For e.g. set! */
-	struct LISP_EXPR_STRUCT * expr2; /* For e.g. cons */
-	SCHEME_UNIVERSAL_TYPE * varExprPairList; /* For let, let*, letrec */
+	struct LISP_EXPR_STRUCT * expr; / * For e.g. set! * /
+	struct LISP_EXPR_STRUCT * expr2; / * For e.g. cons * /
+	SCHEME_UNIVERSAL_TYPE * varExprPairList; / * For let, let*, letrec * /
 	SCHEME_UNIVERSAL_TYPE * exprPairList;
 } LISP_EXPR;
 
@@ -120,7 +119,7 @@ typedef struct LISP_EXPR_STRUCT {
 #define getExprPairListInExpr(e) ((e)->exprPairList)
 
 #define getValueInExpr(e) ((e)->value)
-#define getVarInExpr(e) ((e)->var)
+#define getVarInExpr(e) ((e)->var) */
 
 /*
 BeginExpression uses: SCHEME_UNIVERSAL_TYPE * exprList -> value1
