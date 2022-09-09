@@ -105,7 +105,7 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 		NULL
 	);
 
-	closure->expr = body;
+	getBodyInClosure(closure) = body;
 
 	return closure;
 }
@@ -211,8 +211,8 @@ LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, 
 		next
 	);
 
-	result->expr = expr;
-	result->expr2 = expr2;
+	getExprInPairListElement(result) = expr;
+	getExpr2InPairListElement(result) = expr2;
 
 	return result;
 }
@@ -228,7 +228,7 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 		NULL
 	);
 
-	lambdaExpr->expr = body;
+	getBodyInLambdaExpr(lambdaExpr) = body;
 
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_LambdaExpr,
@@ -275,7 +275,7 @@ LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR
 		next
 	);
 
-	result->expr = expr;
+	getExprInExprList(result) = expr;
 
 	return result;
 }
@@ -378,9 +378,9 @@ LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
 		NULL
 	);
 
-	functionCall->expr = exprList->expr;
+	getFirstExprInFunctionCall(functionCall) = getExprInExprList(exprList);
 
-	exprList->expr = NULL;
+	getExprInExprList(exprList) = NULL;
 	exprList->next = NULL;
 	/* mmFree(exprList); */
 

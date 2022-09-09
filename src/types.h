@@ -63,6 +63,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getBodyInClosure(c) ((c)->expr)
 #define getEnvInClosure(c) ((c)->value2)
 
+#define getExprInExprList(el) ((el)->expr)
+
 #define getFirstExprInFunctionCall(fc) ((fc)->expr)
 #define getActualParamExprsInFunctionCall(fc) ((fc)->value1)
 
@@ -71,6 +73,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getHeadInPair(p) ((p)->value1)
 #define getTailInPair(p) ((p)->value2)
+
+#define getExprInPairListElement(ple) ((ple)->expr)
+#define getExpr2InPairListElement(ple) ((ple)->expr2)
 
 #define getIntegerValueInValue(v) ((v)->integerValue)
 #define getNameInValue(v) ((v)->name)
