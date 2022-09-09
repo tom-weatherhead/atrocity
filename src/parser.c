@@ -42,7 +42,7 @@ static char * primops[] = {
 static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 	LISP_EXPR_LIST_ELEMENT * exprList = parseExpressionList(cs);
 
-	SCHEME_UNIVERSAL_TYPE * functionCall = createUniversalStruct(
+	/* SCHEME_UNIVERSAL_TYPE * functionCall = createUniversalStruct(
 		schemeStructType_FunctionCall,
 		0,
 		0,
@@ -56,14 +56,15 @@ static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 
 	exprList->expr = NULL;
 	exprList->next = NULL;
-	/* mmFree(exprList); */
+	/ * mmFree(exprList); * /
 
 	LISP_EXPR * result = createUndefinedExpression();
 
 	result->type = lispExpressionType_FunctionCall;
 	result->functionCall = functionCall;
 
-	return result;
+	return result; */
+	return createFunctionCallExpression(exprList);
 }
 
 static LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
@@ -190,22 +191,26 @@ static LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 		fatalError("parseLetExpression() : Expected )");
 	}
 
-	LISP_EXPR * result = createUndefinedExpression();
+	/* LISP_EXPR * result = createUndefinedExpression();
 
 	result->type = exprType;
 	result->varExprPairList = varExprPairList;
 	result->expr = expr;
 
 	return result;
+	*/
+	return createLetExpression(exprType, varExprPairList, expr);
 }
 
 static LISP_EXPR * parseBeginExpression(CharSource * cs) {
-	LISP_EXPR * result = createUndefinedExpression();
+	/* LISP_EXPR * result = createUndefinedExpression();
 
 	result->type = lispExpressionType_Begin;
 	result->exprList = parseExpressionList(cs);
 
 	return result;
+	*/
+	return createBeginExpression(parseExpressionList(cs));
 }
 
 static LISP_EXPR * parseWhileExpression(CharSource * cs) {
@@ -216,13 +221,14 @@ static LISP_EXPR * parseWhileExpression(CharSource * cs) {
 		fatalError("parseWhileExpression() : Expected )");
 	}
 
-	LISP_EXPR * result = createUndefinedExpression();
+	/* LISP_EXPR * result = createUndefinedExpression();
 
 	result->type = lispExpressionType_While;
 	result->expr = condition;
 	result->expr2 = body;
 
-	return result;
+	return result; */
+	return createWhileExpression(condition, body);
 }
 
 static LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
@@ -257,12 +263,13 @@ static LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 static LISP_EXPR * parseCondExpression(CharSource * cs) {
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList = parseExpressionPairList(cs);
 
-	LISP_EXPR * result = createUndefinedExpression();
+	/* LISP_EXPR * result = createUndefinedExpression();
 
 	result->type = lispExpressionType_Cond;
 	result->exprPairList = exprPairList;
 
-	return result;
+	return result; */
+	return createCondExpression(exprPairList);
 }
 
 static LISP_EXPR * parseBracketedExpression(CharSource * cs) {

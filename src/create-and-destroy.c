@@ -185,7 +185,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 // **** Expression struct creation functions ****
 
-LISP_EXPR * createUndefinedExpression() {
+static LISP_EXPR * createUndefinedExpression() {
 	LISP_EXPR * result = (LISP_EXPR *)mmAlloc(sizeof(LISP_EXPR));
 
 	++numMallocsForExpressions;
@@ -356,6 +356,69 @@ LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
 
 	result->type = lispExpressionType_Value;
 	result->value = value;
+
+	return result;
+}
+
+LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
+	SCHEME_UNIVERSAL_TYPE * functionCall = createUniversalStruct(
+		schemeStructType_FunctionCall,
+		0,
+		0,
+		NULL,
+		exprList->next,
+		NULL,
+		NULL
+	);
+
+	functionCall->expr = exprList->expr;
+
+	exprList->expr = NULL;
+	exprList->next = NULL;
+	/* mmFree(exprList); */
+
+	LISP_EXPR * result = createUndefinedExpression();
+
+	result->type = lispExpressionType_FunctionCall;
+	result->functionCall = functionCall;
+
+	return result;
+}
+
+LISP_EXPR * createLetExpression(int exprType, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList, LISP_EXPR * expr) {
+	LISP_EXPR * result = createUndefinedExpression();
+
+	result->type = exprType;
+	result->varExprPairList = varExprPairList;
+	result->expr = expr;
+
+	return result;
+}
+
+LISP_EXPR * createBeginExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
+	LISP_EXPR * result = createUndefinedExpression();
+
+	result->type = lispExpressionType_Begin;
+	result->exprList = exprList;
+
+	return result;
+}
+
+LISP_EXPR * createWhileExpression(LISP_EXPR * condition, LISP_EXPR * body) {
+	LISP_EXPR * result = createUndefinedExpression();
+
+	result->type = lispExpressionType_While;
+	result->expr = condition;
+	result->expr2 = body;
+
+	return result;
+}
+
+LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
+	LISP_EXPR * result = createUndefinedExpression();
+
+	result->type = lispExpressionType_Cond;
+	result->exprPairList = exprPairList;
 
 	return result;
 }
