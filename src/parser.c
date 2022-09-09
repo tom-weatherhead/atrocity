@@ -42,28 +42,6 @@ static char * primops[] = {
 static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 	LISP_EXPR_LIST_ELEMENT * exprList = parseExpressionList(cs);
 
-	/* SCHEME_UNIVERSAL_TYPE * functionCall = createUniversalStruct(
-		schemeStructType_FunctionCall,
-		0,
-		0,
-		NULL,
-		exprList->next,
-		NULL,
-		NULL
-	);
-
-	functionCall->expr = exprList->expr;
-
-	exprList->expr = NULL;
-	exprList->next = NULL;
-	/ * mmFree(exprList); * /
-
-	LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_FunctionCall;
-	result->functionCall = functionCall;
-
-	return result; */
 	return createFunctionCallExpression(exprList);
 }
 
@@ -191,25 +169,10 @@ static LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
 		fatalError("parseLetExpression() : Expected )");
 	}
 
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = exprType;
-	result->varExprPairList = varExprPairList;
-	result->expr = expr;
-
-	return result;
-	*/
 	return createLetExpression(exprType, varExprPairList, expr);
 }
 
 static LISP_EXPR * parseBeginExpression(CharSource * cs) {
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Begin;
-	result->exprList = parseExpressionList(cs);
-
-	return result;
-	*/
 	return createBeginExpression(parseExpressionList(cs));
 }
 
@@ -221,13 +184,6 @@ static LISP_EXPR * parseWhileExpression(CharSource * cs) {
 		fatalError("parseWhileExpression() : Expected )");
 	}
 
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_While;
-	result->expr = condition;
-	result->expr2 = body;
-
-	return result; */
 	return createWhileExpression(condition, body);
 }
 
@@ -263,12 +219,6 @@ static LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 static LISP_EXPR * parseCondExpression(CharSource * cs) {
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList = parseExpressionPairList(cs);
 
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Cond;
-	result->exprPairList = exprPairList;
-
-	return result; */
 	return createCondExpression(exprPairList);
 }
 
@@ -390,7 +340,6 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 
 	if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));
-	/* } else if (!strcmp(dstBuf, "'")) { */
 	} else if (isSingleQuoted) {
 		/* In the future, we will count quoted brackets, and keep track of
 		the current quote state (i.e. is quoted or is not quoted)
