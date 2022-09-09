@@ -18,7 +18,7 @@
 /* Every expression can be evaluated to a value. */
 
 typedef struct SCHEME_UNIVERSAL_STRUCT {
-	/* Contains eight permanent members. */
+	/* Contains nine permanent members. */
 
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -35,11 +35,6 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct SCHEME_UNIVERSAL_STRUCT * value3;
 
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
-
-	/* BEGIN Temporary members
-	struct SCHEME_UNIVERSAL_STRUCT * expr;
-	struct SCHEME_UNIVERSAL_STRUCT * expr2;
-	END Temporary members */
 } SCHEME_UNIVERSAL_TYPE;
 
 #define LISP_CLOSURE SCHEME_UNIVERSAL_TYPE

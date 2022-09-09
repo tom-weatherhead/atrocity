@@ -64,7 +64,7 @@ void mmPrintReport() {
 /* **** BEGIN Memory manager version 1 **** */
 
 typedef struct MEMMGR_RECORD_STRUCT {
-	SCHEME_UNIVERSAL_TYPE * expr;
+	SCHEME_UNIVERSAL_TYPE * item;
 	struct MEMMGR_RECORD_STRUCT * next;
 } MEMMGR_RECORD;
 
@@ -76,7 +76,7 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 	/* for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
 		/ * TODO: Speed this search up by using a tree instead of a list. * /
 
-		if (mmRec->expr == item) {
+		if (mmRec->item == item) {
 			/ * The item is already in the list. * /
 			fprintf(stderr, "addItemToMemMgrRecords() : Attempted duplication of item of type %d\n", item->type);
 			return;
@@ -85,7 +85,7 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 
 	mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 
-	mmRec->expr = item;
+	mmRec->item = item;
 	mmRec->next = memmgrRecords;
 	memmgrRecords = mmRec;
 }
@@ -105,7 +105,7 @@ void clearMarks() {
 	MEMMGR_RECORD * mmRec;
 
 	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
-		mmRec->expr->mark = 0;
+		mmRec->item->mark = 0;
 	}
 }
 
@@ -136,21 +136,19 @@ void freeUnmarkedStructs() {
 
 	while (mmRec != NULL) {
 
-		if (mmRec->expr->mark == 0) {
-			/* Free mmRec->expr. Do not free recursively.
-			Allow mmRec->expr->name to be freed. */
-			mmRec->expr->value1 = NULL;
-			mmRec->expr->value2 = NULL;
-			mmRec->expr->value3 = NULL;
-			mmRec->expr->next = NULL;
-			/* mmRec->expr->expr = NULL;
-			mmRec->expr->expr2 = NULL; */
-			freeUniversalStruct(mmRec->expr);
+		if (mmRec->item->mark == 0) {
+			/* Free mmRec->item. Do not free recursively.
+			Allow mmRec->item->name to be freed. */
+			mmRec->item->value1 = NULL;
+			mmRec->item->value2 = NULL;
+			mmRec->item->value3 = NULL;
+			mmRec->item->next = NULL;
+			freeUniversalStruct(mmRec->item);
 
 			/* Then free mmRec, preserving the integrity of the linked list */
 			MEMMGR_RECORD * nextmmRec = mmRec->next;
 
-			mmRec->expr = NULL;
+			mmRec->item = NULL;
 			mmRec->next = NULL;
 			mmFree(mmRec);
 			*ppmmRec = nextmmRec;

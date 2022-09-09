@@ -764,9 +764,6 @@ SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->value3 = NULL;
 	result->next = next;
 
-	/* result->expr = NULL; Temporary * /
-	result->expr2 = NULL; / * Temporary */
-
 	addItemToMemMgrRecords(result);
 
 	return result;
@@ -834,9 +831,6 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 		freeUniversalStruct(expr->next);
 		expr->next = NULL;
 	}
-
-	/* expr->expr = NULL; Temporary member * /
-	expr->expr2 = NULL; / * Temporary member */
 
 	mmFree(expr);
 }
