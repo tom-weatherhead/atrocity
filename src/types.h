@@ -70,10 +70,10 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getHeadInPair(p) ((p)->value1)
 #define getTailInPair(p) ((p)->value2)
 
-#define getExprInPairListElement(ple) ((ple)->expr)
-#define getExpr2InPairListElement(ple) ((ple)->expr2)
+#define getExprInPairListElement(ple) ((ple)->value1)
+#define getExpr2InPairListElement(ple) ((ple)->value2)
 
-#define getExprInVarExprPairListElement(veple) ((veple)->expr)
+#define getExprInVarExprPairListElement(veple) ((veple)->value1)
 
 #define getIntegerValueInValue(v) ((v)->integerValue)
 #define getNameInValue(v) ((v)->name)
