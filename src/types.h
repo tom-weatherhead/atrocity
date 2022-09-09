@@ -77,6 +77,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getExprInPairListElement(ple) ((ple)->expr)
 #define getExpr2InPairListElement(ple) ((ple)->expr2)
 
+#define getExprInVarExprPairListElement(veple) ((veple)->expr)
+
 #define getIntegerValueInValue(v) ((v)->integerValue)
 #define getNameInValue(v) ((v)->name)
 #define getPairInValue(v) (v)

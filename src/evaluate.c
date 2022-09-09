@@ -95,7 +95,7 @@ static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_
 		return createNull();
 	}
 
-	LISP_VALUE * head = evaluate(exprList->expr, env);
+	LISP_VALUE * head = evaluate(getExprInExprList(exprList), env);
 
 	if (head->type == lispPseudoValueType_ContinuationReturn) {
 		return head;
@@ -123,7 +123,7 @@ static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_
 
 	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
 
-		if (evaluatesToNull(actualParamExprs->expr, env)) {
+		if (evaluatesToNull(getExprInExprList(actualParamExprs), env)) {
 			/* Enable short-circuiting */
 			return globalNullValue;
 		}
@@ -136,7 +136,7 @@ static LISP_VALUE * evaluateOr(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_E
 
 	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
 
-		if (!evaluatesToNull(actualParamExprs->expr, env)) {
+		if (!evaluatesToNull(getExprInExprList(actualParamExprs), env)) {
 			/* Enable short-circuiting */
 			return globalTrueValue;
 		}
@@ -151,7 +151,7 @@ static LISP_VALUE * evaluateOr(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_E
 static LISP_VALUE * evaluateDoubleQuestionMark(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 
 	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
-		LISP_VALUE * value = evaluate(actualParamExprs->expr, env);
+		LISP_VALUE * value = evaluate(getExprInExprList(actualParamExprs), env);
 
 		if (value->type != lispValueType_Null) {
 			return value;
@@ -178,8 +178,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	}
 	/* END : These primops can take any number of args, including zero. */
 
-	if (actualParamExprs != NULL && actualParamExprs->expr != NULL) {
-		LISP_EXPR * operand1Expr = actualParamExprs->expr;
+	if (actualParamExprs != NULL && getExprInExprList(actualParamExprs) != NULL) {
+		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);
 
 		/* BEGIN : Value type predicates */
 		if (!strcmp(op, "null?")) {
@@ -339,8 +339,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			return result;
 		}
 
-		if (actualParamExprs->next != NULL && actualParamExprs->next->expr != NULL) {
-			LISP_EXPR * operand2Expr = actualParamExprs->next->expr;
+		if (actualParamExprs->next != NULL && getExprInExprList(actualParamExprs->next) != NULL) {
+			LISP_EXPR * operand2Expr = getExprInExprList(actualParamExprs->next);
 
 			if (isStringInList(op, twoArgumentPrimops)) {
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
@@ -466,8 +466,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* If it is non-null, then evaluate and return the second operand. */
 			/* Else evaluate and return the third operand. */
 
-			if (!strcmp(op, "if") && actualParamExprs->next->next != NULL && actualParamExprs->next->next->expr != NULL) {
-				LISP_EXPR * operand3Expr = actualParamExprs->next->next->expr;
+			if (!strcmp(op, "if") && actualParamExprs->next->next != NULL && getExprInExprList(actualParamExprs->next->next) != NULL) {
+				LISP_EXPR * operand3Expr = getExprInExprList(actualParamExprs->next->next);
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
 				if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
@@ -500,7 +500,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 		failIf(np->type != schemeStructType_VariableListElement, "evaluateClosureCall() : np->type != schemeStructType_VariableListElement");
 
-		LISP_VALUE * value = evaluate(ep->expr, env); /* TODO: env or closure->env ? */
+		LISP_VALUE * value = evaluate(getExprInExprList(ep), env); /* TODO: env or closure->env ? */
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
@@ -544,7 +544,7 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 				return NULL;
 			}
 
-			LISP_VALUE * actualParamValue = evaluate(getActualParamExprsInFunctionCall(functionCall)->expr, env);
+			LISP_VALUE * actualParamValue = evaluate(getExprInExprList(getActualParamExprsInFunctionCall(functionCall)), env);
 
 			if (actualParamValue->type == lispPseudoValueType_ContinuationReturn) {
 				return actualParamValue;
@@ -596,7 +596,7 @@ static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList;
 
 	for (varExprPairList = getVarExprPairListInExpr(expr); varExprPairList != NULL; varExprPairList = varExprPairList->next) {
-		LISP_VALUE * value = evaluate(varExprPairList->expr, env);
+		LISP_VALUE * value = evaluate(getExprInVarExprPairListElement(varExprPairList), env);
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
@@ -605,7 +605,8 @@ static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		/* Note: This constructs the list in reverse order... */
 		/* TODO: Implement this using recursion instead. */
 		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
-		newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1);
+		/* newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1); */
+		addNameToEnvironment(newEnv, varExprPairList->name, value);
 	}
 
 	newEnv->next = env;
@@ -622,13 +623,14 @@ static LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) 
 
 	while (varExprPairList != NULL) {
 		LISP_ENV * newEnv = createEnvironment(env);
-		LISP_VALUE * value = evaluate(varExprPairList->expr, env);
+		LISP_VALUE * value = evaluate(getExprInVarExprPairListElement(varExprPairList), env);
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
 		}
 
-		newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1);
+		/* newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1); */
+		addNameToEnvironment(newEnv, varExprPairList->name, value);
 
 		env = newEnv;
 		varExprPairList = varExprPairList->next;
@@ -647,7 +649,7 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	}
 
 	for (varExprPairList = getVarExprPairListInExpr(expr); varExprPairList != NULL; varExprPairList = varExprPairList->next) {
-		LISP_VALUE * value = evaluate(varExprPairList->expr, newEnv);
+		LISP_VALUE * value = evaluate(getExprInVarExprPairListElement(varExprPairList), newEnv);
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
@@ -664,7 +666,7 @@ static LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_EXPR_LIST_ELEMENT * exprList;
 
 	for (exprList = getExprListInExpr(expr); exprList != NULL; exprList = exprList->next) {
-		result = evaluate(exprList->expr, env);
+		result = evaluate(getExprInExprList(exprList), env);
 
 		if (result->type == lispPseudoValueType_ContinuationReturn) {
 			break;
@@ -703,13 +705,13 @@ static LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_EXPR_PAIR_LIST_ELEMENT * exprPair;
 
 	for (exprPair = getExprPairListInExpr(expr); exprPair != NULL; exprPair = exprPair->next) {
-		LISP_VALUE * conditionValue = evaluate(exprPair->expr, env);
+		LISP_VALUE * conditionValue = evaluate(getExprInPairListElement(exprPair), env);
 
 
 		if (conditionValue->type == lispPseudoValueType_ContinuationReturn) {
 			return conditionValue;
 		} else if (conditionValue->type != lispValueType_Null) {
-			return evaluate(exprPair->expr2, env);
+			return evaluate(getExpr2InPairListElement(exprPair), env);
 		}
 	}
 
