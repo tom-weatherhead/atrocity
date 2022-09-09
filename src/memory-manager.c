@@ -121,6 +121,10 @@ void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 		setMarksInExprTree(expr->value2);
 	}
 
+	if (expr->value3 != NULL) {
+		setMarksInExprTree(expr->value3);
+	}
+
 	if (expr->next != NULL) {
 		setMarksInExprTree(expr->next);
 	}
@@ -137,9 +141,10 @@ void freeUnmarkedStructs() {
 			Allow mmRec->expr->name to be freed. */
 			mmRec->expr->value1 = NULL;
 			mmRec->expr->value2 = NULL;
+			mmRec->expr->value3 = NULL;
 			mmRec->expr->next = NULL;
-			mmRec->expr->expr = NULL;
-			mmRec->expr->expr2 = NULL;
+			/* mmRec->expr->expr = NULL;
+			mmRec->expr->expr2 = NULL; */
 			freeUniversalStruct(mmRec->expr);
 
 			/* Then free mmRec, preserving the integrity of the linked list */

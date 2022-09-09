@@ -32,13 +32,14 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* Pair */
 	struct SCHEME_UNIVERSAL_STRUCT * value1;
 	struct SCHEME_UNIVERSAL_STRUCT * value2;
+	struct SCHEME_UNIVERSAL_STRUCT * value3;
 
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
 
-	/* BEGIN Temporary members */
+	/* BEGIN Temporary members
 	struct SCHEME_UNIVERSAL_STRUCT * expr;
 	struct SCHEME_UNIVERSAL_STRUCT * expr2;
-	/* END Temporary members */
+	END Temporary members */
 } SCHEME_UNIVERSAL_TYPE;
 
 #define LISP_CLOSURE SCHEME_UNIVERSAL_TYPE
@@ -56,7 +57,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 
 #define getArgsInClosure(c) ((c)->value1)
-#define getBodyInClosure(c) ((c)->expr)
+#define getBodyInClosure(c) ((c)->value3)
 #define getEnvInClosure(c) ((c)->value2)
 
 #define getExprInExprList(el) ((el)->value1)
