@@ -12,8 +12,6 @@
 #include "memory-manager.h"
 #include "utilities.h"
 
-extern int numMallocsForExpressions;
-
 /* **** Value struct creation functions **** */
 
 int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
@@ -185,25 +183,6 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 // **** Expression struct creation functions ****
 
-/* static LISP_EXPR * createUndefinedExpression() {
-	LISP_EXPR * result = (LISP_EXPR *)mmAlloc(sizeof(LISP_EXPR));
-
-	++numMallocsForExpressions;
-
-	result->type = lispExpressionType_Undefined;
-	result->value = NULL;
-	result->var = NULL;
-	result->exprList = NULL;
-	result->lambdaExpr = NULL;
-	result->functionCall = NULL;
-	result->expr = NULL;
-	result->expr2 = NULL;
-	result->varExprPairList = NULL;
-	result->exprPairList = NULL;
-
-	return result;
-} */
-
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next) {
 	failIf(var == NULL, "createVariableListElement() : var == NULL");
 	failIf(var->name == NULL, "createVariableListElement() : var->name == NULL");
@@ -251,11 +230,6 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 
 	lambdaExpr->expr = body;
 
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_LambdaExpr;
-	result->lambdaExpr = lambdaExpr; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_LambdaExpr,
 		0,
@@ -272,12 +246,6 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 }
 
 LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_SetExpr;
-	result->var = var;
-	result->expr = expr; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_SetExpr,
 		0,
@@ -340,13 +308,6 @@ LISP_VAR * createVariable(char * name) {
 }
 
 LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
-	/* LISP_EXPR * expr = createUndefinedExpression();
-
-	expr->type = lispExpressionType_Variable;
-	expr->var = var;
-
-	return expr; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_Variable,
 		0,
@@ -391,13 +352,6 @@ LISP_ENV * createEnvironment(LISP_ENV * next) {
 }
 
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Value;
-	result->value = value;
-
-	return result; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_Value,
 		0,
@@ -430,10 +384,6 @@ LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
 	exprList->next = NULL;
 	/* mmFree(exprList); */
 
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_FunctionCall; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_FunctionCall,
 		0,
@@ -450,10 +400,6 @@ LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
 }
 
 LISP_EXPR * createLetExpression(int exprType, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList, LISP_EXPR * expr) {
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = exprType; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		exprType,
 		0,
@@ -471,10 +417,6 @@ LISP_EXPR * createLetExpression(int exprType, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * 
 }
 
 LISP_EXPR * createBeginExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Begin; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_Begin,
 		0,
@@ -491,10 +433,6 @@ LISP_EXPR * createBeginExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
 }
 
 LISP_EXPR * createWhileExpression(LISP_EXPR * condition, LISP_EXPR * body) {
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_While; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_While,
 		0,
@@ -512,10 +450,6 @@ LISP_EXPR * createWhileExpression(LISP_EXPR * condition, LISP_EXPR * body) {
 }
 
 LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
-	/* LISP_EXPR * result = createUndefinedExpression();
-
-	result->type = lispExpressionType_Cond; */
-
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_Cond,
 		0,

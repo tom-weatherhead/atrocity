@@ -16,8 +16,6 @@ static int numMallocs = 0;
 static int numReallocs = 0;
 static int numFrees = 0;
 
-int numMallocsForExpressions = 0;
-
 void * mmAlloc(int numBytes) {
 	failIf(numBytes <= 0, "mmAlloc() : numBytes <= 0");
 
@@ -59,8 +57,7 @@ void mmPrintReport() {
 	printf("  Number of frees:    %d\n\n", numFrees);
 
 	if (numFrees < numMallocs) {
-		printf("  Number of leaks:    %d\n", numMallocs - numFrees);
-		printf("  Number of mallocs for expressions: %d\n\n", numMallocsForExpressions);
+		printf("  Number of leaks:    %d\n\n", numMallocs - numFrees);
 	}
 }
 

@@ -21,8 +21,6 @@
 /* Every value is an expression. */
 /* Every expression can be evaluated to a value. */
 
-/* TODO: Migrate the data model to this single structure: */
-/* Currently, 2 structs are defined in this file. */
 typedef struct SCHEME_UNIVERSAL_STRUCT {
 	/* Contains eight permanent members. */
 
@@ -93,49 +91,6 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getVarInExpr(e) ((e)->value1)
 
 /* The NameValueList is a crude dictionary of values. */
-
-/* typedef struct LISP_EXPR_STRUCT {
-	int mark; / * All dynamically allocated structs must have this member * /
-
-	int type;
-	/ * TODO: All of the pointers below will become pointers to SCHEME_UNIVERSAL_TYPE * /
-	SCHEME_UNIVERSAL_TYPE * value;
-	SCHEME_UNIVERSAL_TYPE * var;
-	SCHEME_UNIVERSAL_TYPE * exprList;
-	SCHEME_UNIVERSAL_TYPE * lambdaExpr;
-	SCHEME_UNIVERSAL_TYPE * functionCall;
-	struct LISP_EXPR_STRUCT * expr; / * For e.g. set! * /
-	struct LISP_EXPR_STRUCT * expr2; / * For e.g. cons * /
-	SCHEME_UNIVERSAL_TYPE * varExprPairList; / * For let, let*, letrec * /
-	SCHEME_UNIVERSAL_TYPE * exprPairList;
-} LISP_EXPR;
-
-#define getExprListInExpr(e) ((e)->exprList)
-#define getLambdaExprInExpr(e) ((e)->lambdaExpr)
-#define getFunctionCallInExpr(e) ((e)->functionCall)
-#define getExprInExpr(e) ((e)->expr)
-#define getExpr2InExpr(e) ((e)->expr2)
-#define getVarExprPairListInExpr(e) ((e)->varExprPairList)
-#define getExprPairListInExpr(e) ((e)->exprPairList)
-
-#define getValueInExpr(e) ((e)->value)
-#define getVarInExpr(e) ((e)->var) */
-
-/*
-BeginExpression uses: SCHEME_UNIVERSAL_TYPE * exprList -> value1
-CondExpression uses: SCHEME_UNIVERSAL_TYPE * exprPairList -> value1
-FunctionCallExpression uses: SCHEME_UNIVERSAL_TYPE * exprList -> value1
-LambdaExpression uses: SCHEME_UNIVERSAL_TYPE * args -> value1, LISP_EXPR * body -> expr -> value2
-LetExpression uses:
-	- int exprType -> type
-	- SCHEME_UNIVERSAL_TYPE * varExprPairList -> value1
-	- LISP_EXPR * expr -> value2
-* SetExpression uses: SCHEME_UNIVERSAL_TYPE * var -> value1, LISP_EXPR * expr -> value2
-WhileExpression uses: LISP_EXPR * condition -> value1, LISP_EXPR * body -> value2
-
-* createExpressionFromVariable uses: LISP_VAR * var -> value1
-* createExpressionFromValue uses: LISP_VALUE * value -> value1
-*/
 
 enum {
 	lispValueType_Number, /* 0 */
