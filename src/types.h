@@ -11,10 +11,6 @@
 
 #define maxStringValueLength 128
 
-/* Forward declarations of some structs */
-
-/* struct LISP_EXPR_STRUCT; */
-
 /* Type definitions */
 
 /* Definitions of values and expressions: */
@@ -65,7 +61,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getExprInExprList(el) ((el)->expr)
 
-#define getFirstExprInFunctionCall(fc) ((fc)->expr)
+#define getFirstExprInFunctionCall(fc) ((fc)->value2)
 #define getActualParamExprsInFunctionCall(fc) ((fc)->value1)
 
 #define getArgsInLambdaExpr(le) ((le)->value1)
@@ -112,12 +108,8 @@ enum {
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
 
-	lispExpressionType_Undefined,
-	/* TODO: For each type of expression, determine which members
-	of SCHEME_UNIVERSAL_TYPE will be used to hold what data.
-	Will we need to add a value3 to SCHEME_UNIVERSAL_TYPE ? */
 	lispExpressionType_Value,
-	lispExpressionType_Variable, /* 11 */
+	lispExpressionType_Variable, /* 10 */
 	lispExpressionType_LambdaExpr,
 	lispExpressionType_FunctionCall,
 	lispExpressionType_SetExpr,
