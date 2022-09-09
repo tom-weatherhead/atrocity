@@ -148,7 +148,7 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 		next
 	);
 
-	result->expr = expr;
+	getExprInVarExprPairListElement(result) = expr;
 
 	return result;
 }
