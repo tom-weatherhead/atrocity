@@ -59,13 +59,13 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getBodyInClosure(c) ((c)->expr)
 #define getEnvInClosure(c) ((c)->value2)
 
-#define getExprInExprList(el) ((el)->expr)
+#define getExprInExprList(el) ((el)->value1)
 
 #define getFirstExprInFunctionCall(fc) ((fc)->value2)
 #define getActualParamExprsInFunctionCall(fc) ((fc)->value1)
 
 #define getArgsInLambdaExpr(le) ((le)->value1)
-#define getBodyInLambdaExpr(le) ((le)->expr)
+#define getBodyInLambdaExpr(le) ((le)->value2)
 
 #define getHeadInPair(p) ((p)->value1)
 #define getTailInPair(p) ((p)->value2)
