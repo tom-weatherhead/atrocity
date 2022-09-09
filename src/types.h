@@ -80,6 +80,19 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getContinuationIdInValue(v) ((v)->integerValue)
 #define getContinuationReturnValueInValue(v) ((v)->value1)
 
+/*
+#define getExprListInExpr(e) ((e)->value1)
+#define getLambdaExprInExpr(e) ((e)->value1)
+#define getFunctionCallInExpr(e) ((e)->value1)
+#define getExprInExpr(e) ((e)->value2)
+#define getExpr2InExpr(e) ((e)->value1)
+#define getVarExprPairListInExpr(e) ((e)->value1)
+#define getExprPairListInExpr(e) ((e)->value1)
+
+#define getValueInExpr(e) ((e)->value1)
+#define getVarInExpr(e) ((e)->value1)
+*/
+
 /* The NameValueList is a crude dictionary of values. */
 
 typedef struct LISP_EXPR_STRUCT {
@@ -97,6 +110,33 @@ typedef struct LISP_EXPR_STRUCT {
 	SCHEME_UNIVERSAL_TYPE * varExprPairList; /* For let, let*, letrec */
 	SCHEME_UNIVERSAL_TYPE * exprPairList;
 } LISP_EXPR;
+
+#define getExprListInExpr(e) ((e)->exprList)
+#define getLambdaExprInExpr(e) ((e)->lambdaExpr)
+#define getFunctionCallInExpr(e) ((e)->functionCall)
+#define getExprInExpr(e) ((e)->expr)
+#define getExpr2InExpr(e) ((e)->expr2)
+#define getVarExprPairListInExpr(e) ((e)->varExprPairList)
+#define getExprPairListInExpr(e) ((e)->exprPairList)
+
+#define getValueInExpr(e) ((e)->value)
+#define getVarInExpr(e) ((e)->var)
+
+/*
+BeginExpression uses: SCHEME_UNIVERSAL_TYPE * exprList -> value1
+CondExpression uses: SCHEME_UNIVERSAL_TYPE * exprPairList -> value1
+FunctionCallExpression uses: SCHEME_UNIVERSAL_TYPE * exprList -> value1
+LambdaExpression uses: SCHEME_UNIVERSAL_TYPE * args -> value1, LISP_EXPR * body -> expr -> value2
+LetExpression uses:
+	- int exprType -> type
+	- SCHEME_UNIVERSAL_TYPE * varExprPairList -> value1
+	- LISP_EXPR * expr -> value2
+* SetExpression uses: SCHEME_UNIVERSAL_TYPE * var -> value1, LISP_EXPR * expr -> value2
+WhileExpression uses: LISP_EXPR * condition -> value1, LISP_EXPR * body -> value2
+
+* createExpressionFromVariable uses: LISP_VAR * var -> value1
+* createExpressionFromValue uses: LISP_VALUE * value -> value1
+*/
 
 enum {
 	lispValueType_Number, /* 0 */

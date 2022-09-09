@@ -16,7 +16,6 @@ LISP_VALUE * createSymbolValue(char * value);
 LISP_VALUE * cloneValue(LISP_VALUE * value);
 
 /* Create expressions */
-/* LISP_EXPR * createUndefinedExpression(); */
 LISP_EXPR * createBeginExpression(LISP_EXPR_LIST_ELEMENT * exprList);
 LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList);
 LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList);
