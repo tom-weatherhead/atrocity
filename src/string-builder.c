@@ -15,13 +15,13 @@
 
 /* TODO: Create a string or StringBuilder "class" with realloc() */
 
-const int stringTypeBufferSizeIncrement = 16;
+/* const int defaultBufferIncrementSize = 16; */
 
-static int roundUpStringTypeBufferSize(int n) {
-	return (n + stringTypeBufferSizeIncrement - 1) / stringTypeBufferSizeIncrement;
+static int roundUpStringTypeBufferSize(int n, int bufIncSize) {
+	return (n + bufIncSize - 1) / bufIncSize;
 }
 
-STRING_BUILDER_TYPE * createString(char * buf, int bufSize) {
+/* STRING_BUILDER_TYPE * createString(char * buf, int bufSize) {
 	int bufstrlen = 1;
 
 	if (buf != NULL) {
@@ -45,28 +45,28 @@ STRING_BUILDER_TYPE * createString(char * buf, int bufSize) {
 	}
 
 	return strObj;
-}
+} */
 
-STRING_BUILDER_TYPE * appendToString(STRING_BUILDER_TYPE * strObj, char * strToAppend) {
-	const int newbufsize = roundUpStringTypeBufferSize(strlen(strObj->buf) + strlen(strToAppend) + 1);
+STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * strToAppend) {
+	const int newbufsize = roundUpStringTypeBufferSize(strlen(sb->name) + strlen(strToAppend) + 1, sb->integerValue);
 
-	if (newbufsize > strObj->bufSize) {
+	if (newbufsize > sb->maxNameLength) {
 		/* Re-allocate */
-		strObj->buf = (char *)mmRealloc(strObj->buf, newbufsize);
-		memset(strObj->buf + strObj->bufSize, 0, (strObj->bufSize - newbufsize) * sizeof(char));
-		strObj->bufSize = newbufsize;
+		sb->name = (char *)mmRealloc(sb->name, newbufsize);
+		memset(sb->name + sb->maxNameLength, 0, (sb->maxNameLength - newbufsize) * sizeof(char));
+		sb->maxNameLength = newbufsize;
 	}
 
-	strcat(strObj->buf, strToAppend);
+	strcat(sb->name, strToAppend);
 
-	return strObj;
+	return sb;
 }
 
-void freeString(STRING_BUILDER_TYPE * strObj) {
+/* void freeString(STRING_BUILDER_TYPE * strObj) {
 	mmFree(strObj->buf);
 	strObj->buf = NULL;
 	mmFree(strObj);
-}
+} */
 
 /* END: Create a string or StringBuilder "class" with realloc() */
 

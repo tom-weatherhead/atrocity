@@ -14,6 +14,7 @@
 #include "environment.h"
 #include "memory-manager.h"
 #include "parse-and-evaluate.h"
+#include "print.h"
 #include "utilities.h"
 
 /* External constants / variables */

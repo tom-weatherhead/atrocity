@@ -83,4 +83,26 @@ void fatalError(char * str) {
 	exit(1);
 }
 
+/* Misc DOM functions */
+
+/* BOOL isValueCallable(LISP_VALUE * value) {
+	return value->type == lispValueType_PrimitiveOperator || value->type == lispValueType_Closure;
+} */
+
+BOOL isList(LISP_VALUE * value) {
+
+	switch (value->type) {
+		case lispValueType_Null:
+			return TRUE;
+
+		case lispValueType_Pair:
+			return isList(getTailInPair(getPairInValue(value)));
+
+		default:
+			break;
+	}
+
+	return FALSE;
+}
+
 /* **** The End **** */

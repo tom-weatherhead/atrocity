@@ -13,6 +13,7 @@
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "evaluate.h"
+#include "print.h"
 #include "utilities.h"
 
 /* External constants / variables */

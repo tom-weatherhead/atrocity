@@ -6,4 +6,6 @@ char * fgets_wrapper(char * buffer, size_t buflen, FILE * fp);
 BOOL isStringInList(char * str, char * list[]);
 void fatalError(char * str);
 
+BOOL isList(LISP_VALUE * value);
+
 /* **** The End **** */

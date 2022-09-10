@@ -17,6 +17,7 @@
 #include "environment.h"
 #include "memory-manager.h"
 #include "parse-and-evaluate.h"
+#include "print.h"
 
 /* Function prototypes */
 

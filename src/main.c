@@ -20,11 +20,6 @@ stringtolist ?
 stringtosymbol ?
 */
 
-/* TODO? :
-- Create print.c
-- Create string-builder.c
-*/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
