@@ -440,7 +440,7 @@ LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
 }
 
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
-	SCHEME_UNIVERSAL_TYPE * nvle = allocateStringAndCreateUniversalStruct(
+	return allocateStringAndCreateUniversalStruct(
 		schemeStructType_NameValueListElement,
 		0,
 		0,
@@ -449,12 +449,10 @@ LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALU
 		NULL,
 		next
 	);
-
-	return nvle;
 }
 
 LISP_ENV * createEnvironment(LISP_ENV * next) {
-	SCHEME_UNIVERSAL_TYPE * env = createUniversalStruct(
+	return createUniversalStruct(
 		schemeStructType_Environment,
 		0,
 		0,
@@ -463,8 +461,6 @@ LISP_ENV * createEnvironment(LISP_ENV * next) {
 		NULL,
 		next
 	);
-
-	return env;
 }
 
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {

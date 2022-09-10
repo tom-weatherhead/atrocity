@@ -90,7 +90,7 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 	memmgrRecords = mmRec;
 }
 
-int getNumMemMgrRecords() {
+/* int getNumMemMgrRecords() {
 	int n = 0;
 	MEMMGR_RECORD * mmRec;
 
@@ -99,9 +99,9 @@ int getNumMemMgrRecords() {
 	}
 
 	return n;
-}
+} */
 
-void clearMarks() {
+static void clearMarks() {
 	MEMMGR_RECORD * mmRec;
 
 	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
@@ -109,11 +109,21 @@ void clearMarks() {
 	}
 }
 
-void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
+static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
+
+	if (expr == NULL) {
+		return;
+	}
+
 	/* Do this recursively */
 	expr->mark = 1;
 
-	if (expr->value1 != NULL) {
+	setMarksInExprTree(expr->value1);
+	setMarksInExprTree(expr->value2);
+	setMarksInExprTree(expr->value3);
+	/* setMarksInExprTree(expr->next); */
+
+	/* if (expr->value1 != NULL) {
 		setMarksInExprTree(expr->value1);
 	}
 
@@ -123,16 +133,19 @@ void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 
 	if (expr->value3 != NULL) {
 		setMarksInExprTree(expr->value3);
-	}
+	} */
 
 	if (expr->next != NULL) {
+		printf("Marking next in struct of type %d\n", expr->type);
+		printf("  next's type is %d\n", expr->next->type);
 		setMarksInExprTree(expr->next);
 	}
 }
 
-void freeUnmarkedStructs() {
+static int freeUnmarkedStructs() {
 	MEMMGR_RECORD ** ppmmRec = &memmgrRecords;
 	MEMMGR_RECORD * mmRec = *ppmmRec;
+	int numFreed = 0;
 
 	while (mmRec != NULL) {
 
@@ -151,6 +164,7 @@ void freeUnmarkedStructs() {
 			mmRec->item = NULL;
 			mmRec->next = NULL;
 			mmFree(mmRec);
+			++numFreed;
 			*ppmmRec = nextmmRec;
 		} else {
 			ppmmRec = &mmRec->next;
@@ -158,9 +172,11 @@ void freeUnmarkedStructs() {
 
 		mmRec = *ppmmRec;
 	}
+
+	return numFreed;
 }
 
-void collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]) {
+int collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]) {
 	int i;
 
 	clearMarks();
@@ -169,7 +185,7 @@ void collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]) {
 		setMarksInExprTree(exprTreesToMark[i]);
 	}
 
-	freeUnmarkedStructs();
+	return freeUnmarkedStructs();
 }
 
 void freeAllStructs() {

@@ -156,6 +156,7 @@ void readEvalPrintLoop() {
 	char * buf = (char *)mmAlloc(bufsizeInBytes);
 	int i;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
+	SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, NULL };
 
 	printf("\nStarting the read-eval-print loop...\n\n");
 
@@ -193,7 +194,10 @@ void readEvalPrintLoop() {
 
 			printValue(value);
 			printf("\n\n");
-			/* collectGarbage(); */
+
+			/* const int numFreed = collectGarbage(exprTreesToMark);
+
+			printf("gc: %d block(s) of memory freed.\n", numFreed); */
 		}
 	}
 

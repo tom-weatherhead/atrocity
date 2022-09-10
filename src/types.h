@@ -56,6 +56,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getBodyInClosure(c) ((c)->value3)
 #define getEnvInClosure(c) ((c)->value2)
 
+#define getNameValuePairListInEnv(env) ((env)->value1)
+
 #define getExprInExprList(el) ((el)->value1)
 
 #define getFirstExprInFunctionCall(fc) ((fc)->value2)
@@ -63,6 +65,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getArgsInLambdaExpr(le) ((le)->value1)
 #define getBodyInLambdaExpr(le) ((le)->value2)
+
+#define getValueInNameValuePairListElement(nvple) ((nvple)->value1)
 
 #define getHeadInPair(p) ((p)->value1)
 #define getTailInPair(p) ((p)->value2)
@@ -118,7 +122,7 @@ enum {
 	lispExpressionType_Begin,
 	lispExpressionType_While,
 	lispExpressionType_Cons,
-	lispExpressionType_Cond,
+	lispExpressionType_Cond, /* 20 */
 	lispExpressionType_Car,
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
@@ -128,7 +132,7 @@ enum {
 	schemeStructType_ExpressionPairListElement,
 	/* schemeStructType_FunctionCall,
 	schemeStructType_LambdaExpr, */
-	schemeStructType_NameValueListElement,
+	schemeStructType_NameValueListElement, /* 27 */
 	schemeStructType_VariableListElement,
 	schemeStructType_VariableExpressionPairListElement,
 
