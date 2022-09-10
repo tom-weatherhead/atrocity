@@ -18,7 +18,7 @@
 /* const int defaultBufferIncrementSize = 16; */
 
 static int roundUpStringTypeBufferSize(int n, int bufIncSize) {
-	return (n + bufIncSize - 1) / bufIncSize;
+	return ((n + bufIncSize - 1) / bufIncSize) * bufIncSize;
 }
 
 /* STRING_BUILDER_TYPE * createString(char * buf, int bufSize) {
@@ -48,16 +48,26 @@ static int roundUpStringTypeBufferSize(int n, int bufIncSize) {
 } */
 
 STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * strToAppend) {
-	const int newbufsize = roundUpStringTypeBufferSize(strlen(sb->name) + strlen(strToAppend) + 1, sb->integerValue);
+	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
+	const int newbufsize = roundUpStringTypeBufferSize(oldStrLen + strlen(strToAppend) + 1, sb->integerValue);
 
 	if (newbufsize > sb->maxNameLength) {
-		/* Re-allocate */
-		sb->name = (char *)mmRealloc(sb->name, newbufsize);
-		memset(sb->name + sb->maxNameLength, 0, (sb->maxNameLength - newbufsize) * sizeof(char));
+		char * newBuf = (char *)mmAlloc(newbufsize * sizeof(char));
+
+		memset(newBuf, 0, newbufsize * sizeof(char));
+
+		if (sb->name != NULL) {
+			strcpy(newBuf, sb->name);
+			mmFree(sb->name);
+		}
+
+		sb->name = newBuf;
 		sb->maxNameLength = newbufsize;
 	}
 
-	strcat(sb->name, strToAppend);
+	if (sb->name != NULL) {
+		strcat(sb->name, strToAppend);
+	}
 
 	return sb;
 }

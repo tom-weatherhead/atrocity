@@ -18,6 +18,7 @@
 #include "memory-manager.h"
 #include "parse-and-evaluate.h"
 #include "print.h"
+#include "string-builder.h"
 
 /* Function prototypes */
 
@@ -94,6 +95,32 @@ static void test(char * input, char * expectedOutput) {
 	char * expectedOutputs[] = { expectedOutput, NULL };
 
 	multitest(inputs, expectedOutputs);
+}
+
+static void testStringBuilder() {
+	printf("testStringBuilder() : BEGIN\n");
+
+	STRING_BUILDER_TYPE * sb = createStringBuilder(0);
+
+	appendToStringBuilder(sb, "abcdefg");
+	appendToStringBuilder(sb, "hijklmno");
+	appendToStringBuilder(sb, "p");
+	appendToStringBuilder(sb, "qrstuv");
+	appendToStringBuilder(sb, "wxyz");
+
+	failIf(strlen(sb->name) != 26, "strlen(sb->name) != 26");
+
+	printf("sb->name is '%s'\n", sb->name);
+	printf("sb->maxNameLength is %d\n", sb->maxNameLength);
+	failIf(sb->maxNameLength != 32, "sb->maxNameLength != 32");
+
+	/* failIf(, "");
+	failIf(, "");
+	failIf(, "");
+	failIf(, "");
+	failIf(, ""); */
+
+	printf("testStringBuilder() : END\n");
 }
 
 void runTests() {
@@ -284,6 +311,8 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 	testGetIdentifier("(+1 7)");
 	testGetIdentifier("(((a b) c) d)");
 	/ * testGetIdentifier(""); */
+
+	testStringBuilder();
 
 	printf("\nDone.\n");
 }

@@ -13,7 +13,7 @@
 #include "create-and-destroy.h"
 
 static int numMallocs = 0;
-static int numReallocs = 0;
+/*static int numReallocs = 0; */
 static int numFrees = 0;
 
 void * mmAlloc(int numBytes) {
@@ -29,7 +29,7 @@ void * mmAlloc(int numBytes) {
 	return result;
 }
 
-void * mmRealloc(void * ptr, int numBytes) {
+/* void * mmRealloc(void * ptr, int numBytes) {
 	failIf(ptr == NULL, "mmRealloc() : ptr is NULL");
 
 	void * result = realloc(ptr, numBytes);
@@ -39,7 +39,7 @@ void * mmRealloc(void * ptr, int numBytes) {
 	++numReallocs;
 
 	return result;
-}
+} */
 
 void mmFree(void * ptr) {
 	failIf(ptr == NULL, "mmFree() : ptr is NULL");
@@ -53,7 +53,7 @@ void mmFree(void * ptr) {
 void mmPrintReport() {
 	printf("\nMemory manager report:\n");
 	printf("  Number of mallocs:  %d\n", numMallocs);
-	printf("  Number of reallocs: %d\n", numReallocs);
+	/* printf("  Number of reallocs: %d\n", numReallocs); */
 	printf("  Number of frees:    %d\n\n", numFrees);
 
 	if (numFrees < numMallocs) {
