@@ -218,6 +218,7 @@ LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, 
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
+	/*
 	SCHEME_UNIVERSAL_TYPE * lambdaExpr = createUniversalStruct(
 		schemeStructType_LambdaExpr,
 		0,
@@ -243,6 +244,16 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 	getLambdaExprInExpr(result) = lambdaExpr;
 
 	return result;
+	*/
+	return createUniversalStruct(
+		lispExpressionType_LambdaExpr,
+		0,
+		0,
+		NULL,
+		args,
+		body,
+		NULL
+	);
 }
 
 LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {

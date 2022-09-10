@@ -79,7 +79,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getContinuationReturnValueInValue(v) ((v)->value1)
 
 #define getExprListInExpr(e) ((e)->value1)
-#define getLambdaExprInExpr(e) ((e)->value1)
+/* #define getLambdaExprInExpr(e) ((e)->value1) */
+#define getLambdaExprInExpr(e) (e)
 #define getFunctionCallInExpr(e) ((e)->value1)
 #define getExprInExpr(e) ((e)->value2)
 #define getExpr2InExpr(e) ((e)->value1)
