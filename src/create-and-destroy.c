@@ -12,6 +12,102 @@
 #include "memory-manager.h"
 #include "utilities.h"
 
+/* BEGIN SCHEME_UNIVERSAL_TYPE */
+
+static SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
+	int type,
+	int integerValue,
+	int maxNameLength,
+	char * name,
+	SCHEME_UNIVERSAL_TYPE * value1,
+	SCHEME_UNIVERSAL_TYPE * value2,
+	SCHEME_UNIVERSAL_TYPE * next
+) {
+	SCHEME_UNIVERSAL_TYPE * result = (SCHEME_UNIVERSAL_TYPE *)mmAlloc(sizeof(SCHEME_UNIVERSAL_TYPE));
+
+	result->mark = 0;
+	result->type = type;
+	result->integerValue = integerValue;
+	result->maxNameLength = maxNameLength;
+	result->name = name;
+	result->value1 = value1;
+	result->value2 = value2;
+	result->value3 = NULL;
+	result->next = next;
+
+	addItemToMemMgrRecords(result);
+
+	return result;
+}
+
+/* If name != NULL then copy it, and set maxNameLength = strlen(name) + 1 */
+/* If name == NULL and maxNameLength > 1 then mmAlloc(maxNameLength * sizeof(char)) and zero-fill it */
+/* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then mmAlloc and zero-fill */
+
+SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
+	int type,
+	int integerValue,
+	int maxNameLength,
+	char * name,
+	SCHEME_UNIVERSAL_TYPE * value1,
+	SCHEME_UNIVERSAL_TYPE * value2,
+	SCHEME_UNIVERSAL_TYPE * next
+) {
+
+	if (name != NULL) {
+		const int len = strlen(name);
+
+		if (maxNameLength <= len) {
+			maxNameLength = len + 1;
+		}
+		/* This allows you to allocate a buffer longer than len + 1 chars if you wish */
+	} else if (maxNameLength <= 0) {
+		maxNameLength = maxStringValueLength;
+	}
+
+	char * buf = (char *)mmAlloc(maxNameLength * sizeof(char));
+
+	memset(buf, 0, maxNameLength * sizeof(char));
+
+	if (name != NULL) {
+		strcpy(buf, name);
+	}
+
+	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
+}
+
+void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
+
+	if (expr->name != NULL) {
+		mmFree(expr->name);
+		expr->name = NULL;
+	}
+
+	if (expr->value1 != NULL) {
+		freeUniversalStruct(expr->value1);
+		expr->value1 = NULL;
+	}
+
+	if (expr->value2 != NULL) {
+		freeUniversalStruct(expr->value2);
+		expr->value2 = NULL;
+	}
+
+	if (expr->value3 != NULL) {
+		freeUniversalStruct(expr->value3);
+		expr->value3 = NULL;
+	}
+
+	if (expr->next != NULL) {
+		freeUniversalStruct(expr->next);
+		expr->next = NULL;
+	}
+
+	mmFree(expr);
+}
+
+/* END SCHEME_UNIVERSAL_TYPE */
+
 /* **** Value struct creation functions **** */
 
 int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
@@ -785,101 +881,5 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 	return TRUE;
 }
-
-/* BEGIN SCHEME_UNIVERSAL_TYPE */
-
-SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
-	int type,
-	int integerValue,
-	int maxNameLength,
-	char * name,
-	SCHEME_UNIVERSAL_TYPE * value1,
-	SCHEME_UNIVERSAL_TYPE * value2,
-	SCHEME_UNIVERSAL_TYPE * next
-) {
-	SCHEME_UNIVERSAL_TYPE * result = (SCHEME_UNIVERSAL_TYPE *)mmAlloc(sizeof(SCHEME_UNIVERSAL_TYPE));
-
-	result->mark = 0;
-	result->type = type;
-	result->integerValue = integerValue;
-	result->maxNameLength = maxNameLength;
-	result->name = name;
-	result->value1 = value1;
-	result->value2 = value2;
-	result->value3 = NULL;
-	result->next = next;
-
-	addItemToMemMgrRecords(result);
-
-	return result;
-}
-
-/* If name != NULL then copy it, and set maxNameLength = strlen(name) + 1 */
-/* If name == NULL and maxNameLength > 1 then mmAlloc(maxNameLength * sizeof(char)) and zero-fill it */
-/* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then mmAlloc and zero-fill */
-
-SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
-	int type,
-	int integerValue,
-	int maxNameLength,
-	char * name,
-	SCHEME_UNIVERSAL_TYPE * value1,
-	SCHEME_UNIVERSAL_TYPE * value2,
-	SCHEME_UNIVERSAL_TYPE * next
-) {
-
-	if (name != NULL) {
-		const int len = strlen(name);
-
-		if (maxNameLength <= len) {
-			maxNameLength = len + 1;
-		}
-		/* This allows you to allocate a buffer longer than len + 1 chars if you wish */
-	} else if (maxNameLength <= 0) {
-		maxNameLength = maxStringValueLength;
-	}
-
-	char * buf = (char *)mmAlloc(maxNameLength * sizeof(char));
-
-	memset(buf, 0, maxNameLength * sizeof(char));
-
-	if (name != NULL) {
-		strcpy(buf, name);
-	}
-
-	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
-}
-
-void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
-
-	if (expr->name != NULL) {
-		mmFree(expr->name);
-		expr->name = NULL;
-	}
-
-	if (expr->value1 != NULL) {
-		freeUniversalStruct(expr->value1);
-		expr->value1 = NULL;
-	}
-
-	if (expr->value2 != NULL) {
-		freeUniversalStruct(expr->value2);
-		expr->value2 = NULL;
-	}
-
-	if (expr->value3 != NULL) {
-		freeUniversalStruct(expr->value3);
-		expr->value3 = NULL;
-	}
-
-	if (expr->next != NULL) {
-		freeUniversalStruct(expr->next);
-		expr->next = NULL;
-	}
-
-	mmFree(expr);
-}
-
-/* END SCHEME_UNIVERSAL_TYPE */
 
 /* **** The End **** */
