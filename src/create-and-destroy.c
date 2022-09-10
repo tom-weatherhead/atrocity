@@ -379,6 +379,7 @@ LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
 }
 
 LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
+	/*
 	SCHEME_UNIVERSAL_TYPE * functionCall = createUniversalStruct(
 		schemeStructType_FunctionCall,
 		0,
@@ -393,7 +394,7 @@ LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
 
 	getExprInExprList(exprList) = NULL;
 	exprList->next = NULL;
-	/* mmFree(exprList); */
+	/ * mmFree(exprList); * /
 
 	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
 		lispExpressionType_FunctionCall,
@@ -407,7 +408,16 @@ LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
 
 	getFunctionCallInExpr(result) = functionCall;
 
-	return result;
+	return result; */
+	return createUniversalStruct(
+		lispExpressionType_FunctionCall,
+		0,
+		0,
+		NULL,
+		exprList->next,
+		getExprInExprList(exprList),
+		NULL
+	);
 }
 
 LISP_EXPR * createLetExpression(int exprType, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList, LISP_EXPR * expr) {
