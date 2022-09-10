@@ -127,7 +127,7 @@ enum {
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
 
-	schemeStructType_Environment,
+	schemeStructType_Environment, /* 24 */
 	schemeStructType_ExpressionListElement,
 	schemeStructType_ExpressionPairListElement,
 	/* schemeStructType_FunctionCall,

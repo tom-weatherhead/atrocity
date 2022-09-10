@@ -90,7 +90,7 @@ static BOOL updateIfFoundInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALU
 }
 
 void addNameToEnvironment(LISP_ENV * env, char * name, LISP_VALUE * value) {
-	getValueInNameValuePairListElement(env) = createNameValueListElement(name, value, getValueInNameValuePairListElement(env));
+	getNameValuePairListInEnv(env) = createNameValueListElement(name, value, getNameValuePairListInEnv(env));
 }
 
 void addToEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {

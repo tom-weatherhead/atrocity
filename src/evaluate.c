@@ -53,8 +53,6 @@ static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * e
 
 	const int b = operandValue->type == lispValueType;
 
-	/* freeValue(operandValue); */
-
 	return booleanToClonedValue(b);
 }
 
@@ -113,11 +111,8 @@ static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_
 
 static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * value = evaluate(expr, env);
-	BOOL result = value->type == lispValueType_Null;
 
-	/* freeValue(value); */
-
-	return result;
+	return value->type == lispValueType_Null;
 }
 
 static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
@@ -458,9 +453,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 						result = booleanToClonedValue(operand1 >= operand2);
 					}
 				}
-
-				/* freeValue(operand2Value);
-				freeValue(operand1Value); */
 			}
 
 			/* Handle if */

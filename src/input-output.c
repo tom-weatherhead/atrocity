@@ -195,9 +195,9 @@ void readEvalPrintLoop() {
 			printValue(value);
 			printf("\n\n");
 
-			/* const int numFreed = collectGarbage(exprTreesToMark);
+			const int numFreed = collectGarbage(exprTreesToMark);
 
-			printf("gc: %d block(s) of memory freed.\n", numFreed); */
+			printf("gc: %d block(s) of memory freed.\n", numFreed);
 		}
 	}
 

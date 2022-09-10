@@ -110,11 +110,11 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 
 /* **** Value struct creation functions **** */
 
-int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
-	/* Return the number of chars, not necessarily the number of bytes. */
+/* int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
+	/ * Return the number of chars, not necessarily the number of bytes. * /
 
 	return value->maxNameLength;
-}
+} */
 
 LISP_VALUE * createNumericValue(int value) {
 	return createUniversalStruct(
@@ -415,10 +415,6 @@ LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
 		NULL,
 		NULL
 	);
-
-	/** getVarInExpr(result) = var;
-
-	return result; */
 }
 
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
@@ -446,19 +442,15 @@ LISP_ENV * createEnvironment(LISP_ENV * next) {
 }
 
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		lispExpressionType_Value,
 		0,
 		0,
 		NULL,
-		NULL,
+		value,
 		NULL,
 		NULL
 	);
-
-	getValueInExpr(result) = value;
-
-	return result;
 }
 
 LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
@@ -474,69 +466,51 @@ LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
 }
 
 LISP_EXPR * createLetExpression(int exprType, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList, LISP_EXPR * expr) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		exprType,
 		0,
 		0,
 		NULL,
-		NULL,
-		NULL,
+		varExprPairList,
+		expr,
 		NULL
 	);
-
-	getVarExprPairListInExpr(result) = varExprPairList;
-	getExprInExpr(result) = expr;
-
-	return result;
 }
 
 LISP_EXPR * createBeginExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		lispExpressionType_Begin,
 		0,
 		0,
 		NULL,
-		NULL,
+		exprList,
 		NULL,
 		NULL
 	);
-
-	getExprListInExpr(result) = exprList;
-
-	return result;
 }
 
 LISP_EXPR * createWhileExpression(LISP_EXPR * condition, LISP_EXPR * body) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		lispExpressionType_While,
 		0,
 		0,
 		NULL,
-		NULL,
-		NULL,
+		body,
+		condition,
 		NULL
 	);
-
-	getExprInExpr(result) = condition;
-	getExpr2InExpr(result) = body;
-
-	return result;
 }
 
 LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		lispExpressionType_Cond,
 		0,
 		0,
 		NULL,
-		NULL,
+		exprPairList,
 		NULL,
 		NULL
 	);
-
-	getExprPairListInExpr(result) = exprPairList;
-
-	return result;
 }
 
 STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize) {
