@@ -40,17 +40,6 @@ stringtosymbol ?
 #include "parse-and-evaluate.h"
 #include "tests.h"
 
-/* Function prototypes */
-
-/* Forward references */
-
-/* Constants */
-
-/* Global variables */
-
-/* LISP_VALUE * globalNullValue = NULL;
-LISP_VALUE * globalTrueValue = NULL; */
-
 /* **** The Main MoFo **** */
 
 int main(int argc, char * argv[]) {

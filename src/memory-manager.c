@@ -29,7 +29,7 @@ void * mmAlloc(int numBytes) {
 	return result;
 }
 
-/* void * mmRealloc(void * ptr, int numBytes) {
+void * mmRealloc(void * ptr, int numBytes) {
 	failIf(ptr == NULL, "mmRealloc() : ptr is NULL");
 
 	void * result = realloc(ptr, numBytes);
@@ -39,7 +39,7 @@ void * mmAlloc(int numBytes) {
 	++numReallocs;
 
 	return result;
-} */
+}
 
 void mmFree(void * ptr) {
 	failIf(ptr == NULL, "mmFree() : ptr is NULL");
