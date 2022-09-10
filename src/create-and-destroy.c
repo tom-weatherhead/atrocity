@@ -144,6 +144,30 @@ LISP_VALUE * createNull() {
 	);
 }
 
+LISP_VALUE * createContinuation(int id) {
+	return createUniversalStruct(
+		lispPseudoValueType_Continuation,
+		id,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	);
+}
+
+LISP_VALUE * createContinuationReturn(int id, LISP_VALUE * value) {
+	return createUniversalStruct(
+		lispPseudoValueType_ContinuationReturn,
+		id,
+		0,
+		NULL,
+		value,
+		NULL,
+		NULL
+	);
+}
+
 LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 	switch (value->type) {

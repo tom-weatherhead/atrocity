@@ -313,7 +313,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
 
-			SCHEME_UNIVERSAL_TYPE * currentContinuation = createUniversalStruct(
+			/* SCHEME_UNIVERSAL_TYPE * currentContinuation = createUniversalStruct(
 				lispPseudoValueType_Continuation,
 				nextContinuationId,
 				0,
@@ -323,7 +323,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				NULL
 			);
 
-			nextContinuationId++;
+			nextContinuationId++; */
+			SCHEME_UNIVERSAL_TYPE * currentContinuation = createContinuation(nextContinuationId++);
 
 			/* Now call the closure (operand1Value), passing in
 			the currentContinuation as the one and only parameter */
@@ -550,7 +551,7 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 				return actualParamValue;
 			}
 
-			return createUniversalStruct(
+			/* return createUniversalStruct(
 				lispPseudoValueType_ContinuationReturn,
 				getContinuationIdInValue(callableValue),
 				0,
@@ -558,7 +559,8 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 				actualParamValue,
 				NULL,
 				NULL
-			);
+			); */
+			return createContinuationReturn(getContinuationIdInValue(callableValue), actualParamValue);
 
 		default:
 			fprintf(stderr, "evaluateFunctionCall() : Attempted to call an uncallable value\n");
