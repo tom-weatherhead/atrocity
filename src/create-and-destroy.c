@@ -44,7 +44,7 @@ static SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 /* If name == NULL and maxNameLength > 1 then mmAlloc(maxNameLength * sizeof(char)) and zero-fill it */
 /* If name == NULL and maxNameLength <= 0 then set maxNameLength = the default maxStringValueLength; then mmAlloc and zero-fill */
 
-SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
+static SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 	int type,
 	int integerValue,
 	int maxNameLength,
@@ -335,6 +335,18 @@ LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, 
 	getExpr2InPairListElement(result) = expr2;
 
 	return result;
+}
+
+LISP_VAR_EXPR_PAIR_LIST_ELEMENT * createVariableExpressionPairListElement(char * buf, LISP_EXPR * expr, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next) {
+	return allocateStringAndCreateUniversalStruct(
+		schemeStructType_VariableExpressionPairListElement,
+		0,
+		0,
+		buf,
+		expr,
+		NULL,
+		next
+	);
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
