@@ -68,7 +68,10 @@ int main(int argc, char * argv[]) {
 		readEvalPrintLoop();
 	}
 
-	freeAllStructs();
+	const int numFreed = freeAllStructs();
+
+	printf("gc final: %d block(s) of memory freed.\n", numFreed);
+
 	mmPrintReport();
 
 	return 0; /* Zero (as a Unix exit code) means success. */

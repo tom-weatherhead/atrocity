@@ -7,6 +7,6 @@ void mmPrintReport();
 
 void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item);
 int collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]);
-void freeAllStructs();
+int freeAllStructs();
 
 /* **** The End **** */

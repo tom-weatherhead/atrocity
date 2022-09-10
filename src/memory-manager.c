@@ -13,7 +13,6 @@
 #include "create-and-destroy.h"
 
 static int numMallocs = 0;
-/*static int numReallocs = 0; */
 static int numFrees = 0;
 
 void * mmAlloc(int numBytes) {
@@ -53,7 +52,6 @@ void mmFree(void * ptr) {
 void mmPrintReport() {
 	printf("\nMemory manager report:\n");
 	printf("  Number of mallocs:  %d\n", numMallocs);
-	/* printf("  Number of reallocs: %d\n", numReallocs); */
 	printf("  Number of frees:    %d\n\n", numFrees);
 
 	if (numFrees < numMallocs) {
@@ -111,13 +109,7 @@ static void clearMarks() {
 
 static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 
-	if (expr == NULL) {
-		return;
-	}
-
-	/* printf("expr is %ld\n", expr); */
-
-	if (expr->mark == 1) {
+	if (expr == NULL || expr->mark == 1) {
 		return;
 	} else if (expr->mark != 0) {
 		printf("mm error: expr->mark is %d\n", expr->mark);
@@ -126,29 +118,9 @@ static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 
 	/* Do this recursively */
 
-	/* if (expr->type == schemeStructType_NameValueListElement) {
-		printf("Marking... ");
-	} */
-
 	expr->mark = 1;
 
-	/* if (expr->type == schemeStructType_NameValueListElement) {
-		printf("Done.\n");
-	}
-
-	if (expr->value1 != NULL && expr->value1->type == schemeStructType_NameValueListElement) {
-		printf("This type is %d; value1's type is %d\n", expr->type, expr->value1->type);
-	}
-
-	if (expr->value2 != NULL && expr->value2->type == schemeStructType_NameValueListElement) {
-		printf("This type is %d; value2's type is %d\n", expr->type, expr->value2->type);
-	}
-
-	if (expr->value3 != NULL && expr->value3->type == schemeStructType_NameValueListElement) {
-		printf("This type is %d; value3's type is %d\n", expr->type, expr->value3->type);
-	} */
-
-	if (expr->value1 == expr) {
+	/* if (expr->value1 == expr) {
 		fprintf(stderr, "CIRCULAR: expr->value1 == expr; type is %d\n", expr->type);
 		exit(1);
 	} else if (expr->value2 == expr) {
@@ -160,33 +132,12 @@ static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 	} else if (expr->next == expr) {
 		fprintf(stderr, "CIRCULAR: expr->next == expr; type is %d\n", expr->type);
 		exit(1);
-	}
+	} */
 
 	setMarksInExprTree(expr->value1);
 	setMarksInExprTree(expr->value2);
 	setMarksInExprTree(expr->value3);
 	setMarksInExprTree(expr->next);
-
-	/* if (expr->value1 != NULL) {
-		setMarksInExprTree(expr->value1);
-	}
-
-	if (expr->value2 != NULL) {
-		setMarksInExprTree(expr->value2);
-	}
-
-	if (expr->value3 != NULL) {
-		setMarksInExprTree(expr->value3);
-	} */
-
-	/* if (expr->next != NULL) {
-		/ * printf("Marking next in struct of type %d\n", expr->type);
-		printf("  next's type is %d\n", expr->next->type);
-
-		if (expr->type != schemeStructType_NameValueListElement) { * /
-			setMarksInExprTree(expr->next);
-		/ * } * /
-	} */
 }
 
 static int freeUnmarkedStructs() {
@@ -232,15 +183,13 @@ int collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]) {
 		setMarksInExprTree(exprTreesToMark[i]);
 	}
 
-	printf("Completed marking.\n");
-
 	return freeUnmarkedStructs();
-	/* return 0; */
 }
 
-void freeAllStructs() {
+int freeAllStructs() {
 	clearMarks();
-	freeUnmarkedStructs();
+
+	return freeUnmarkedStructs();
 }
 
 /* **** END Memory manager version 1 **** */
