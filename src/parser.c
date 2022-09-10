@@ -138,19 +138,7 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 	}
 
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next = parseVarExpressionPairList(cs);
-	/* SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
-		schemeStructType_VariableExpressionPairListElement,
-		0,
-		0,
-		dstBuf,
-		NULL,
-		NULL,
-		next
-	);
 
-	getExprInVarExprPairListElement(result) = expr;
-
-	return result; */
 	return createVariableExpressionPairListElement(dstBuf, expr, next);
 }
 

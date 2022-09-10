@@ -11,10 +11,10 @@
 #include "create-and-destroy.h"
 #include "parse-and-evaluate.h"
 
-/* External variables */
+/* Global variables */
 
-extern LISP_VALUE * globalNullValue;
-extern LISP_VALUE * globalTrueValue;
+LISP_VALUE * globalNullValue = NULL;
+LISP_VALUE * globalTrueValue = NULL;
 
 /* Function prototypes */
 

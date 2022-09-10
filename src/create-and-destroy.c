@@ -350,33 +350,6 @@ LISP_VAR_EXPR_PAIR_LIST_ELEMENT * createVariableExpressionPairListElement(char *
 }
 
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body) {
-	/*
-	SCHEME_UNIVERSAL_TYPE * lambdaExpr = createUniversalStruct(
-		schemeStructType_LambdaExpr,
-		0,
-		0,
-		NULL,
-		args,
-		NULL,
-		NULL
-	);
-
-	getBodyInLambdaExpr(lambdaExpr) = body;
-
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
-		lispExpressionType_LambdaExpr,
-		0,
-		0,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	);
-
-	getLambdaExprInExpr(result) = lambdaExpr;
-
-	return result;
-	*/
 	return createUniversalStruct(
 		lispExpressionType_LambdaExpr,
 		0,
@@ -511,36 +484,6 @@ LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
 }
 
 LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList) {
-	/*
-	SCHEME_UNIVERSAL_TYPE * functionCall = createUniversalStruct(
-		schemeStructType_FunctionCall,
-		0,
-		0,
-		NULL,
-		exprList->next,
-		NULL,
-		NULL
-	);
-
-	getFirstExprInFunctionCall(functionCall) = getExprInExprList(exprList);
-
-	getExprInExprList(exprList) = NULL;
-	exprList->next = NULL;
-	/ * mmFree(exprList); * /
-
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
-		lispExpressionType_FunctionCall,
-		0,
-		0,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	);
-
-	getFunctionCallInExpr(result) = functionCall;
-
-	return result; */
 	return createUniversalStruct(
 		lispExpressionType_FunctionCall,
 		0,

@@ -36,25 +36,6 @@ LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, 
 LISP_VAR_EXPR_PAIR_LIST_ELEMENT * createVariableExpressionPairListElement(char * buf, LISP_EXPR * expr, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next);
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next);
 
-/* SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
-	int type,
-	int integerValue,
-	int maxNameLength,
-	char * name,
-	SCHEME_UNIVERSAL_TYPE * value1,
-	SCHEME_UNIVERSAL_TYPE * value2,
-	SCHEME_UNIVERSAL_TYPE * next
-);
-SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
-	int type,
-	int integerValue,
-	int maxNameLength,
-	char * name,
-	SCHEME_UNIVERSAL_TYPE * value1,
-	SCHEME_UNIVERSAL_TYPE * value2,
-	SCHEME_UNIVERSAL_TYPE * next
-); */
-
 /* Free stuff */
 /* void freeEnvironment(LISP_ENV * env); */
 
