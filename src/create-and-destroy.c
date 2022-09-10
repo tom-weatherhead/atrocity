@@ -140,10 +140,10 @@ LISP_VALUE * createStringValue(char * str) {
 		--len;
 	}
 
-	if (len >= maxStringValueLength) {
+	/* if (len >= maxStringValueLength) {
 		fprintf(stderr, "The string '%s' is too long to be a string value.", str);
 		fatalError("createStringValue() : String too long");
-	}
+	} */
 
 	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
 		lispValueType_String,
@@ -162,10 +162,10 @@ LISP_VALUE * createStringValue(char * str) {
 
 LISP_VALUE * createSymbolValue(char * value) {
 
-	if (strlen(value) >= maxStringValueLength) {
+	/* if (strlen(value) >= maxStringValueLength) {
 		fprintf(stderr, "The string '%s' is too long to be a symbol value.", value);
 		fatalError("createSymbolValue() : String too long");
-	}
+	} */
 
 	return allocateStringAndCreateUniversalStruct(
 		lispValueType_Symbol,
@@ -201,7 +201,7 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 		NULL
 	);
 
-	getBodyInClosure(closure) = body;
+	getBodyInClosure(closure) = body; /* I.e. closure->value3 = body; */
 
 	return closure;
 }
@@ -307,7 +307,7 @@ LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_
 	failIf(var == NULL, "createVariableListElement() : var == NULL");
 	failIf(var->name == NULL, "createVariableListElement() : var->name == NULL");
 
-	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
+	return allocateStringAndCreateUniversalStruct(
 		schemeStructType_VariableListElement,
 		0,
 		0,
@@ -316,25 +316,18 @@ LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_
 		NULL,
 		next
 	);
-
-	return result;
 }
 
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next) {
-	LISP_EXPR_PAIR_LIST_ELEMENT * result = createUniversalStruct(
+	return createUniversalStruct(
 		schemeStructType_ExpressionPairListElement,
 		0,
 		0,
 		NULL,
-		NULL,
-		NULL,
+		expr,
+		expr2,
 		next
 	);
-
-	getExprInPairListElement(result) = expr;
-	getExpr2InPairListElement(result) = expr2;
-
-	return result;
 }
 
 LISP_VAR_EXPR_PAIR_LIST_ELEMENT * createVariableExpressionPairListElement(char * buf, LISP_EXPR * expr, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next) {
@@ -362,55 +355,46 @@ LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * bod
 }
 
 LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		lispExpressionType_SetExpr,
 		0,
 		0,
 		NULL,
-		NULL,
-		NULL,
+		var,
+		expr,
 		NULL
 	);
-
-	getVarInExpr(result) = var;
-	getExprInExpr(result) = expr;
-
-	return result;
 }
 
 // **** Expression list struct creation functions ****
 
 LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR_LIST_ELEMENT * next) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		schemeStructType_ExpressionListElement,
 		0,
 		0,
 		NULL,
-		NULL,
+		expr,
 		NULL,
 		next
 	);
-
-	getExprInExprList(result) = expr;
-
-	return result;
 }
 
 /* A variable is an Expression but not a Value. */
 
 LISP_VAR * createVariable(char * name) {
 
-	if (strlen(name) >= maxStringValueLength - 1) {
+	/* if (strlen(name) >= maxStringValueLength - 1) {
 		fprintf(stderr, "createVariable() : The name '%s' is too long.\n", name);
 		fatalError("createVariable() : String too long");
-	}
+	} else */
 	/* Ensure that name does not contain ( or ) */
-	else if (strchr(name, '(') != NULL || strchr(name, ')')) {
+	if (strchr(name, '(') != NULL || strchr(name, ')')) {
 		fprintf(stderr, "createVariable() : The name '%s' contains an illegal character: '(' or ')'.\n", name);
 		fatalError("createVariable() : String contains an illegal character");
 	}
 
-	SCHEME_UNIVERSAL_TYPE * var = allocateStringAndCreateUniversalStruct(
+	return allocateStringAndCreateUniversalStruct(
 		lispExpressionType_Variable,
 		0,
 		0,
@@ -419,24 +403,22 @@ LISP_VAR * createVariable(char * name) {
 		NULL,
 		NULL
 	);
-
-	return var;
 }
 
 LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
-	SCHEME_UNIVERSAL_TYPE * result = createUniversalStruct(
+	return createUniversalStruct(
 		lispExpressionType_Variable,
 		0,
 		0,
 		NULL,
-		NULL,
+		var,
 		NULL,
 		NULL
 	);
 
-	getVarInExpr(result) = var;
+	/** getVarInExpr(result) = var;
 
-	return result;
+	return result; */
 }
 
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
