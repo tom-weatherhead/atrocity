@@ -39,8 +39,8 @@
 } */
 
 static void multitest(char * inputs[], char * expectedOutputs[]) {
-	const int sizeOfActualOutput = maxStringValueLength * sizeof(char);
-	char * actualOutput = mmAlloc(sizeOfActualOutput);
+	/* const int sizeOfActualOutput = maxStringValueLength * sizeof(char); */
+	char * actualOutput = NULL; /* mmAlloc(sizeOfActualOutput); */
 	LISP_ENV * globalEnv = createGlobalEnvironment();
 
 	BOOL valuePrintedSuccessfully = TRUE;
@@ -59,9 +59,12 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
 
-		memset(actualOutput, 0, sizeOfActualOutput);
+		/* memset(actualOutput, 0, sizeOfActualOutput); */
 
-		valuePrintedSuccessfully = printValueToString(value, actualOutput, maxStringValueLength);
+		/* valuePrintedSuccessfully = printValueToString(value, actualOutput, maxStringValueLength); */
+		STRING_BUILDER_TYPE * sb = printValueToString(NULL, value);
+
+		actualOutput = sb->name;
 
 		/* Note bene: freeClosure is currently mostly disabled to avoid
 		 * double-freeing things. We must fix this. */
@@ -69,8 +72,6 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 
 		outputValuesMatch = !strcmp(actualOutput, expectedOutput);
 	}
-
-	freeGlobalEnvironment(globalEnv);
 
 	if (!valuePrintedSuccessfully) {
 		fprintf(stderr, "\nTest failed: Output string truncated\n");
@@ -83,7 +84,9 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		fprintf(stderr, "  Actual output: %s\n\n", actualOutput);
 	}
 
-	mmFree(actualOutput);
+	freeGlobalEnvironment(globalEnv); /* TODO: -> freeAllStructs(); */
+
+	/* mmFree(actualOutput); */
 
 	if (!valuePrintedSuccessfully || !outputValuesMatch) {
 		exit(1);

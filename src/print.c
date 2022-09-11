@@ -10,6 +10,7 @@
 
 #include "create-and-destroy.h"
 #include "memory-manager.h"
+#include "string-builder.h"
 #include "utilities.h"
 
 void printValue(LISP_VALUE * value) {
@@ -84,112 +85,50 @@ void printValue(LISP_VALUE * value) {
 	}
 }
 
-/* STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {} */
-BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
+/* BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) { */
+STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
 	/* Returns FALSE iff there is no more room to print in buf. */
 	/* TODO: Use a StringBuilder */
 
 	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else:
 	memset(buf, 0, bufsize * sizeof(char)); */
 
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
+
 	if (isList(value) && value->type != lispValueType_Null) {
-		char separator = '\0';
-		int separatorLen = 0;
+		char * separator = "";
 
-		if (bufsize <= 1) {
-			*buf = '\0'; /* Null-terminate the string */
-			return FALSE;
-		}
-
-		*buf++ = '(';
-		--bufsize;
+		appendToStringBuilder(sb, "(");
 
 		while (value->type != lispValueType_Null) {
+			appendToStringBuilder(sb, separator);
 
-			if (bufsize <= separatorLen) {
-				*buf = '\0'; /* Null-terminate the string */
-				return FALSE;
-			}
+			printValueToString(sb, getHeadInPair(getPairInValue(value)));
 
-			sprintf(buf, "%c", separator);
-			buf += separatorLen;
-			bufsize -= separatorLen;
-
-			if (!printValueToString(getHeadInPair(getPairInValue(value)), buf, bufsize)) {
-				return FALSE;
-			}
-
-			const int len = strlen(buf);
-
-			buf += len;
-			bufsize -= len;
-
-			separator = ' ';
-			separatorLen = 1;
+			separator = " ";
 			value = getTailInPair(getPairInValue(value));
 		}
 
-		if (bufsize <= 1) {
-			*buf = '\0'; /* Null-terminate the string */
-			return FALSE;
-		}
+		appendToStringBuilder(sb, ")");
 
-		*buf = ')';
-
-		return TRUE;
+		return sb;
 	} else if (value->type == lispValueType_Pair) {
+		appendToStringBuilder(sb, "(");
+		printValueToString(sb, getHeadInPair(getPairInValue(value)));
+		appendToStringBuilder(sb, " . ");
+		printValueToString(sb, getTailInPair(getPairInValue(value)));
+		appendToStringBuilder(sb, ")");
 
-		if (bufsize <= 1) {
-			*buf = '\0'; /* Null-terminate the string */
-			return FALSE;
-		}
-
-		*buf++ = '(';
-		--bufsize;
-
-		if (!printValueToString(getHeadInPair(getPairInValue(value)), buf, bufsize)) {
-			return FALSE;
-		}
-
-		int len = strlen(buf);
-
-		buf += len;
-		bufsize -= len;
-
-		if (bufsize <= 3) {
-			*buf = '\0'; /* Null-terminate the string */
-			return FALSE;
-		}
-
-		*buf++ = ' ';
-		*buf++ = '.';
-		*buf++ = ' ';
-		bufsize -= 3;
-
-		if (!printValueToString(getTailInPair(getPairInValue(value)), buf, bufsize)) {
-			return FALSE;
-		}
-
-		len = strlen(buf);
-
-		buf += len;
-		bufsize -= len;
-
-		if (bufsize <= 1) {
-			*buf = '\0'; /* Null-terminate the string */
-			return FALSE;
-		}
-
-		*buf = ')';
-
-		return TRUE;
+		return sb;
 	}
 
 	char * strContinuation = "<contin>";
 	char * strContinuationReturn = "<contRtn>";
 	char * strClosure = "<closure>";
 	char * strInvalid = "<invalid value>";
-	const int maxPrintedIntegerLength = 10;
+	/* const int maxPrintedIntegerLength = 10;
 	int lenToAppend = 0;
 
 	switch (value->type) {
@@ -226,45 +165,48 @@ BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) {
 
 	if (bufsize <= lenToAppend) {
 		printf("Returning FALSE");
-		*buf = '\0'; /* Null-terminate the string */
-		return FALSE;
-	}
+		*buf = '\0'; / * Null-terminate the string * /
+		return sb; / * FALSE; * /
+	} */
 
 	/* (listtostring '("abc" 123 "def")) -> TODO: BUG: Double quotes are not removed from string literals inside a (single-)quoted list */
+	char intSprintfBuffer[16];
 
 	switch (value->type) {
 		case lispValueType_Number:
-			sprintf(buf, "%d", getIntegerValueInValue(value));
+			memset(intSprintfBuffer, 0, 16 * sizeof(char));
+			sprintf(intSprintfBuffer, "%d", getIntegerValueInValue(value));
+			appendToStringBuilder(sb, intSprintfBuffer);
 			break;
 
 		case lispValueType_PrimitiveOperator:
 		case lispValueType_String:
 		case lispValueType_Symbol:
-			strcpy(buf, getNameInValue(value));
+			appendToStringBuilder(sb, getNameInValue(value));
 			break;
 
 		case lispValueType_Closure:
-			strcpy(buf, strClosure);
+			appendToStringBuilder(sb, strClosure);
 			break;
 
 		case lispValueType_Null:
-			strcpy(buf, "()");
+			appendToStringBuilder(sb, "()");
 			break;
 
 		case lispPseudoValueType_Continuation:
-			strcpy(buf, strContinuation);
+			appendToStringBuilder(sb, strContinuation);
 			break;
 
 		case lispPseudoValueType_ContinuationReturn:
-			strcpy(buf, strContinuationReturn);
+			appendToStringBuilder(sb, strContinuationReturn);
 			break;
 
 		default:
-			strcpy(buf, strInvalid);
+			appendToStringBuilder(sb, strInvalid);
 			break;
 	}
 
-	return TRUE;
+	return sb;
 }
 
 /* **** The End **** */

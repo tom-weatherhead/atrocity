@@ -15,6 +15,13 @@
 static int numMallocs = 0;
 static int numFrees = 0;
 
+typedef struct MEMMGR_RECORD_STRUCT {
+	SCHEME_UNIVERSAL_TYPE * item;
+	struct MEMMGR_RECORD_STRUCT * next;
+} MEMMGR_RECORD;
+
+static MEMMGR_RECORD * memmgrRecords = NULL;
+
 void * mmAlloc(int numBytes) {
 	failIf(numBytes <= 0, "mmAlloc() : numBytes <= 0");
 
@@ -27,18 +34,6 @@ void * mmAlloc(int numBytes) {
 
 	return result;
 }
-
-/* void * mmRealloc(void * ptr, int numBytes) {
-	failIf(ptr == NULL, "mmRealloc() : ptr is NULL");
-
-	void * result = realloc(ptr, numBytes);
-
-	failIf(result == NULL, "mmRealloc() : realloc() returned NULL");
-
-	++numReallocs;
-
-	return result;
-} */
 
 void mmFree(void * ptr) {
 	failIf(ptr == NULL, "mmFree() : ptr is NULL");
@@ -58,15 +53,6 @@ void mmPrintReport() {
 		printf("  Number of leaks:    %d\n\n", numMallocs - numFrees);
 	}
 }
-
-/* **** BEGIN Memory manager version 1 **** */
-
-typedef struct MEMMGR_RECORD_STRUCT {
-	SCHEME_UNIVERSAL_TYPE * item;
-	struct MEMMGR_RECORD_STRUCT * next;
-} MEMMGR_RECORD;
-
-static MEMMGR_RECORD * memmgrRecords = NULL;
 
 void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 	MEMMGR_RECORD * mmRec = NULL;
@@ -119,20 +105,6 @@ static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 	/* Do this recursively */
 
 	expr->mark = 1;
-
-	/* if (expr->value1 == expr) {
-		fprintf(stderr, "CIRCULAR: expr->value1 == expr; type is %d\n", expr->type);
-		exit(1);
-	} else if (expr->value2 == expr) {
-		fprintf(stderr, "CIRCULAR: expr->value2 == expr; type is %d\n", expr->type);
-		exit(1);
-	} else if (expr->value3 == expr) {
-		fprintf(stderr, "CIRCULAR: expr->value3 == expr; type is %d\n", expr->type);
-		exit(1);
-	} else if (expr->next == expr) {
-		fprintf(stderr, "CIRCULAR: expr->next == expr; type is %d\n", expr->type);
-		exit(1);
-	} */
 
 	setMarksInExprTree(expr->value1);
 	setMarksInExprTree(expr->value2);
@@ -191,7 +163,5 @@ int freeAllStructs() {
 
 	return freeUnmarkedStructs();
 }
-
-/* **** END Memory manager version 1 **** */
 
 /* **** The End **** */
