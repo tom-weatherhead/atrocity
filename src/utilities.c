@@ -96,7 +96,7 @@ BOOL isList(LISP_VALUE * value) {
 			return TRUE;
 
 		case lispValueType_Pair:
-			return isList(getTailInPair(getPairInValue(value)));
+			return isList(getTailInPair(value));
 
 		default:
 			break;

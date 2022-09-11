@@ -78,7 +78,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getIntegerValueInValue(v) ((v)->integerValue)
 #define getNameInValue(v) ((v)->name)
-#define getPairInValue(v) (v)
+/* #define getPairInValue(v) (v) */
 #define getClosureInValue(v) (v)
 #define getContinuationIdInValue(v) ((v)->integerValue)
 #define getContinuationReturnValueInValue(v) ((v)->value1)

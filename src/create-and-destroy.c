@@ -283,7 +283,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 			return createClosure(getArgsInClosure(getClosureInValue(value)), getBodyInClosure(getClosureInValue(value)), getEnvInClosure(getClosureInValue(value)));
 
 		case lispValueType_Pair:
-			return createPair(getHeadInPair(getPairInValue(value)), getTailInPair(getPairInValue(value)));
+			return createPair(getHeadInPair(value), getTailInPair(value));
 
 		case lispValueType_Null:
 			return createNull();

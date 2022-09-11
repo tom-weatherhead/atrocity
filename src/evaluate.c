@@ -75,7 +75,7 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 			return !strcmp(getNameInValue(v1), getNameInValue(v2));
 
 		case lispValueType_Pair:
-			return areValuesEqual(getHeadInPair(getPairInValue(v1)), getHeadInPair(getPairInValue(v2))) && areValuesEqual(getTailInPair(getPairInValue(v1)), getTailInPair(getPairInValue(v2)));
+			return areValuesEqual(getHeadInPair(v1), getHeadInPair(v2)) && areValuesEqual(getTailInPair(v1), getTailInPair(v2));
 
 		case lispValueType_Closure:
 			return FALSE;
@@ -235,7 +235,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : car : Operand is not a pair");
 			}
 
-			return getHeadInPair(getPairInValue(operand1Value));
+			return getHeadInPair(operand1Value);
 		} else if (!strcmp(op, "cdr")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -246,7 +246,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : cdr : Operand is not a pair");
 			}
 
-			return getTailInPair(getPairInValue(operand1Value));
+			return getTailInPair(operand1Value);
 		} else if (!strcmp(op, "listtostring")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -386,7 +386,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 						fatalError("evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair");
 					}
 
-					getHeadInPair(getPairInValue(operand1Value)) = operand2Value;
+					getHeadInPair(operand1Value) = operand2Value;
 
 					return operand2Value;
 				} else if (!strcmp(op, "rplacd")) {
@@ -396,7 +396,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 						fatalError("evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair");
 					}
 
-					getTailInPair(getPairInValue(operand1Value)) = operand2Value;
+					getTailInPair(operand1Value) = operand2Value;
 
 					return operand2Value;
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {

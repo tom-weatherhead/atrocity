@@ -26,9 +26,9 @@ void printValue(LISP_VALUE * value) {
 
 		while (value->type != lispValueType_Null) {
 			printf("%c", separator);
-			printValue(getHeadInPair(getPairInValue(value)));
+			printValue(getHeadInPair(value));
 			separator = ' ';
-			value = getTailInPair(getPairInValue(value));
+			value = getTailInPair(value);
 		}
 
 		printf(")");
@@ -59,9 +59,9 @@ void printValue(LISP_VALUE * value) {
 
 		case lispValueType_Pair:
 			printf("Pair: (");
-			printValue(getHeadInPair(getPairInValue(value)));
+			printValue(getHeadInPair(value));
 			printf(" . ");
-			printValue(getTailInPair(getPairInValue(value)));
+			printValue(getTailInPair(value));
 			printf(")");
 			break;
 
@@ -85,6 +85,9 @@ void printValue(LISP_VALUE * value) {
 	}
 }
 
+/* TODO: Add params:
+- char * separatorBetweenListItems
+- BOOL printBracketsAroundList */
 STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
 	/* Returns FALSE iff there is no more room to print in buf. */
 	/* TODO: Use a StringBuilder */
@@ -104,10 +107,10 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		while (value->type != lispValueType_Null) {
 			appendToStringBuilder(sb, separator);
 
-			printValueToString(sb, getHeadInPair(getPairInValue(value)));
+			printValueToString(sb, getHeadInPair(value));
 
 			separator = " ";
-			value = getTailInPair(getPairInValue(value));
+			value = getTailInPair(value);
 		}
 
 		appendToStringBuilder(sb, ")");
@@ -115,9 +118,9 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		return sb;
 	} else if (value->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
-		printValueToString(sb, getHeadInPair(getPairInValue(value)));
+		printValueToString(sb, getHeadInPair(value));
 		appendToStringBuilder(sb, " . ");
-		printValueToString(sb, getTailInPair(getPairInValue(value)));
+		printValueToString(sb, getTailInPair(value));
 		appendToStringBuilder(sb, ")");
 
 		return sb;
