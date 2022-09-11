@@ -84,7 +84,8 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		fprintf(stderr, "  Actual output: %s\n\n", actualOutput);
 	}
 
-	freeGlobalEnvironment(globalEnv); /* TODO: -> freeAllStructs(); */
+	/* freeGlobalEnvironment(globalEnv); / * TODO: -> freeAllStructs(); */
+	freeAllStructs();
 
 	/* mmFree(actualOutput); */
 
