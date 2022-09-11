@@ -285,7 +285,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			} else if (operand1Value->type != lispValueType_Closure) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure");
-			} else if (getArgsInClosure(getClosureInValue(operand1Value)) == NULL || getArgsInClosure(getClosureInValue(operand1Value))->next != NULL) {
+			} else if (getArgsInClosure(operand1Value) == NULL || getArgsInClosure(operand1Value)->next != NULL) {
 				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
@@ -306,7 +306,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* Now call the closure (operand1Value), passing in
 			the currentContinuation as the one and only parameter */
 
-			LISP_VALUE * result = evaluateClosureCall(getClosureInValue(operand1Value), createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
+			LISP_VALUE * result = evaluateClosureCall(operand1Value, createExpressionListElement(createExpressionFromValue(currentContinuation), NULL), env);
 
 			if (result->type == lispPseudoValueType_ContinuationReturn && getContinuationIdInValue(result) == getContinuationIdInValue(currentContinuation)) {
 				/* Unwrap the value inside */
@@ -508,7 +508,7 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 			return evaluatePrimitiveOperatorCall(callableValue->name, getActualParamExprsInFunctionCall(functionCall), env);
 
 		case lispValueType_Closure:
-			return evaluateClosureCall(getClosureInValue(callableValue), getActualParamExprsInFunctionCall(functionCall), env);
+			return evaluateClosureCall(callableValue, getActualParamExprsInFunctionCall(functionCall), env);
 
 		case lispPseudoValueType_Continuation:
 			/* There must be exactly one actual parameter */

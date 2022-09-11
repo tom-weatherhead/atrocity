@@ -280,7 +280,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 			return createPrimitiveOperator(getNameInValue(value));
 
 		case lispValueType_Closure:
-			return createClosure(getArgsInClosure(getClosureInValue(value)), getBodyInClosure(getClosureInValue(value)), getEnvInClosure(getClosureInValue(value)));
+			return createClosure(getArgsInClosure(value), getBodyInClosure(value), getEnvInClosure(value));
 
 		case lispValueType_Pair:
 			return createPair(getHeadInPair(value), getTailInPair(value));
