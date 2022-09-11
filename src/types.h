@@ -85,9 +85,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getExprListInExpr(e) ((e)->value1)
 /* #define getLambdaExprInExpr(e) ((e)->value1) */
-#define getLambdaExprInExpr(e) (e)
+/* #define getLambdaExprInExpr(e) (e) */
 /* #define getFunctionCallInExpr(e) ((e)->value1) */
-#define getFunctionCallInExpr(e) (e)
+/* #define getFunctionCallInExpr(e) (e) */
 #define getExprInExpr(e) ((e)->value2)
 #define getExpr2InExpr(e) ((e)->value1)
 #define getVarExprPairListInExpr(e) ((e)->value1)

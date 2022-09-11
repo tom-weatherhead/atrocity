@@ -714,10 +714,10 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 			return cloneValue(value);
 
 		case lispExpressionType_FunctionCall:
-			return evaluateFunctionCall(getFunctionCallInExpr(expr), env);
+			return evaluateFunctionCall(expr, env);
 
 		case lispExpressionType_LambdaExpr:
-			return evaluateLambdaExpression(getLambdaExprInExpr(expr), env);
+			return evaluateLambdaExpression(expr, env);
 
 		case lispExpressionType_SetExpr:
 			return evaluateSetExpression(expr, env);
