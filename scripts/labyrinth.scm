@@ -595,7 +595,7 @@
 	(reportProximityToJorge)
 
 	(print "AdjacentRooms")
-	(print (assoc room connections))
+	; (print (assoc room connections))
 
 	(printAdjacentRooms 0 (assoc room connections))
 )))

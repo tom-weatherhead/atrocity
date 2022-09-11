@@ -62,6 +62,8 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
 	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
+	SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, NULL };
+
 	for (;;) {
 		int cn = fgetc(fp);
 
@@ -105,8 +107,11 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 			LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
 
 			printValue(value);
-			/* collectGarbage(); */
 			printf("\n");
+
+			const int numFreed = collectGarbage(exprTreesToMark);
+
+			printf("gc: %d block(s) of memory freed.\n", numFreed);
 
 			memset(str, 0, bufSizeInBytes);
 			i = 0;
