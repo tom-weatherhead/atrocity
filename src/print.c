@@ -85,7 +85,6 @@ void printValue(LISP_VALUE * value) {
 	}
 }
 
-/* BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize) { */
 STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
 	/* Returns FALSE iff there is no more room to print in buf. */
 	/* TODO: Use a StringBuilder */
@@ -128,46 +127,6 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 	char * strContinuationReturn = "<contRtn>";
 	char * strClosure = "<closure>";
 	char * strInvalid = "<invalid value>";
-	/* const int maxPrintedIntegerLength = 10;
-	int lenToAppend = 0;
-
-	switch (value->type) {
-		case lispValueType_Number:
-			lenToAppend = maxPrintedIntegerLength;
-			break;
-
-		case lispValueType_PrimitiveOperator:
-		case lispValueType_String:
-		case lispValueType_Symbol:
-			lenToAppend = strlen(value->name);
-			break;
-
-		case lispValueType_Closure:
-			lenToAppend = strlen(strClosure);
-			break;
-
-		case lispValueType_Null:
-			lenToAppend = 2;
-			break;
-
-		case lispPseudoValueType_Continuation:
-			lenToAppend = strlen(strContinuation);
-			break;
-
-		case lispPseudoValueType_ContinuationReturn:
-			lenToAppend = strlen(strContinuationReturn);
-			break;
-
-		default:
-			lenToAppend = strlen(strInvalid);
-			break;
-	}
-
-	if (bufsize <= lenToAppend) {
-		printf("Returning FALSE");
-		*buf = '\0'; / * Null-terminate the string * /
-		return sb; / * FALSE; * /
-	} */
 
 	/* (listtostring '("abc" 123 "def")) -> TODO: BUG: Double quotes are not removed from string literals inside a (single-)quoted list */
 	char intSprintfBuffer[16];
