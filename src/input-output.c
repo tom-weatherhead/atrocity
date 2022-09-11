@@ -65,6 +65,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, NULL };
 
 	for (;;) {
+		/* TODO: Use appendLineFromFileToStringBuilder(sb, fp); */
 		int cn = fgetc(fp);
 
 		if (cn == EOF) {
@@ -168,6 +169,8 @@ void readEvalPrintLoop() {
 	for (i = 0; ; ++i) {
 		memset(buf, 0, bufsizeInBytes);
 		printf("%d > ", i);
+
+		/* TODO: Use appendLineFromFileToStringBuilder(sb, stdin); */
 
 		/* scanf("%s", buf); */ /* No. */
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */

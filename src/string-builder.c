@@ -42,4 +42,7 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 	return sb;
 }
 
+/* TODO:
+STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {} */
+
 /* **** The End **** */
