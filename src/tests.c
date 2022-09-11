@@ -62,7 +62,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		/* memset(actualOutput, 0, sizeOfActualOutput); */
 
 		/* valuePrintedSuccessfully = printValueToString(value, actualOutput, maxStringValueLength); */
-		STRING_BUILDER_TYPE * sb = printValueToString(NULL, value);
+		STRING_BUILDER_TYPE * sb = printValueToString(NULL, value, NULL, TRUE);
 
 		actualOutput = sb->name;
 

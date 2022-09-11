@@ -18,7 +18,7 @@
 /* Every expression can be evaluated to a value. */
 
 typedef struct SCHEME_UNIVERSAL_STRUCT {
-	/* Contains nine permanent members. */
+	/* Contains nine members. */
 
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -29,7 +29,6 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	int maxNameLength; /* Size (in chars) of the allocated buffer to which name points */
 	char * name; /* Or use the char name[1]; trick at the end of the struct? */
 
-	/* Pair */
 	struct SCHEME_UNIVERSAL_STRUCT * value1;
 	struct SCHEME_UNIVERSAL_STRUCT * value2;
 	struct SCHEME_UNIVERSAL_STRUCT * value3;

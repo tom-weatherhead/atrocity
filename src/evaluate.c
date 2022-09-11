@@ -248,6 +248,10 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			return getTailInPair(operand1Value);
 		} else if (!strcmp(op, "listtostring")) {
+			/* TODO? : Let listtostring take 1-3 params:
+			- The list
+			- separatorBetweenListItems (string)
+			- printBracketsAroundList (Boolean) */
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
@@ -257,7 +261,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list");
 			}
 
-			STRING_BUILDER_TYPE * sb = printValueToString(NULL, operand1Value);
+			STRING_BUILDER_TYPE * sb = printValueToString(NULL, operand1Value, NULL, FALSE);
 
 			return createStringValue(sb->name);
 		} else if (!strcmp(op, "throw")) {

@@ -428,13 +428,13 @@
 (set report (lambda () (begin
 	(mapcar (lambda (room1)
 		(mapcar (lambda (room2)
-			(print (listtostring (list "Room " room1 " is connected to Room " room2 ".")))
+			(print (listtostring (list "Room" room1 "is connected to Room" room2 ".")))
 		) (assoc room1 connections))
 	) rooms)
 
 	(cond
 		((= numberOfAttemptsToRefactor 1) (print "The labyrinth was refactored 1 time."))
-		((> numberOfAttemptsToRefactor 0) (print (listtostring (list "The labyrinth was refactored " numberOfAttemptsToRefactor " times."))))
+		((> numberOfAttemptsToRefactor 0) (print (listtostring (list "The labyrinth was refactored" numberOfAttemptsToRefactor "times."))))
 		('T '())
 	)
 
@@ -483,10 +483,10 @@
 		)
 		(begin
 			; (print (cons "Longest path: " longestPath))
-			(print (listtostring (list "The longest path contains " (length longestPath) " rooms.")))
+			(print (listtostring (list "The longest path contains" (length longestPath) "rooms.")))
 			(set roomGoal (car (reverse longestPath)))
-			; (print (listtostring (list "Aristotle's Second Book of the Poetics is in Room " roomGoal ".")))
-			(print (listtostring (list "The path from Room (0 0) to the goal contains " (length (findShortestPathBetweenRooms '(0 0) roomGoal)) " rooms.")))
+			; (print (listtostring (list "Aristotle's Second Book of the Poetics is in Room" roomGoal ".")))
+			(print (listtostring (list "The path from Room (0 0) to the goal contains" (length (findShortestPathBetweenRooms '(0 0) roomGoal)) "rooms.")))
 		)
 	)
 ))
@@ -560,7 +560,7 @@
 	(if (null? adjacentRooms)
 		'()
 		(begin
-			(print (listtostring (list n ": " (car adjacentRooms) (if (roomListContainsRoom visitedRooms (car adjacentRooms)) " Visited" ""))))
+			(print (listtostring (list n ":" (car adjacentRooms) (if (roomListContainsRoom visitedRooms (car adjacentRooms)) "Visited" ""))))
 			(printAdjacentRooms (+1 n) (cdr adjacentRooms))
 		)
 	)
@@ -570,7 +570,7 @@
 	; Move the player to the given room.
 	(set currentRoom room)
 	(set visitedRooms (addelt room visitedRooms))
-	(print (listtostring (list "You are in Room " room ".")))
+	(print (listtostring (list "You are in Room" room ".")))
 	(reportProximityToJorge)
 	(if (assoc-contains-key room booksInRooms)
 		(mapcar (lambda (book)
@@ -591,7 +591,7 @@
 	)
 	(set JorgesRoom (car JorgesPath))
 	(set JorgesPath (cdr JorgesPath))
-	; (print (listtostring (list "The Venerable Jorge is in Room " JorgesRoom ".")))
+	; (print (listtostring (list "The Venerable Jorge is in Room" JorgesRoom ".")))
 	(reportProximityToJorge)
 
 	(print "AdjacentRooms")

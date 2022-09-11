@@ -88,7 +88,7 @@ void printValue(LISP_VALUE * value) {
 /* TODO: Add params:
 - char * separatorBetweenListItems
 - BOOL printBracketsAroundList */
-STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
+STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value, char * separatorBetweenListItems, BOOL printBracketsAroundList) {
 	/* Returns FALSE iff there is no more room to print in buf. */
 	/* TODO: Use a StringBuilder */
 
@@ -99,28 +99,36 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		sb = createStringBuilder(0);
 	}
 
+	if (separatorBetweenListItems == NULL) {
+		separatorBetweenListItems = " ";
+	}
+
 	if (isList(value) && value->type != lispValueType_Null) {
 		char * separator = "";
 
-		appendToStringBuilder(sb, "(");
+		if (printBracketsAroundList) {
+			appendToStringBuilder(sb, "(");
+		}
 
 		while (value->type != lispValueType_Null) {
 			appendToStringBuilder(sb, separator);
 
-			printValueToString(sb, getHeadInPair(value));
+			printValueToString(sb, getHeadInPair(value), separatorBetweenListItems, TRUE);
 
-			separator = " ";
+			separator = separatorBetweenListItems;
 			value = getTailInPair(value);
 		}
 
-		appendToStringBuilder(sb, ")");
+		if (printBracketsAroundList) {
+			appendToStringBuilder(sb, ")");
+		}
 
 		return sb;
 	} else if (value->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
-		printValueToString(sb, getHeadInPair(value));
+		printValueToString(sb, getHeadInPair(value), separatorBetweenListItems, printBracketsAroundList);
 		appendToStringBuilder(sb, " . ");
-		printValueToString(sb, getTailInPair(value));
+		printValueToString(sb, getTailInPair(value), separatorBetweenListItems, printBracketsAroundList);
 		appendToStringBuilder(sb, ")");
 
 		return sb;
