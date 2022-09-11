@@ -274,11 +274,17 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			}
 
 			return result; */
+
+			STRING_BUILDER_TYPE * sb = printValueToString(NULL, operand1Value);
+
+			return createStringValue(sb->name);
+
+			/*
 			printf("listtostring was called:");
 			printValue(operand1Value);
 			printf("\n");
 
-			return globalNullValue;
+			return globalNullValue; */
 		} else if (!strcmp(op, "throw")) {
 			fprintf(stderr, "An exception has been thrown.\n");
 
