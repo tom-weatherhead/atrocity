@@ -257,34 +257,9 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list");
 			}
 
-			/* TODO: Use a StringBuilder */
-			/* LISP_VALUE * result = createUniversalStruct(
-				lispValueType_String,
-				0,
-				maxStringValueLength,
-				NULL,
-				NULL,
-				NULL,
-				NULL
-			);
-
-			if (!printValueToString(operand1Value, result->name, getNumCharsAllocatedToNameBufInValue(result))) {
-				fprintf(stderr, "evaluatePrimitiveOperatorCall() : listtostring : Destination string buffer overflow\n");
-				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Destination string buffer overflow");
-			}
-
-			return result; */
-
 			STRING_BUILDER_TYPE * sb = printValueToString(NULL, operand1Value);
 
 			return createStringValue(sb->name);
-
-			/*
-			printf("listtostring was called:");
-			printValue(operand1Value);
-			printf("\n");
-
-			return globalNullValue; */
 		} else if (!strcmp(op, "throw")) {
 			fprintf(stderr, "An exception has been thrown.\n");
 
