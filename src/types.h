@@ -105,13 +105,14 @@ enum {
 	lispValueType_Closure,
 	lispValueType_Pair,
 	lispValueType_Null, /* 6 */ /* TODO? Interpret the NULL pointer as a Null value? */
-	/* lispValueType_Thunk, -> A suspended computation; used to implement lazy evaluation in SASL */
+	lispValueType_Thunk, /* -> A suspended computation; used to implement lazy evaluation in SASL */
 	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
+	lispValueType_LastValue = lispPseudoValueType_ContinuationReturn,
 
-	lispExpressionType_Value,
-	lispExpressionType_Variable, /* 10 */
+	lispExpressionType_Value, /* 10 */
+	lispExpressionType_Variable,
 	lispExpressionType_LambdaExpr,
 	lispExpressionType_FunctionCall,
 	lispExpressionType_SetExpr,
@@ -120,24 +121,30 @@ enum {
 	lispExpressionType_Letrec,
 	lispExpressionType_Begin,
 	lispExpressionType_While,
-	lispExpressionType_Cons,
-	lispExpressionType_Cond, /* 20 */
+	lispExpressionType_Cons, /* 20 */
+	lispExpressionType_Cond,
 	lispExpressionType_Car,
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
 
-	schemeStructType_Environment, /* 24 */
+	schemeStructType_Environment, /* 25 */
 	schemeStructType_ExpressionListElement,
 	schemeStructType_ExpressionPairListElement,
 	/* schemeStructType_FunctionCall,
 	schemeStructType_LambdaExpr, */
-	schemeStructType_NameValueListElement, /* 27 */
+	schemeStructType_NameValueListElement, /* 28 */
 	schemeStructType_VariableListElement,
-	schemeStructType_VariableExpressionPairListElement,
+	schemeStructType_VariableExpressionPairListElement, /* 30 */
 
 	stringBuilderType
 };
 
-#define failIf(b, str) if (b) { fprintf(stderr, "Fatal error '%s' in file %s at line %d\n", str, __FILE__, __LINE__); exit(1); }
+void fail(char * str, char * file, int line);
+
+/* #define failIf(b, str) if (b) { fprintf(stderr, "Fatal error '%s' in file %s at line %d\n", str, __FILE__, __LINE__); exit(1); } */
+
+#define failIf(b, str) if (b) { fail(str, __FILE__, __LINE__); }
+
+#define fatalError(str) fail(str, __FILE__, __LINE__)
 
 /* **** The End **** */

@@ -20,6 +20,16 @@ stringtolist ?
 stringtosymbol ?
 */
 
+/* TODO: Implement lazy evaluation via thunks (suspended computations) :
+
+Expressions that have already been evaluated do not need to be 'thunked';
+nothing would be gained by suspending a computation that is just an identity fn
+
+- createThunk(expr, env) and/or exprToValueOrThunk(expr, env)
+- dethunk(expr)
+
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

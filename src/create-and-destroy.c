@@ -240,6 +240,18 @@ LISP_VALUE * createNull() {
 	);
 }
 
+LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env) {
+	return createUniversalStruct(
+		lispValueType_Thunk,
+		0,
+		0,
+		NULL,
+		body,
+		env,
+		NULL
+	);
+}
+
 LISP_VALUE * createContinuation(int id) {
 	return createUniversalStruct(
 		lispPseudoValueType_Continuation,

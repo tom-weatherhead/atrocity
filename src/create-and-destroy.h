@@ -14,6 +14,7 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail);
 LISP_VALUE * createPrimitiveOperator(char * value);
 LISP_VALUE * createStringValue(char * value);
 LISP_VALUE * createSymbolValue(char * value);
+LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env);
 
 LISP_VALUE * cloneValue(LISP_VALUE * value);
 
