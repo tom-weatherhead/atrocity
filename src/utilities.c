@@ -78,12 +78,6 @@ BOOL isStringInList(char * str, char * list[]) {
 	return FALSE;
 }
 
-/*
-void fatalError(char * str) {
-	fprintf(stderr, "\nFatal error: '%s'\nAborting the program...\n", str);
-	exit(1);
-}
-*/
 void fail(char * str, char * file, int line) {
 	fprintf(stderr, "\nFatal error '%s' in file %s at line %d\n", str, file, line);
 	exit(1);

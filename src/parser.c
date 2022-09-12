@@ -50,7 +50,6 @@ static LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 	char dstBuf[dstBufSize];
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "parseVariableList() : Error : Expected ), found EOF\n");
 		fatalError("parseVariableList() : Expected ), found EOF");
 	} else if (!strcmp(dstBuf, ")")) {
 		return NULL; /* End of list */
@@ -88,13 +87,10 @@ static LISP_EXPR * parseSetExpression(CharSource * cs) {
 	/* Parse variable */
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected variable, found EOF\n");
 		fatalError("parseSetExpression() : Expected variable, found EOF");
 	} else if (!strcmp(dstBuf, "(")) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected variable, found '('\n");
 		fatalError("parseSetExpression() : Expected variable, found '('");
 	} else if (!strcmp(dstBuf, ")")) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected variable, found ')'\n");
 		fatalError("parseSetExpression() : Expected variable, found ')'");
 	}
 
@@ -104,7 +100,6 @@ static LISP_EXPR * parseSetExpression(CharSource * cs) {
 	LISP_EXPR * expr = parseExpression(cs);
 
 	if (!consumeStr(cs, ")")) {
-		fprintf(stderr, "parseSetExpression() : Error : Expected ')'\n");
 		fatalError("parseSetExpression() : Expected ')'");
 	}
 
@@ -116,7 +111,6 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 	char dstBuf[dstBufSize];
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "parseVarExpressionPairList() : Error : Expected ( or ), found EOF\n");
 		fatalError("parseVarExpressionPairList() : Expected ( or ), found EOF");
 	} else if (!strcmp(dstBuf, ")")) {
 		return NULL; /* The end of the list */
@@ -126,7 +120,6 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 	}
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "parseVarExpressionPairList() : Error : Expected variable, found EOF\n");
 		fatalError("parseVarExpressionPairList() : Expected variable, found EOF");
 	}
 
@@ -181,7 +174,6 @@ static LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 	char dstBuf[dstBufSize];
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found EOF\n");
 		fatalError("parseExpressionPairList() : Error : Expected ( or ), found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, ")")) {
@@ -219,7 +211,6 @@ static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 	/* 'if' is currently handled as a primop */
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "parseBracketedExpression() : Error : Expected an expression or keyword, found EOF\n");
 		fatalError("parseBracketedExpression() : Error : Expected an expression or keyword, found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, "lambda")) {
@@ -255,7 +246,6 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 	const int c = getNextChar(cs);
 
 	if (c == EOF) {
-		fprintf(stderr, "parseExpressionList() : Error : Expected an expression list, found EOF\n");
 		fatalError("parseExpressionList() : Error : Expected an expression list, found EOF");
 		return NULL;
 	}
@@ -279,7 +269,6 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 	int dstBufAsInt = 0;
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "createQuotedValue() : Error : Expected a literal value, found EOF\n");
 		fatalError("createQuotedValue() : Error : Expected a literal value, found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, "(")) {
@@ -297,7 +286,6 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 	char dstBuf[dstBufSize];
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
-		fprintf(stderr, "createQuotedList() : Error : Expected a literal value, found EOF\n");
 		fatalError("createQuotedList() : Error : Expected a literal value, found EOF");
 		return NULL;
 	} else if (!strcmp(dstBuf, ")")) {
@@ -322,7 +310,6 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 	BOOL isSingleQuoted = FALSE;
 
 	if (getIdentifier(cs, dstBuf, dstBufSize, &isSingleQuoted) == 0) {
-		fprintf(stderr, "parseExpression() : Error : Expected an expression, found EOF\n");
 		fatalError("parseExpression() : Expected an expression, found EOF");
 		return NULL;
 	}

@@ -1,17 +1,11 @@
 /* atrocity/src/thunk.c */
 
 #include <stdlib.h>
-#include <stdio.h>
-/* #include <string.h> */
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
 #include "create-and-destroy.h"
 #include "evaluate.h"
-/* #include "memory-manager.h"
-#include "utilities.h" */
 
 static BOOL isValueOrThunk(LISP_EXPR * expr) {
 	return expr->type <= lispValueType_LastValue;

@@ -137,7 +137,6 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize, BOOL * pIsSing
 	}
 
 	if (isString && !isStringClosed) {
-		fprintf(stderr, "getIdentifier() : String opened but not closed\n");
 		fatalError("getIdentifier() : String opened but not closed");
 		return 0;
 	}

@@ -140,11 +140,6 @@ LISP_VALUE * createStringValue(char * str) {
 		--len;
 	}
 
-	/* if (len >= maxStringValueLength) {
-		fprintf(stderr, "The string '%s' is too long to be a string value.", str);
-		fatalError("createStringValue() : String too long");
-	} */
-
 	SCHEME_UNIVERSAL_TYPE * result = allocateStringAndCreateUniversalStruct(
 		lispValueType_String,
 		0,
@@ -161,12 +156,6 @@ LISP_VALUE * createStringValue(char * str) {
 }
 
 LISP_VALUE * createSymbolValue(char * value) {
-
-	/* if (strlen(value) >= maxStringValueLength) {
-		fprintf(stderr, "The string '%s' is too long to be a symbol value.", value);
-		fatalError("createSymbolValue() : String too long");
-	} */
-
 	return allocateStringAndCreateUniversalStruct(
 		lispValueType_Symbol,
 		0,
@@ -396,10 +385,6 @@ LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR
 
 LISP_VAR * createVariable(char * name) {
 
-	/* if (strlen(name) >= maxStringValueLength - 1) {
-		fprintf(stderr, "createVariable() : The name '%s' is too long.\n", name);
-		fatalError("createVariable() : String too long");
-	} else */
 	/* Ensure that name does not contain ( or ) */
 	if (strchr(name, '(') != NULL || strchr(name, ')')) {
 		fprintf(stderr, "createVariable() : The name '%s' contains an illegal character: '(' or ')'.\n", name);

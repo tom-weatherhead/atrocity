@@ -118,11 +118,7 @@ static void testStringBuilder() {
 	printf("sb->maxNameLength is %d\n", sb->maxNameLength);
 	failIf(sb->maxNameLength != 32, "sb->maxNameLength != 32");
 
-	/* failIf(, "");
-	failIf(, "");
-	failIf(, "");
-	failIf(, "");
-	failIf(, ""); */
+	/* failIf(, ""); */
 
 	printf("testStringBuilder() : END\n");
 }
