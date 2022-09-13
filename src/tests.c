@@ -321,6 +321,8 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 		['(func2 0)', '1']
 	]);
 });
+
+	TODO: Test the association list functions: assoc, assoc-contains-key, and especially rplac-assoc
 	*/
 
 	/* SASL infinite list test */
