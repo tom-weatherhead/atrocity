@@ -180,7 +180,7 @@ static LISP_VALUE * listOfValuesToListValue(SCHEME_UNIVERSAL_TYPE * listOfValues
 }
 
 static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	printf("evaluatePrimitiveOperatorCall: op is %s\n", op);
+	/* printf("evaluatePrimitiveOperatorCall: op is %s\n", op); */
 
 	LISP_VALUE * result = NULL;
 
@@ -253,7 +253,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	if (evaluatedArguments != NULL && evaluatedArguments->next == NULL && (!strcmp(op, "car") || !strcmp(op, "cdr"))) {
 		LISP_VALUE * pair = getValueInValueListElement(evaluatedArguments);
 
-		printf("evaluatePrimpOp: car or cdr: pair->type is %d\n", pair->type);
+		/* printf("evaluatePrimpOp: car or cdr: pair->type is %d\n", pair->type); */
 
 		failIf(pair->type != lispValueType_Pair, "evaluatePrimpOp: Was expecting a pair for car or cdr");
 
@@ -578,9 +578,9 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 			return value;
 		}
 
-		printf("Closure call: Binding name '%s' to value ", np->name);
+		/* printf("Closure call: Binding name '%s' to value ", np->name);
 		printValue(value);
-		printf("\n");
+		printf("\n"); */
 
 		/* if (!strcmp(np->name, "newLevel")) {
 			exit(1);
@@ -714,14 +714,14 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(env);
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList = getVarExprPairListInExpr(expr);
 
-	printf("evaluateLetrecExpression: Begin\n");
+	/* printf("evaluateLetrecExpression: Begin\n"); */
 
 	for (; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
 		/* Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop. */
 		addNameToEnvironment(newEnv, varExprPairList->name, globalNullValue);
 	}
 
-	printf("evaluateLetrecExpression: Done first part\n");
+	/* printf("evaluateLetrecExpression: Done first part\n"); */
 
 	for (varExprPairList = getVarExprPairListInExpr(expr); varExprPairList != NULL; varExprPairList = varExprPairList->next) {
 		LISP_VALUE * value = evaluate(getExprInVarExprPairListElement(varExprPairList), newEnv);
@@ -736,30 +736,30 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		updateNameIfFoundInNameValueList(newEnv->value1, varExprPairList->name, value);
 	}
 
-	printf("evaluateLetrecExpression: Done second part\n");
+	/* printf("evaluateLetrecExpression: Done second part\n");
 
-	printf("evaluateLetrecExpression: expr->type is %d\n", expr->type);
+	printf("evaluateLetrecExpression: expr->type is %d\n", expr->type); */
 
 	LISP_EXPR * exprInExpr = getExprInExpr(expr);
 
-	printf("evaluateLetrecExpression: exprInExpr->type is %d\n", exprInExpr->type);
+	/* printf("evaluateLetrecExpression: exprInExpr->type is %d\n", exprInExpr->type);
 
 	if (exprInExpr->type == lispExpressionType_FunctionCall) {
 		printf("**** Crash for FunctionCall?\n");
-	}
+	} */
 
 	LISP_VALUE * result = evaluate(exprInExpr, newEnv);
 
-	if (exprInExpr->type == lispExpressionType_FunctionCall) {
+	/* if (exprInExpr->type == lispExpressionType_FunctionCall) {
 		printf("**** No crash for FunctionCall\n");
 	}
 
-	printf("evaluateLetrecExpression: result->type is %d\n", result->type);
+	printf("evaluateLetrecExpression: result->type is %d\n", result->type); */
 
 	failIf(result == NULL, "evaluateLetrecExpression 2a: result is NULL");
 	failIf(result->type == lispValueType_Thunk, "evaluateLetrecExpression 2b: result is a thunk");
 
-	printf("evaluateLetrecExpression: Done\n");
+	/* printf("evaluateLetrecExpression: Done\n"); */
 
 	return result;
 }

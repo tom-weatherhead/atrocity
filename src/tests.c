@@ -66,6 +66,10 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 
 		actualOutput = sb->name;
 
+		printf("multitest: Input: %s\n", input);
+		printf("  Expected output: %s\n", expectedOutput);
+		printf("  Actual output: %s\n", actualOutput);
+
 		/* Note bene: freeClosure is currently mostly disabled to avoid
 		 * double-freeing things. We must fix this. */
 		/* freeValue(value); */
@@ -318,6 +322,36 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 	]);
 });
 	*/
+
+	/* SASL infinite list test */
+	printf("SASL infinite list test: BEGIN\n");
+
+	char * inputsSaslInfiniteList[] = {
+		"(set! +1 (lambda (n) (+ n 1)))",
+		"(set! ints-from (lambda (i) (cons i (ints-from (+1 i)))))",
+		"(set! ints (ints-from 0))",
+		"ints",
+		"(car ints)",
+		"ints",
+		"(car (cdr ints))",
+		"ints",
+		NULL
+	};
+	char * expectedResultsSaslInfiniteList[] = {
+		"<closure>",
+		"<closure>",
+		"(<thunk> . <thunk>)",
+		"(<thunk> . <thunk>)",
+		"0",
+		"(0 . <thunk>)",
+		"1",
+		"(0 . (1 . <thunk>))",
+		NULL
+	};
+
+	multitest(inputsSaslInfiniteList, expectedResultsSaslInfiniteList);
+
+	printf("SASL infinite list test: END\n");
 
 	/* testGetIdentifier("abc (def weatherhead) ghi");
 	testGetIdentifier("(+1 7)");
