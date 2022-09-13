@@ -1,0 +1,15 @@
+version: '2.1'
+orbs:
+  node: circleci/buildpack-deps:bionic-scm-browsers-legacy
+jobs:
+  test:
+    steps:
+      - checkout
+      - run: cd src
+      - run: make clean
+      - run: make
+      - run: ./atrocity -t
+workflows:
+  test_my_app:
+    jobs:
+      - test
