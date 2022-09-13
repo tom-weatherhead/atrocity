@@ -46,6 +46,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
 #define LISP_VALUE SCHEME_UNIVERSAL_TYPE
+#define LISP_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
@@ -72,6 +73,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getExprInPairListElement(ple) ((ple)->value1)
 #define getExpr2InPairListElement(ple) ((ple)->value2)
+
+#define getValueInValueListElement(vle) ((vle)->value1)
 
 #define getExprInVarExprPairListElement(veple) ((veple)->value1)
 
@@ -135,6 +138,7 @@ enum {
 	schemeStructType_NameValueListElement, /* 28 */
 	schemeStructType_VariableListElement,
 	schemeStructType_VariableExpressionPairListElement, /* 30 */
+	schemeStructType_ValueListElement,
 
 	stringBuilderType
 };

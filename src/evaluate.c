@@ -14,6 +14,7 @@
 #include "environment.h"
 #include "evaluate.h"
 #include "print.h"
+#include "thunk.h"
 #include "utilities.h"
 
 /* External constants / variables */
@@ -44,8 +45,10 @@ static LISP_VALUE * booleanToClonedValue(int b) {
 	return cloneValue(b ? globalTrueValue : globalNullValue);
 }
 
-static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int lispValueType) {
-	LISP_VALUE * operandValue = evaluate(operandExpr, env);
+/* static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int lispValueType) {
+	LISP_VALUE * operandValue = evaluate(operandExpr, env); */
+static LISP_VALUE * evaluateAndCompareType(LISP_VALUE * operandValue, LISP_ENV * env, int lispValueType) {
+	failIf(operandValue->type == lispValueType_Thunk, "evaluateAndCompareType() : operandValue is a thunk");
 
 	if (operandValue->type == lispPseudoValueType_ContinuationReturn) {
 		return operandValue;
@@ -57,6 +60,11 @@ static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * e
 }
 
 static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
+	dethunk(v1);
+	dethunk(v2);
+
+	failIf(v1->type == lispValueType_Thunk, "areValuesEqual() : v1 is a thunk");
+	failIf(v2->type == lispValueType_Thunk, "areValuesEqual() : v2 is a thunk");
 
 	if (v1->type != v2->type) {
 		return FALSE;
@@ -88,7 +96,7 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 	return FALSE;
 }
 
-static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_ENV * env) {
+/* static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_ENV * env) {
 
 	if (exprList == NULL) {
 		return createNull();
@@ -107,7 +115,7 @@ static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_
 	}
 
 	return createPair(head, tail);
-}
+} */
 
 static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * value = evaluate(expr, env);
@@ -159,13 +167,109 @@ static LISP_VALUE * evaluateDoubleQuestionMark(LISP_EXPR_LIST_ELEMENT * actualPa
 	return globalNullValue;
 }
 
+static LISP_VALUE * listOfValuesToListValue(SCHEME_UNIVERSAL_TYPE * listOfValuesOrThunks) {
+
+	if (listOfValuesOrThunks == NULL) {
+		return createNull();
+	}
+
+	/* TEMP:
+	return createPair(getValueInValueListElement(listOfValuesOrThunks), listOfValuesToListValue(listOfValuesOrThunks->next)); */
+
+	return createPair(dethunk(getValueInValueListElement(listOfValuesOrThunks)), listOfValuesToListValue(listOfValuesOrThunks->next));
+}
+
 static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+	printf("evaluatePrimitiveOperatorCall: op is %s\n", op);
+
 	LISP_VALUE * result = NULL;
 
-	/* BEGIN : These primops can take any number of args, including zero. */
+	/* BEGIN Thunk support */
+
+	LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks = exprListToListOfValuesOrThunks(actualParamExprs, env);
+
+	/* Handle cond, cons, if, list: */
+
+	/* if (!strcmp(op, "cond")) {
+	} else */ if (!strcmp(op, "cons") && listOfValuesOrThunks != NULL && listOfValuesOrThunks->next != NULL && listOfValuesOrThunks->next->next == NULL) {
+		return createPair(getValueInValueListElement(listOfValuesOrThunks), getValueInValueListElement(listOfValuesOrThunks->next));
+	} else if (!strcmp(op, "if") && listOfValuesOrThunks != NULL && listOfValuesOrThunks->next != NULL && listOfValuesOrThunks->next->next != NULL && listOfValuesOrThunks->next->next->next == NULL) {
+		LISP_VALUE * operand1Value = dethunk(getValueInValueListElement(listOfValuesOrThunks));
+
+		if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
+			return operand1Value;
+		}
+
+		LISP_VALUE * operand2Thunk = getValueInValueListElement(listOfValuesOrThunks->next);
+		LISP_VALUE * operand3Thunk = getValueInValueListElement(listOfValuesOrThunks->next->next);
+
+		return dethunk(operand1Value->type != lispValueType_Null ? operand2Thunk : operand3Thunk);
+	} else if (!strcmp(op, "list")) {
+		return listOfValuesToListValue(listOfValuesOrThunks);
+	}
+
+	/* switch (this.name.value) {
+		case 'cons':
+			return new SExpressionList(argumentsAsSExpressions[0], argumentsAsSExpressions[1]);
+			-> return createPair(listOfValuesOrThunks->value1, listOfValuesOrThunks->next->value1);
+
+		case 'list':
+			return SExpressionList.makeFromList(argumentsAsSExpressions);
+			-> return listOfValuesToListValue(listOfValuesOrThunks);
+
+		case 'if':
+			return this.executeIf(argumentsAsSExpressions, globalInfo as SASLGlobalInfo);
+			->
+			if (!strcmp(op, "if") && actualParamExprs->next->next != NULL && getExprInExprList(actualParamExprs->next->next) != NULL) {
+				LISP_EXPR * operand3Expr = getExprInExprList(actualParamExprs->next->next);
+				LISP_VALUE * operand1Value = dethunk(operand1Expr);
+
+				if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
+					return operand1Value;
+				}
+
+				return dethunk(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr);
+			}
+
+		case 'cond':
+			return this.executeCond(argumentsAsSExpressions, globalInfo);
+
+		default:
+			break;
+	}
+
+	*/
+
+	/* Dethunk: */
+	/* const evaluatedArguments = argumentsAsSExpressions.map((sexpr) =>
+		isThunk(sexpr) ? sexpr.dethunk(globalInfo) : sexpr
+	);
+	*/
+	LISP_VALUE_LIST_ELEMENT * evaluatedArguments = dethunkList(listOfValuesOrThunks);
+
+	/* Handle car, cdr:
+	- car: Return the dethunked head of arg 0
+	- cdr: Return the dethunked tail of arg 0 */
+	if (evaluatedArguments != NULL && evaluatedArguments->next == NULL && (!strcmp(op, "car") || !strcmp(op, "cdr"))) {
+		LISP_VALUE * pair = getValueInValueListElement(evaluatedArguments);
+
+		printf("evaluatePrimpOp: car or cdr: pair->type is %d\n", pair->type);
+
+		failIf(pair->type != lispValueType_Pair, "evaluatePrimpOp: Was expecting a pair for car or cdr");
+
+		if (!strcmp(op, "car")) {
+			return dethunk(getHeadInPair(pair));
+		} else /* if (!strcmp(op, "cdr")) */ {
+			return dethunk(getTailInPair(pair));
+		}
+	}
+
+	/* END Thunk support */
+
+	/* BEGIN : These primops can take any number of args, including zero. * /
 	if (!strcmp(op, "list")) {
 		return exprListToListValue(actualParamExprs, env);
-	} else if (!strcmp(op, "and")) {
+	} else */ if (!strcmp(op, "and")) {
 		return evaluateAnd(actualParamExprs, env);
 	} else if (!strcmp(op, "or")) {
 		return evaluateOr(actualParamExprs, env);
@@ -174,33 +278,36 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	}
 	/* END : These primops can take any number of args, including zero. */
 
-	if (actualParamExprs != NULL && getExprInExprList(actualParamExprs) != NULL) {
-		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);
+	/* if (actualParamExprs != NULL && getExprInExprList(actualParamExprs) != NULL) { */
+	if (evaluatedArguments != NULL && getValueInValueListElement(evaluatedArguments) != NULL) {
+		/* LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs); */
+		LISP_VALUE * operand1Value = getValueInValueListElement(evaluatedArguments);
 
 		/* BEGIN : Value type predicates */
 		if (!strcmp(op, "null?")) {
-			return evaluateAndCompareType(operand1Expr, env, lispValueType_Null);
+			failIf(operand1Value->type == lispValueType_Thunk, "null? : operand1 is a thunk");
+			return evaluateAndCompareType(operand1Value, env, lispValueType_Null);
 		} else if (!strcmp(op, "number?")) {
-			return evaluateAndCompareType(operand1Expr, env, lispValueType_Number);
+			return evaluateAndCompareType(operand1Value, env, lispValueType_Number);
 		} else if (!strcmp(op, "string?")) {
-			return evaluateAndCompareType(operand1Expr, env, lispValueType_String);
+			return evaluateAndCompareType(operand1Value, env, lispValueType_String);
 		} else if (!strcmp(op, "symbol?")) {
-			return evaluateAndCompareType(operand1Expr, env, lispValueType_Symbol);
+			return evaluateAndCompareType(operand1Value, env, lispValueType_Symbol);
 		} else if (!strcmp(op, "pair?")) {
-			return evaluateAndCompareType(operand1Expr, env, lispValueType_Pair);
+			return evaluateAndCompareType(operand1Value, env, lispValueType_Pair);
 		} else if (!strcmp(op, "list?")) {
 			/* Note the difference between a pair and a list.
 			The set of lists is a proper subset of the set of pairs.
 			E.g. (cons 1 2) = (1 . 2) is a pair, but not a list. */
-			return booleanToClonedValue(isList(evaluate(operand1Expr, env)));
+			return booleanToClonedValue(isList(operand1Value));
 		} else if (!strcmp(op, "primop?")) {
-			return evaluateAndCompareType(operand1Expr, env, lispValueType_PrimitiveOperator);
+			return evaluateAndCompareType(operand1Value, env, lispValueType_PrimitiveOperator);
 		} else if (!strcmp(op, "closure?")) {
-			return evaluateAndCompareType(operand1Expr, env, lispValueType_Closure);
+			return evaluateAndCompareType(operand1Value, env, lispValueType_Closure);
 		}
 		/* END : Value type predicates */
 		else if (!strcmp(op, "print")) {
-			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			printValue(operand1Value);
 			printf("\n");
@@ -209,7 +316,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			return operand1Value;
 		} else if (!strcmp(op, "random")) {
-			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
@@ -223,7 +330,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			}
 
 			return createNumericValue(rand() % getIntegerValueInValue(operand1Value));
-		} else if (!strcmp(op, "car")) {
+		} else /* if (!strcmp(op, "car")) {
 			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
@@ -247,17 +354,16 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			}
 
 			return getTailInPair(operand1Value);
-		} else if (!strcmp(op, "listtostring")) {
+		} else */ if (!strcmp(op, "listtostring")) {
 			/* TODO? : Let listtostring take 1-3 params:
 			- The list
 			- separatorBetweenListItems (string)
 			- printBracketsAroundList (Boolean) */
-			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
 			} else if (!isList(operand1Value)) {
-				fprintf(stderr, "evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list\n");
 				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list");
 			}
 
@@ -267,7 +373,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		} else if (!strcmp(op, "throw")) {
 			fprintf(stderr, "An exception has been thrown.\n");
 
-			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
@@ -279,7 +385,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		} else if (!strcmp(op, "call/cc")) {
 			/* Call with current continuation */
 			/* The arg must be a lambda expr that takes exactly one arg. */
-			LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			/* Remember: Evaluating a lambda expression results in a closure.
 			This is different from calling a closure. */
@@ -287,24 +393,11 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
 			} else if (operand1Value->type != lispValueType_Closure) {
-				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Operand is not a closure");
 			} else if (getArgsInClosure(operand1Value) == NULL || getArgsInClosure(operand1Value)->next != NULL) {
-				fprintf(stderr, "evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument\n");
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
 
-			/* SCHEME_UNIVERSAL_TYPE * currentContinuation = createUniversalStruct(
-				lispPseudoValueType_Continuation,
-				nextContinuationId,
-				0,
-				NULL,
-				NULL,
-				NULL,
-				NULL
-			);
-
-			nextContinuationId++; */
 			SCHEME_UNIVERSAL_TYPE * currentContinuation = createContinuation(nextContinuationId++);
 
 			/* Now call the closure (operand1Value), passing in
@@ -321,17 +414,19 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			return result;
 		}
 
-		if (actualParamExprs->next != NULL && getExprInExprList(actualParamExprs->next) != NULL) {
-			LISP_EXPR * operand2Expr = getExprInExprList(actualParamExprs->next);
+		/* if (actualParamExprs->next != NULL && getExprInExprList(actualParamExprs->next) != NULL) {
+			LISP_EXPR * operand2Expr = getExprInExprList(actualParamExprs->next); */
+		if (evaluatedArguments->next != NULL && getValueInValueListElement(evaluatedArguments->next) != NULL) {
+			LISP_VALUE * operand2Value = getValueInValueListElement(evaluatedArguments->next);
 
 			if (isStringInList(op, twoArgumentPrimops)) {
-				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+				/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 				if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 					return operand1Value;
 				}
 
-				LISP_VALUE * operand2Value = evaluate(operand2Expr, env);
+				/* LISP_VALUE * operand2Value = evaluate(operand2Expr, env); */
 
 				if (operand2Value->type == lispPseudoValueType_ContinuationReturn) {
 					return operand2Value;
@@ -380,10 +475,10 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));
-				} else if (!strcmp(op, "cons")) {
-					/* Return without freeing the values */
+				} else /* if (!strcmp(op, "cons")) {
+					/ * Return without freeing the values * /
 					return createPair(operand1Value, operand2Value);
-				} else if (!strcmp(op, "rplaca")) {
+				} else */ if (!strcmp(op, "rplaca")) {
 
 					if (operand1Value->type != lispValueType_Pair) {
 						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair; type %d\n", operand1Value->type);
@@ -415,19 +510,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					} else if (!strcmp(op, "*")) {
 						result = createNumericValue(operand1 * operand2);
 					} else if (!strcmp(op, "/")) {
+						failIf(operand2 == 0, "Division by zero error");
 
-						if (operand2 == 0) {
-							fprintf(stderr, "Division by zero error\n");
-						} else {
-							result = createNumericValue(operand1 / operand2);
-						}
+						result = createNumericValue(operand1 / operand2);
 					} else if (!strcmp(op, "%")) {
+						failIf(operand2 == 0, "Modulus by zero error");
 
-						if (operand2 == 0) {
-							fprintf(stderr, "Modulus by zero error\n");
-						} else {
-							result = createNumericValue(operand1 % operand2);
-						}
+						result = createNumericValue(operand1 % operand2);
 					} else if (!strcmp(op, "<")) {
 						result = booleanToClonedValue(operand1 < operand2);
 					} else if (!strcmp(op, ">")) {
@@ -445,7 +534,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* If it is non-null, then evaluate and return the second operand. */
 			/* Else evaluate and return the third operand. */
 
-			if (!strcmp(op, "if") && actualParamExprs->next->next != NULL && getExprInExprList(actualParamExprs->next->next) != NULL) {
+			/* if (!strcmp(op, "if") && actualParamExprs->next->next != NULL && getExprInExprList(actualParamExprs->next->next) != NULL) {
 				LISP_EXPR * operand3Expr = getExprInExprList(actualParamExprs->next->next);
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -454,14 +543,19 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				}
 
 				result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
-			}
+			} */
 		}
 	}
+
+	failIf(result == NULL, "evaluatePrimOp was about to return NULL");
+	failIf(result->type == lispValueType_Thunk, "evaluatePrimOp was about to return a thunk");
 
 	return result;
 }
 
 static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+	/* TODO? : Deal with thunks? */
+
 	LISP_ENV * newEnv = createEnvironment(getEnvInClosure(closure));
 
 	LISP_VAR_LIST_ELEMENT * np = getArgsInClosure(closure); /* closure->args; */
@@ -471,7 +565,6 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 		if (np == NULL || ep == NULL) {
 			/* The formal and actual parameter lists have different lengths. */
-			fprintf(stderr, "evaluateClosureCall() : The formal and actual parameter lists have different lengths.\n");
 			/* freeEnvironment(newEnv); */
 			fatalError("evaluateClosureCall() : The formal and actual parameter lists have different lengths.");
 			return NULL;
@@ -485,9 +578,15 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 			return value;
 		}
 
-		/* newEnv->value1 = createNameValueListElement(np->name, value, newEnv->value1); */
+		printf("Closure call: Binding name '%s' to value ", np->name);
+		printValue(value);
+		printf("\n");
+
+		/* if (!strcmp(np->name, "newLevel")) {
+			exit(1);
+		} */
+
 		addNameToEnvironment(newEnv, np->name, value);
-		/* freeValue(value); */
 		np = np->next;
 		ep = ep->next;
 	}
@@ -502,6 +601,11 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
 	LISP_VALUE * callableValue = evaluate(getFirstExprInFunctionCall(functionCall), env);
+
+	failIf(callableValue == NULL, "evaluateFunctionCall: callableValue is NULL");
+	failIf(callableValue->type == lispValueType_Thunk, "evaluateFunctionCall: callableValue is a thunk");
+
+	/* printf("evaluateFunctionCall: callableValue->type is %d\n", callableValue->type); */
 
 	if (callableValue->type == lispPseudoValueType_ContinuationReturn) {
 		return callableValue;
@@ -518,7 +622,6 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 			/* There must be exactly one actual parameter */
 
 			if (getActualParamExprsInFunctionCall(functionCall) == NULL || getActualParamExprsInFunctionCall(functionCall)->next != NULL) {
-				fprintf(stderr, "evaluateFunctionCall() : Bad number of parameters (!= 1) when calling a continuation\n");
 				fatalError("evaluateFunctionCall() : Bad number of parameters (!= 1) when calling a continuation");
 				return NULL;
 			}
@@ -529,19 +632,9 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 				return actualParamValue;
 			}
 
-			/* return createUniversalStruct(
-				lispPseudoValueType_ContinuationReturn,
-				getContinuationIdInValue(callableValue),
-				0,
-				NULL,
-				actualParamValue,
-				NULL,
-				NULL
-			); */
 			return createContinuationReturn(getContinuationIdInValue(callableValue), actualParamValue);
 
 		default:
-			fprintf(stderr, "evaluateFunctionCall() : Attempted to call an uncallable value\n");
 			fatalError("evaluateFunctionCall() : Attempted to call an uncallable value");
 			return NULL;
 	}
@@ -554,7 +647,6 @@ static LISP_VALUE * evaluateLambdaExpression(LISP_LAMBDA_EXPR * lambdaExpr, LISP
 static LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 
 	if (setExpr->type != lispExpressionType_SetExpr) {
-		fprintf(stderr, "evaluateSetExpression() : Expression is not a Set expression\n");
 		fatalError("evaluateSetExpression() : Expression is not a Set expression");
 		return NULL;
 	}
@@ -572,7 +664,8 @@ static LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 }
 
 static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
-	LISP_ENV * newEnv = createEnvironment(NULL);
+	/* LISP_ENV * newEnv = createEnvironment(NULL); */
+	LISP_ENV * newEnv = createEnvironment(env);
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList;
 
 	for (varExprPairList = getVarExprPairListInExpr(expr); varExprPairList != NULL; varExprPairList = varExprPairList->next) {
@@ -584,16 +677,14 @@ static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 		/* Note: This constructs the list in reverse order... */
 		/* TODO: Implement this using recursion instead. */
-		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
-		/* newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1); */
 		addNameToEnvironment(newEnv, varExprPairList->name, value);
 	}
 
-	newEnv->next = env;
+	/* newEnv->next = env; */
 
 	LISP_VALUE * result = evaluate(getExprInExpr(expr), newEnv);
 
-	newEnv->next = NULL;
+	/* newEnv->next = NULL; */ /* BUG FIX? 2022-09-12 */
 
 	return result;
 }
@@ -623,13 +714,20 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_ENV * newEnv = createEnvironment(env);
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList = getVarExprPairListInExpr(expr);
 
+	printf("evaluateLetrecExpression: Begin\n");
+
 	for (; varExprPairList != NULL; varExprPairList = varExprPairList->next) {
 		/* Add all variables that are bound in this.bindings to newEnvFrame before any closures are created in the next loop. */
 		addNameToEnvironment(newEnv, varExprPairList->name, globalNullValue);
 	}
 
+	printf("evaluateLetrecExpression: Done first part\n");
+
 	for (varExprPairList = getVarExprPairListInExpr(expr); varExprPairList != NULL; varExprPairList = varExprPairList->next) {
 		LISP_VALUE * value = evaluate(getExprInVarExprPairListElement(varExprPairList), newEnv);
+
+		failIf(value == NULL, "evaluateLetrecExpression 1a: value is NULL");
+		failIf(value->type == lispValueType_Thunk, "evaluateLetrecExpression 1b: value is a thunk");
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
@@ -638,7 +736,32 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		updateNameIfFoundInNameValueList(newEnv->value1, varExprPairList->name, value);
 	}
 
-	return evaluate(getExprInExpr(expr), newEnv);
+	printf("evaluateLetrecExpression: Done second part\n");
+
+	printf("evaluateLetrecExpression: expr->type is %d\n", expr->type);
+
+	LISP_EXPR * exprInExpr = getExprInExpr(expr);
+
+	printf("evaluateLetrecExpression: exprInExpr->type is %d\n", exprInExpr->type);
+
+	if (exprInExpr->type == lispExpressionType_FunctionCall) {
+		printf("**** Crash for FunctionCall?\n");
+	}
+
+	LISP_VALUE * result = evaluate(exprInExpr, newEnv);
+
+	if (exprInExpr->type == lispExpressionType_FunctionCall) {
+		printf("**** No crash for FunctionCall\n");
+	}
+
+	printf("evaluateLetrecExpression: result->type is %d\n", result->type);
+
+	failIf(result == NULL, "evaluateLetrecExpression 2a: result is NULL");
+	failIf(result->type == lispValueType_Thunk, "evaluateLetrecExpression 2b: result is a thunk");
+
+	printf("evaluateLetrecExpression: Done\n");
+
+	return result;
 }
 
 static LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
@@ -654,7 +777,6 @@ static LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	}
 
 	if (result == NULL) {
-		fprintf(stderr, "evaluateBeginExpression() tried to return NULL\n");
 		fatalError("evaluateBeginExpression() tried to return NULL");
 	}
 
@@ -686,12 +808,13 @@ static LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 	for (exprPair = getExprPairListInExpr(expr); exprPair != NULL; exprPair = exprPair->next) {
 		LISP_VALUE * conditionValue = evaluate(getExprInPairListElement(exprPair), env);
-
+		/* TODO: Dethunk */
 
 		if (conditionValue->type == lispPseudoValueType_ContinuationReturn) {
 			return conditionValue;
 		} else if (conditionValue->type != lispValueType_Null) {
 			return evaluate(getExpr2InPairListElement(exprPair), env);
+			/* TODO: Dethunk */
 		}
 	}
 
@@ -700,11 +823,13 @@ static LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * value = NULL;
+	LISP_VALUE * result = NULL;
 
 	switch (expr->type) {
 		case lispExpressionType_Value:
 			/* Return a clone of the value so it can be freed separately */
-			return cloneValue(getValueInExpr(expr));
+			result = cloneValue(getValueInExpr(expr));
+			break;
 
 		case lispExpressionType_Variable:
 			value = lookupVariableInEnvironment(getVarInExpr(expr), env);
@@ -715,39 +840,54 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 				return NULL;
 			}
 
-			return cloneValue(value);
+			result = cloneValue(value);
+			break;
 
 		case lispExpressionType_FunctionCall:
-			return evaluateFunctionCall(expr, env);
+			result = evaluateFunctionCall(expr, env);
+			break;
 
 		case lispExpressionType_LambdaExpr:
-			return evaluateLambdaExpression(expr, env);
+			result = evaluateLambdaExpression(expr, env);
+			break;
 
 		case lispExpressionType_SetExpr:
-			return evaluateSetExpression(expr, env);
+			result = evaluateSetExpression(expr, env);
+			break;
 
 		case lispExpressionType_Let:
-			return evaluateLetExpression(expr, env);
+			result = evaluateLetExpression(expr, env);
+			break;
 
 		case lispExpressionType_LetStar:
-			return evaluateLetStarExpression(expr, env);
+			result = evaluateLetStarExpression(expr, env);
+			break;
 
 		case lispExpressionType_Letrec:
-			return evaluateLetrecExpression(expr, env);
+			result = evaluateLetrecExpression(expr, env);
+			break;
 
 		case lispExpressionType_Begin:
-			return evaluateBeginExpression(expr, env);
+			result = evaluateBeginExpression(expr, env);
+			break;
 
 		case lispExpressionType_While:
-			return evaluateWhileExpression(expr, env);
+			result = evaluateWhileExpression(expr, env);
+			break;
 
 		case lispExpressionType_Cond:
-			return evaluateCondExpression(expr, env);
+			result = evaluateCondExpression(expr, env);
+			break;
 
 		default:
 			fatalError("evaluate() : Unrecognized expression type");
 			return NULL;
 	}
+
+	failIf(result == NULL, "evaluate() : Was about to return NULL");
+	failIf(result->type == lispValueType_Thunk, "evaluate() : Was about to return a thunk");
+
+	return result;
 }
 
 /* **** The End **** */

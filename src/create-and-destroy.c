@@ -510,6 +510,18 @@ LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 	);
 }
 
+LISP_VALUE_LIST_ELEMENT * createValueListElement(LISP_VALUE * value, LISP_VALUE_LIST_ELEMENT * next) {
+	return createUniversalStruct(
+		schemeStructType_ValueListElement,
+		0,
+		0,
+		NULL,
+		value,
+		NULL,
+		next
+	);
+}
+
 STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize) {
 	const int defaultBufferIncrementSize = 16;
 

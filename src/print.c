@@ -69,6 +69,10 @@ void printValue(LISP_VALUE * value) {
 			printf("()");
 			break; */
 
+		case lispValueType_Thunk:
+			printf("<thunk>");
+			break;
+
 		case lispPseudoValueType_Continuation:
 			printf("<continuation; id %d>", getContinuationIdInValue(value));
 			break;
@@ -134,11 +138,6 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		return sb;
 	}
 
-	char * strContinuation = "<contin>";
-	char * strContinuationReturn = "<contRtn>";
-	char * strClosure = "<closure>";
-	char * strInvalid = "<invalid value>";
-
 	/* (listtostring '("abc" 123 "def")) -> TODO: BUG: Double quotes are not removed from string literals inside a (single-)quoted list */
 	char intSprintfBuffer[16];
 
@@ -156,23 +155,27 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 			break;
 
 		case lispValueType_Closure:
-			appendToStringBuilder(sb, strClosure);
+			appendToStringBuilder(sb, "<closure>");
 			break;
 
 		case lispValueType_Null:
 			appendToStringBuilder(sb, "()");
 			break;
 
+		case lispValueType_Thunk:
+			appendToStringBuilder(sb, "<thunk>");
+			break;
+
 		case lispPseudoValueType_Continuation:
-			appendToStringBuilder(sb, strContinuation);
+			appendToStringBuilder(sb, "<contin>");
 			break;
 
 		case lispPseudoValueType_ContinuationReturn:
-			appendToStringBuilder(sb, strContinuationReturn);
+			appendToStringBuilder(sb, "<contRtn>");
 			break;
 
 		default:
-			appendToStringBuilder(sb, strInvalid);
+			appendToStringBuilder(sb, "<invalid value>");
 			break;
 	}
 

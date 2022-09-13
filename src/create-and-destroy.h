@@ -2,6 +2,16 @@
 
 /* int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value); */
 
+/* SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
+	int type,
+	int integerValue,
+	int maxNameLength,
+	char * name,
+	SCHEME_UNIVERSAL_TYPE * value1,
+	SCHEME_UNIVERSAL_TYPE * value2,
+	SCHEME_UNIVERSAL_TYPE * next
+); */
+
 /* Create values */
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env);
 LISP_VALUE * createContinuation(int id);
@@ -34,6 +44,7 @@ LISP_EXPR * createExpressionFromValue(LISP_VALUE * value);
 /* Create other stuff */
 LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR_LIST_ELEMENT * next);
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next);
+LISP_VALUE_LIST_ELEMENT * createValueListElement(LISP_VALUE * value, LISP_VALUE_LIST_ELEMENT * next);
 LISP_VAR_EXPR_PAIR_LIST_ELEMENT * createVariableExpressionPairListElement(char * buf, LISP_EXPR * expr, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next);
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next);
 
