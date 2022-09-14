@@ -291,7 +291,7 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set rplac-assoc (lambda (x y alist) \
 	(cond \
 		((null? alist) '()) \
-		((= x (caar alist)) (rplacd (car alist) (list y))) \
+		((= x (caar alist)) (begin (rplacd (car alist) (list y)) alist)) \
 		((null? (cdr alist)) (rplacd alist (list (list x y)))) \
 		('T (rplac-assoc x y (cdr alist))) \
 	) \

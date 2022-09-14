@@ -38,11 +38,11 @@ LISP_VALUE_LIST_ELEMENT * exprListToListOfValuesOrThunks(LISP_EXPR_LIST_ELEMENT 
 }
 
 LISP_VALUE * dethunk(LISP_VALUE * value) {
-	printf("dethunk BEGIN; value is %ld\n", value);
-	printf("-> value type is %d\n", value->type);
+	/* printf("dethunk BEGIN; value is %ld\n", value);
+	printf("-> value type is %d\n", value->type); */
 
 	if (value->type != lispValueType_Thunk) {
-		printf("dethunk : Returning early\n");
+		/* printf("dethunk : Returning early\n"); */
 
 		return value;
 	}
@@ -50,18 +50,18 @@ LISP_VALUE * dethunk(LISP_VALUE * value) {
 	LISP_VALUE * result = value;
 
 	while (result->type == lispValueType_Thunk) {
-		printf("dethunk : Inside while loop\n");
+		/* printf("dethunk : Inside while loop\n"); */
 
 		/* I.e. result = evaluate(result->body, result->env); */
 		result = evaluate(result->value1, result->value2);
-		printf("-> result type is %d\n", result->type);
+		/* printf("-> result type is %d\n", result->type); */
 	}
 
-	printf("dethunk : Exited while loop\n");
+	/* printf("dethunk : Exited while loop\n");
 	printf("  value is %ld\n", value);
 	printf("  result is %ld\n", result);
 	printf("  result->type is %d\n", result->type);
-	printf("  result->name is %ld\n", result->name);
+	printf("  result->name is %ld\n", result->name); */
 
 	failIf(value->name != NULL, "dethunk() : value->name != NULL");
 
@@ -85,7 +85,7 @@ LISP_VALUE * dethunk(LISP_VALUE * value) {
 
 	/* result->name = NULL; */
 
-	printf("dethunk END\n");
+	/* printf("dethunk END\n"); */
 
 	return value;
 }

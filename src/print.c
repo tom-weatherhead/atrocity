@@ -15,8 +15,8 @@
 #include "utilities.h"
 
 void printValue(LISP_VALUE * value) {
-	printf("printValue() : Value pointer is %ld\n", value);
-	printf("printValue() : Value type is %d\n", value->type);
+	/* printf("printValue() : Value pointer is %ld\n", value);
+	printf("printValue() : Value type is %d\n", value->type); */
 
 	deepDethunk(value);
 
@@ -25,14 +25,14 @@ void printValue(LISP_VALUE * value) {
 
 		return;
 	} else if (isList(value) /* && value->type != lispValueType_Null */) {
-		printf("printValue() : Value isList\n");
+		/* printf("printValue() : Value isList\n"); */
 
 		char separator = '\0';
 
 		printf("(");
 
 		while (value->type != lispValueType_Null) {
-			printf("printValue() : value type is %d\n", value->type);
+			/* printf("printValue() : value type is %d\n", value->type); */
 			failIf(value->type != lispValueType_Pair, "printValue() : value type is not Pair");
 			printf("%c", separator);
 			failIf(getHeadInPair(value) == NULL, "printValue() : value head is NULL");
@@ -57,7 +57,11 @@ void printValue(LISP_VALUE * value) {
 			break;
 
 		case lispValueType_Symbol:
-			fprintf(stderr, "**** Symbol has a NULL name ****\n");
+
+			if (getNameInValue(value) == NULL) {
+				fprintf(stderr, "**** Symbol %ld has a NULL name ****\n", value);
+			}
+
 			printf("'%s", getNameInValue(value));
 			break;
 

@@ -57,7 +57,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 			break;
 		}
 
-		printf("multitest: Input: %s\n", input);
+		printf("\nmultitest: Input: %s\n", input);
 		printf("  Expected output: '%s'\n", expectedOutput);
 
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
@@ -339,7 +339,7 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 
 	char * inputsRplacAssoc[] = {
 		"(set test-alist (mkassoc 'a 1 '()))",
-		/* "(set test-alist (mkassoc 'b 2 test-alist))", */
+		"(set test-alist (mkassoc 'b 2 test-alist))",
 		"(print test-alist)",
 		"(rplac-assoc 'a 7 test-alist)",
 		"(print test-alist)",
@@ -348,13 +348,15 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 	};
 	char * expectedResultsRplacAssoc[] = {
 		"((a 1))",
-		/* "(<thunk> . <thunk>)", */
-		"((a 1))",
+		"(<thunk> . <thunk>)",
+		"((a 1) (b 2))",
 		"(7)",
-		"((a 7))",
+		"((a 7) (b 2))",
 		"7",
 		NULL
 	};
+
+	/* 2022-09-13 BUG: (rplacd (car alist) (list y)) does not change alist */
 
 	multitest(inputsRplacAssoc, expectedResultsRplacAssoc);
 

@@ -60,14 +60,14 @@ static LISP_VALUE * evaluateAndCompareType(LISP_VALUE * operandValue, LISP_ENV *
 }
 
 static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
-	printf("areValuesEqual() : BEGIN\n");
+	/* printf("areValuesEqual() : BEGIN\n");
 	printf("  v1 is %ld\n", v1);
-	printf("  v2 is %ld\n", v2);
+	printf("  v2 is %ld\n", v2); */
 
 	dethunk(v1);
 	dethunk(v2);
 
-	printf("areValuesEqual() : Values dethunked\n");
+	/* printf("areValuesEqual() : Values dethunked\n");
 
 	printf("  v1->type is %d\n", v1->type);
 	printf("  v2->type is %d\n", v2->type);
@@ -80,19 +80,19 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 
 	if (v2->name != NULL) {
 		printf("  v2->name (string) is '%s'\n", v2->name);
-	}
+	} */
 
 	failIf(v1->type == lispValueType_Thunk, "areValuesEqual() : v1 is a thunk");
 	failIf(v2->type == lispValueType_Thunk, "areValuesEqual() : v2 is a thunk");
 
 	if (v1->type != v2->type) {
-		printf("areValuesEqual() : EXIT 1\n");
+		/* printf("areValuesEqual() : EXIT 1\n"); */
 		return FALSE;
 	}
 
 	switch (v1->type) {
 		case lispValueType_Null:
-			printf("areValuesEqual() : EXIT 2\n");
+			/* printf("areValuesEqual() : EXIT 2\n"); */
 			return TRUE;
 
 		case lispValueType_Number:
@@ -107,7 +107,7 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 			return areValuesEqual(getHeadInPair(v1), getHeadInPair(v2)) && areValuesEqual(getTailInPair(v1), getTailInPair(v2));
 
 		case lispValueType_Closure:
-			printf("areValuesEqual() : EXIT 3\n");
+			/* printf("areValuesEqual() : EXIT 3\n"); */
 			return FALSE;
 
 		default:
@@ -115,7 +115,7 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 			break;
 	}
 
-	printf("areValuesEqual() : EXIT 4\n");
+	/* printf("areValuesEqual() : EXIT 4\n"); */
 
 	return FALSE;
 }
@@ -318,21 +318,21 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		failIf(pair->type != lispValueType_Pair, "evaluatePrimpOp: Was expecting a pair for car or cdr");
 
 		if (!strcmp(op, "car")) {
-			printf("car: pair is %ld\n", pair);
+			/* printf("car: pair is %ld\n", pair); */
 
 			LISP_VALUE * head = getHeadInPair(pair);
 
-			printf("car: head is %ld\n", head);
+			/* printf("car: head is %ld\n", head);
 			printf("car: head->type is %d\n", head->type);
-			printf("car: head->name is %ld\n", head->name);
+			printf("car: head->name is %ld\n", head->name); */
 
 			LISP_VALUE * dethunkedHead = dethunk(head);
 
-			printf("car: dethunkedHead is %ld\n", dethunkedHead);
+			/* printf("car: dethunkedHead is %ld\n", dethunkedHead);
 			printf("car: dethunkedHead->type is %d\n", dethunkedHead->type);
 			printf("car: dethunkedHead->name is %ld\n", dethunkedHead->name);
 
-			printf("END evaluatePrimitiveOperatorCall: op is %s\n", op);
+			printf("END evaluatePrimitiveOperatorCall: op is %s\n", op); */
 
 			return dethunkedHead;
 
@@ -576,7 +576,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 					return operand2Value;
 				} else if (!strcmp(op, "rplacd")) {
-					printf("BEGIN rplacd\n");
+					printf("**** BEGIN rplacd ****\n");
 
 					deepDethunk(operand1Value);
 					deepDethunk(operand2Value);
@@ -586,9 +586,21 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 						fatalError("evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair");
 					}
 
+					printf("rplacd: Old operand1Value is ");
+					printValue(operand1Value);
+					printf("\n");
+
+					printf("rplacd: New cdr is ");
+					printValue(operand2Value);
+					printf("\n");
+
 					getTailInPair(operand1Value) = operand2Value;
 
-					printf("END rplacd\n");
+					printf("rplacd: New operand1Value is ");
+					printValue(operand1Value);
+					printf("\n");
+
+					printf("**** END rplacd ****\n");
 
 					return operand2Value;
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
