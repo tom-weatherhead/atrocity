@@ -276,7 +276,13 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 	} else if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		return createNumericValue(dstBufAsInt);
 	} else {
-		return createSymbolValue(dstBuf);
+		/* return createSymbolValue(dstBuf); */
+
+		LISP_VALUE * result = createSymbolValue(dstBuf);
+
+		failIf(result->name == NULL, "createQuotedValue() : Created a symbol with a NULL name");
+
+		return result;
 	}
 }
 

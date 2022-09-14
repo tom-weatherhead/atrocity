@@ -219,6 +219,8 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set! append (lambda (l1 l2) ((combine id cons l2) l1)))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! reverse (lambda (l) (letrec ((rev-aux (lambda (l1 l2) (if (null? l1) l2 (rev-aux (cdr l1) (cons (car l1) l2)))))) (rev-aux l '()))))", globalEnv, FALSE);
 
+	parseAndEvaluateEx("(set cadr (compose cdr car))", globalEnv, FALSE); /* Version 2 */
+
 	/* length : Adapted from Kamin page 29 */
 	parseAndEvaluateEx("(set! length (lambda (l) (if (null? l) 0 (+1 (length (cdr l))))))", globalEnv, FALSE);
 	/*
@@ -260,6 +262,42 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set! +1 ((curry +) 1))", globalEnv, FALSE);
 
 	parseAndEvaluateEx("(set! null '())", globalEnv, FALSE);
+
+	/* BEGIN: Preset 'assoc' (association lists) */
+
+	/* Association list functions (adapted from Kamin page 32) */
+
+	parseAndEvaluateEx("(set caar (compose car car))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set cadar (compose car cadr))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set assoc (lambda (x alist) \
+	(cond \
+		((null? alist) '()) \
+		((= x (caar alist)) (cadar alist)) \
+		('T (assoc x (cdr alist))) \
+	) \
+))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set mkassoc (lambda (x y alist) \
+		(cond \
+			((null? alist) (list (list x y))) \
+			((= x (caar alist)) (cons (list x y) (cdr alist))) \
+			('T (cons (car alist) (mkassoc x y (cdr alist)))) \
+		)\
+	))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set assoc-contains-key (lambda (x alist) (find (compose car ((curry =) x)) alist)))", globalEnv, FALSE);
+
+	/* Adapted from page 55 */
+	parseAndEvaluateEx("(set rplac-assoc (lambda (x y alist) \
+	(cond \
+		((null? alist) '()) \
+		((= x (caar alist)) (rplacd (car alist) (list y))) \
+		((null? (cdr alist)) (rplacd alist (list (list x y)))) \
+		('T (rplac-assoc x y (cdr alist))) \
+	) \
+))", globalEnv, FALSE);
+
+	/* END: Preset 'assoc' (association lists) */
 
 	/* END: Predefined variables in the global environment */
 

@@ -11,23 +11,34 @@
 #include "create-and-destroy.h"
 #include "memory-manager.h"
 #include "string-builder.h"
+#include "thunk.h"
 #include "utilities.h"
 
 void printValue(LISP_VALUE * value) {
+	printf("printValue() : Value pointer is %ld\n", value);
+	printf("printValue() : Value type is %d\n", value->type);
+
+	deepDethunk(value);
 
 	if (value == NULL) {
 		printf("NULL");
 
 		return;
 	} else if (isList(value) /* && value->type != lispValueType_Null */) {
+		printf("printValue() : Value isList\n");
+
 		char separator = '\0';
 
 		printf("(");
 
 		while (value->type != lispValueType_Null) {
+			printf("printValue() : value type is %d\n", value->type);
+			failIf(value->type != lispValueType_Pair, "printValue() : value type is not Pair");
 			printf("%c", separator);
+			failIf(getHeadInPair(value) == NULL, "printValue() : value head is NULL");
 			printValue(getHeadInPair(value));
 			separator = ' ';
+			failIf(getTailInPair(value) == NULL, "printValue() : value tail is NULL");
 			value = getTailInPair(value);
 		}
 
@@ -46,6 +57,7 @@ void printValue(LISP_VALUE * value) {
 			break;
 
 		case lispValueType_Symbol:
+			fprintf(stderr, "**** Symbol has a NULL name ****\n");
 			printf("'%s", getNameInValue(value));
 			break;
 

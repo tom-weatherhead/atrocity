@@ -60,18 +60,39 @@ static LISP_VALUE * evaluateAndCompareType(LISP_VALUE * operandValue, LISP_ENV *
 }
 
 static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
+	printf("areValuesEqual() : BEGIN\n");
+	printf("  v1 is %ld\n", v1);
+	printf("  v2 is %ld\n", v2);
+
 	dethunk(v1);
 	dethunk(v2);
+
+	printf("areValuesEqual() : Values dethunked\n");
+
+	printf("  v1->type is %d\n", v1->type);
+	printf("  v2->type is %d\n", v2->type);
+	printf("  v1->name is %ld\n", v1->name);
+	printf("  v2->name is %ld\n", v2->name);
+
+	if (v1->name != NULL) {
+		printf("  v1->name (string) is '%s'\n", v1->name);
+	}
+
+	if (v2->name != NULL) {
+		printf("  v2->name (string) is '%s'\n", v2->name);
+	}
 
 	failIf(v1->type == lispValueType_Thunk, "areValuesEqual() : v1 is a thunk");
 	failIf(v2->type == lispValueType_Thunk, "areValuesEqual() : v2 is a thunk");
 
 	if (v1->type != v2->type) {
+		printf("areValuesEqual() : EXIT 1\n");
 		return FALSE;
 	}
 
 	switch (v1->type) {
 		case lispValueType_Null:
+			printf("areValuesEqual() : EXIT 2\n");
 			return TRUE;
 
 		case lispValueType_Number:
@@ -86,12 +107,15 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 			return areValuesEqual(getHeadInPair(v1), getHeadInPair(v2)) && areValuesEqual(getTailInPair(v1), getTailInPair(v2));
 
 		case lispValueType_Closure:
+			printf("areValuesEqual() : EXIT 3\n");
 			return FALSE;
 
 		default:
 			fprintf(stderr, "areValuesEqual() : Unexpected value type %d\n", v1->type);
 			break;
 	}
+
+	printf("areValuesEqual() : EXIT 4\n");
 
 	return FALSE;
 }
@@ -176,11 +200,23 @@ static LISP_VALUE * listOfValuesToListValue(SCHEME_UNIVERSAL_TYPE * listOfValues
 	/* TEMP:
 	return createPair(getValueInValueListElement(listOfValuesOrThunks), listOfValuesToListValue(listOfValuesOrThunks->next)); */
 
-	return createPair(dethunk(getValueInValueListElement(listOfValuesOrThunks)), listOfValuesToListValue(listOfValuesOrThunks->next));
+	LISP_VALUE * head = dethunk(getValueInValueListElement(listOfValuesOrThunks));
+
+	if (head->type == lispPseudoValueType_ContinuationReturn) {
+		return head;
+	}
+
+	LISP_VALUE * tail = listOfValuesToListValue(listOfValuesOrThunks->next);
+
+	if (tail->type == lispPseudoValueType_ContinuationReturn) {
+		return tail;
+	}
+
+	return createPair(head, tail);
 }
 
 static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	/* printf("evaluatePrimitiveOperatorCall: op is %s\n", op); */
+	printf("BEGIN evaluatePrimitiveOperatorCall: op is %s\n", op);
 
 	LISP_VALUE * result = NULL;
 
@@ -192,7 +228,27 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 	/* if (!strcmp(op, "cond")) {
 	} else */ if (!strcmp(op, "cons") && listOfValuesOrThunks != NULL && listOfValuesOrThunks->next != NULL && listOfValuesOrThunks->next->next == NULL) {
-		return createPair(getValueInValueListElement(listOfValuesOrThunks), getValueInValueListElement(listOfValuesOrThunks->next));
+		LISP_VALUE * head = getValueInValueListElement(listOfValuesOrThunks);
+
+		if (head->type == lispPseudoValueType_ContinuationReturn) {
+			return head;
+		}
+
+		printf("cons: head->type is %d\n", head->type);
+		printf("cons: head->name is %ld\n", head->name);
+		failIf(head->type == lispValueType_Symbol && head->name == NULL, "cons: head is a symbol with a NULL name");
+
+		LISP_VALUE * tail = getValueInValueListElement(listOfValuesOrThunks->next);
+
+		if (tail->type == lispPseudoValueType_ContinuationReturn) {
+			return tail;
+		}
+
+		printf("cons: tail->type is %d\n", tail->type);
+		printf("cons: tail->name is %ld\n", tail->name);
+		failIf(tail->type == lispValueType_Symbol && tail->name == NULL, "cons: tail is a symbol with a NULL name");
+
+		return createPair(head, tail);
 	} else if (!strcmp(op, "if") && listOfValuesOrThunks != NULL && listOfValuesOrThunks->next != NULL && listOfValuesOrThunks->next->next != NULL && listOfValuesOrThunks->next->next->next == NULL) {
 		LISP_VALUE * operand1Value = dethunk(getValueInValueListElement(listOfValuesOrThunks));
 
@@ -255,10 +311,32 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 		/* printf("evaluatePrimpOp: car or cdr: pair->type is %d\n", pair->type); */
 
+		if (pair->type == lispPseudoValueType_ContinuationReturn) {
+			return pair;
+		}
+
 		failIf(pair->type != lispValueType_Pair, "evaluatePrimpOp: Was expecting a pair for car or cdr");
 
 		if (!strcmp(op, "car")) {
-			return dethunk(getHeadInPair(pair));
+			printf("car: pair is %ld\n", pair);
+
+			LISP_VALUE * head = getHeadInPair(pair);
+
+			printf("car: head is %ld\n", head);
+			printf("car: head->type is %d\n", head->type);
+			printf("car: head->name is %ld\n", head->name);
+
+			LISP_VALUE * dethunkedHead = dethunk(head);
+
+			printf("car: dethunkedHead is %ld\n", dethunkedHead);
+			printf("car: dethunkedHead->type is %d\n", dethunkedHead->type);
+			printf("car: dethunkedHead->name is %ld\n", dethunkedHead->name);
+
+			printf("END evaluatePrimitiveOperatorCall: op is %s\n", op);
+
+			return dethunkedHead;
+
+			/* return dethunk(getHeadInPair(pair)); */
 		} else /* if (!strcmp(op, "cdr")) */ {
 			return dethunk(getTailInPair(pair));
 		}
@@ -266,8 +344,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 	/* END Thunk support */
 
-	/* BEGIN : These primops can take any number of args, including zero. * /
-	if (!strcmp(op, "list")) {
+	/* BEGIN : These primops can take any number of args, including zero. */
+	/* if (!strcmp(op, "list")) {
 		return exprListToListValue(actualParamExprs, env);
 	} else */ if (!strcmp(op, "and")) {
 		return evaluateAnd(actualParamExprs, env);
@@ -311,6 +389,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			printValue(operand1Value);
 			printf("\n");
+			printf("printValue() is complete\n");
 
 			/* Return without freeing the values */
 
@@ -472,13 +551,19 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					are eq, or if they are numbers of the same type with
 					the same value, or if they are character objects that
 					represent the same character, or nil otherwise. */
+					printf("    =: BEGIN\n");
 					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
+					printf("    =: END\n");
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));
 				} else /* if (!strcmp(op, "cons")) {
 					/ * Return without freeing the values * /
 					return createPair(operand1Value, operand2Value);
 				} else */ if (!strcmp(op, "rplaca")) {
+					printf("BEGIN rplaca\n");
+
+					deepDethunk(operand1Value);
+					deepDethunk(operand2Value);
 
 					if (operand1Value->type != lispValueType_Pair) {
 						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair; type %d\n", operand1Value->type);
@@ -487,8 +572,14 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 					getHeadInPair(operand1Value) = operand2Value;
 
+					printf("END rplaca\n");
+
 					return operand2Value;
 				} else if (!strcmp(op, "rplacd")) {
+					printf("BEGIN rplacd\n");
+
+					deepDethunk(operand1Value);
+					deepDethunk(operand2Value);
 
 					if (operand1Value->type != lispValueType_Pair) {
 						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair; type %d\n", operand1Value->type);
@@ -496,6 +587,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					}
 
 					getTailInPair(operand1Value) = operand2Value;
+
+					printf("END rplacd\n");
 
 					return operand2Value;
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
@@ -549,6 +642,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 	failIf(result == NULL, "evaluatePrimOp was about to return NULL");
 	failIf(result->type == lispValueType_Thunk, "evaluatePrimOp was about to return a thunk");
+
+	printf("END evaluatePrimitiveOperatorCall: op is %s\n", op);
 
 	return result;
 }

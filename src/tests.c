@@ -57,6 +57,9 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 			break;
 		}
 
+		printf("multitest: Input: %s\n", input);
+		printf("  Expected output: '%s'\n", expectedOutput);
+
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
 
 		/* memset(actualOutput, 0, sizeOfActualOutput); */
@@ -66,9 +69,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 
 		actualOutput = sb->name;
 
-		printf("multitest: Input: %s\n", input);
-		printf("  Expected output: %s\n", expectedOutput);
-		printf("  Actual output: %s\n", actualOutput);
+		printf("  Actual output: '%s'\n", actualOutput);
 
 		/* Note bene: freeClosure is currently mostly disabled to avoid
 		 * double-freeing things. We must fix this. */
@@ -323,7 +324,39 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 });
 
 	TODO: Test the association list functions: assoc, assoc-contains-key, and especially rplac-assoc
+
+// (define rplac-assoc (x y alist)
+// (if (null? alist) '()
+// (if (= x (caar alist))
+// 	(rplacd (car alist) (list y))
+// 	(if (null? (cdr alist))
+// 		(rplacd alist (list (list x y)))
+// 		(rplac-assoc x y (cdr alist))))))");
+// 	Evaluate("(set test-alist (mkassoc 'b 2 (mkassoc 'a 1 '())))");
+// 	Evaluate("(rplac-assoc 'a 7 test-alist)");
+// 	Assert.AreEqual("7", Evaluate("(assoc 'a test-alist)"));
 	*/
+
+	char * inputsRplacAssoc[] = {
+		"(set test-alist (mkassoc 'a 1 '()))",
+		/* "(set test-alist (mkassoc 'b 2 test-alist))", */
+		"(print test-alist)",
+		"(rplac-assoc 'a 7 test-alist)",
+		"(print test-alist)",
+		"(assoc 'a test-alist)",
+		NULL
+	};
+	char * expectedResultsRplacAssoc[] = {
+		"((a 1))",
+		/* "(<thunk> . <thunk>)", */
+		"((a 1))",
+		"(7)",
+		"((a 7))",
+		"7",
+		NULL
+	};
+
+	multitest(inputsRplacAssoc, expectedResultsRplacAssoc);
 
 	/* SASL infinite list test */
 	printf("SASL infinite list test: BEGIN\n");

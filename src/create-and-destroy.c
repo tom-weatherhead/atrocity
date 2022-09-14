@@ -35,6 +35,8 @@ static SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->value3 = NULL;
 	result->next = next;
 
+	failIf((result->type == lispValueType_PrimitiveOperator || result->type == lispValueType_Symbol) && result->name == NULL, "createUniversalStruct() : PrimOp or Symbol has a NULL name ptr");
+
 	addItemToMemMgrRecords(result);
 
 	return result;
@@ -73,6 +75,8 @@ static SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 		strcpy(buf, name);
 	}
 
+	failIf(buf == NULL, "allocateStringAndCreateUniversalStruct: buf is NULL");
+
 	return createUniversalStruct(type, integerValue, maxNameLength, buf, value1, value2, next);
 }
 
@@ -102,6 +106,8 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 		freeUniversalStruct(expr->next);
 		expr->next = NULL;
 	}
+
+	expr->type = lispPseudoValueType_Freed;
 
 	mmFree(expr);
 }
@@ -156,6 +162,8 @@ LISP_VALUE * createStringValue(char * str) {
 }
 
 LISP_VALUE * createSymbolValue(char * value) {
+	failIf(value == NULL, "createSymbolValue() : value is NULL");
+
 	return allocateStringAndCreateUniversalStruct(
 		lispValueType_Symbol,
 		0,
@@ -204,6 +212,12 @@ LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env) {
 } */
 
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
+	failIf(head == NULL, "createPair: head is NULL");
+	failIf(head->type == lispValueType_Symbol && head->name == NULL, "createPair: head is a symbol with a NULL name");
+
+	failIf(tail == NULL, "createPair: tail is NULL");
+	failIf(tail->type == lispValueType_Symbol && tail->name == NULL, "createPair: tail is a symbol with a NULL name");
+
 	return createUniversalStruct(
 		lispValueType_Pair,
 		0,

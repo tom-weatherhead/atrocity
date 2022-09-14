@@ -103,12 +103,12 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 enum {
 	lispValueType_Number, /* 0 */
 	lispValueType_String,
-	lispValueType_Symbol,
+	lispValueType_Symbol, /* 2 */
 	lispValueType_PrimitiveOperator,
 	lispValueType_Closure,
-	lispValueType_Pair,
+	lispValueType_Pair, /* 5 */
 	lispValueType_Null, /* 6 */ /* TODO? Interpret the NULL pointer as a Null value? */
-	lispValueType_Thunk, /* -> A suspended computation; used to implement lazy evaluation in SASL */
+	lispValueType_Thunk, /* 7 */ /* -> A suspended computation; used to implement lazy evaluation in SASL */
 	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
@@ -140,7 +140,9 @@ enum {
 	schemeStructType_VariableExpressionPairListElement, /* 30 */
 	schemeStructType_ValueListElement,
 
-	stringBuilderType
+	stringBuilderType,
+
+	lispPseudoValueType_Freed
 };
 
 void fail(char * str, char * file, int line);
