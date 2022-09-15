@@ -24,8 +24,6 @@ LISP_VALUE * exprToValueOrThunk(LISP_EXPR * expr, LISP_ENV * env) {
 	}
 
 	return createThunk(expr, env);
-
-	/* TEMP: return evaluate(expr, env); */
 }
 
 LISP_VALUE_LIST_ELEMENT * exprListToListOfValuesOrThunks(LISP_EXPR_LIST_ELEMENT * exprList, LISP_ENV * env) {
@@ -129,16 +127,16 @@ LISP_VALUE_LIST_ELEMENT * dethunkList(LISP_VALUE_LIST_ELEMENT * listOfValuesOrTh
 	return createValueListElement(dethunkedValue, next);
 }
 
-LISP_VALUE * deepDethunk(LISP_VALUE * value) {
-	/* Warning: This will go into an infinite loop if called with a circular
-	data structure. */
+/* LISP_VALUE * deepDethunk(LISP_VALUE * value) {
+	/ * Warning: This will go into an infinite loop if called with a circular
+	data structure. * /
 
 	if (value == NULL) {
 		return NULL;
 	}
 
 	dethunk(value);
-	/* value->mark = 1; */
+	/ * value->mark = 1; * /
 
 	deepDethunk(value->value1);
 	deepDethunk(value->value2);
@@ -146,6 +144,6 @@ LISP_VALUE * deepDethunk(LISP_VALUE * value) {
 	deepDethunk(value->next);
 
 	return value;
-}
+} */
 
 /* **** The End **** */

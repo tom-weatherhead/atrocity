@@ -295,6 +295,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	if (evaluatedArguments != NULL && evaluatedArguments->next == NULL && (!strcmp(op, "car") || !strcmp(op, "cdr"))) {
 		LISP_VALUE * pair = getValueInValueListElement(evaluatedArguments);
 
+		pair = dethunk(pair);
+
 		/* printf("evaluatePrimpOp: car or cdr: pair->type is %d\n", pair->type); */
 
 		if (pair->type == lispPseudoValueType_ContinuationReturn) {
@@ -375,7 +377,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			printValue(operand1Value);
 			printf("\n");
-			printf("printValue() is complete\n");
+			/* printf("printValue() is complete\n"); */
 
 			/* Return without freeing the values */
 

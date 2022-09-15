@@ -420,6 +420,13 @@
 	(begin
 		(propagateNewLabel '(0 0) (findUnusedLabel) '())
 
+		(print 'roomLabels)
+		(print roomLabels)
+		(print 'numberOfDifferentLabels)
+		(print numberOfDifferentLabels)
+		(print 'valueOfNumberOfUniqueRoomLabels)
+		(print (numberOfUniqueRoomLabels))
+
 		(if (> (numberOfUniqueRoomLabels) 1)
 			(throw "The labyrinth is in multiple blobs.")
 			'()
