@@ -235,7 +235,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	} else */ if (!strcmp(op, "cons") && listOfValuesOrThunks != NULL && listOfValuesOrThunks->next != NULL && listOfValuesOrThunks->next->next == NULL) {
 		LISP_VALUE * head = getValueInValueListElement(listOfValuesOrThunks);
 
-		dethunk(head); /* HACK 1 of 2 - Last before labyrinth works */
+		/* head = dethunk(head); / * HACK 1 of 2 - Last before labyrinth works getval */
+		head = dethunk(head);
 
 		if (head->type == lispPseudoValueType_ContinuationReturn) {
 			return head;
@@ -247,7 +248,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 		LISP_VALUE * tail = getValueInValueListElement(listOfValuesOrThunks->next);
 
-		dethunk(tail); /* HACK 2 of 2 - Last before labyrinth works */
+		/* tail = dethunk(tail); / * HACK 2 of 2 - Last before labyrinth works getval */
+		tail = dethunk(tail);
 
 		if (tail->type == lispPseudoValueType_ContinuationReturn) {
 			return tail;
@@ -544,9 +546,10 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				} else */ if (!strcmp(op, "rplaca")) {
 					printf("BEGIN rplaca\n");
 
-					LISP_VALUE * v1 = evaluate(actualParamExprs->value1, env);
+					failIf(!isUnthunkedValue(operand1Value), "evaluate() : rplaca : operand1Value is not an UnthunkedValue");
+					failIf(!isUnthunkedValue(operand2Value), "evaluate() : rplaca : operand2Value is not an UnthunkedValue");
 
-					printf("actualParamExprs->value1 is %ld\n", actualParamExprs->value1);
+					/* printf("actualParamExprs->value1 is %ld\n", actualParamExprs->value1);
 					printf("listOfValuesOrThunks->value1 is %ld\n", listOfValuesOrThunks->value1);
 
 					LISP_VALUE * vvv1 = evaluate(actualParamExprs->value1, env);
@@ -564,33 +567,37 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					printValue(operand1Value);
 					printf("\n");
 
-					operand1Value = vvv1; /* HACK 2022-09-15 */
+					operand1Value = vvv1; / * HACK 2022-09-15 * /
 
 					if (operand1Value->type != lispValueType_Pair) {
 						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair; type %d\n", operand1Value->type);
 						fatalError("evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair");
-					}
+					} */
 
 					getHeadInPair(operand1Value) = operand2Value;
 
-					printf("rplaca: operand1Value (%ld) is ", operand1Value);
+					/* printf("rplaca: operand1Value (%ld) is ", operand1Value);
 					printValue(operand1Value);
-					printf("\nEND rplaca\n");
+					printf("\n"); */
+					printf("END rplaca\n");
 
 					return operand2Value;
 				} else if (!strcmp(op, "rplacd")) {
 					printf("**** BEGIN rplacd ****\n");
 
+					failIf(!isUnthunkedValue(operand1Value), "evaluate() : rplacd : operand1Value is not an UnthunkedValue");
+					failIf(!isUnthunkedValue(operand2Value), "evaluate() : rplacd : operand2Value is not an UnthunkedValue");
+
 					/* deepDethunk(operand1Value);
 					printf("rplacd: Done deepDethunk 1\n");
 					deepDethunk(operand2Value);
-					printf("rplacd: Done deepDethunk 2\n"); */
+					printf("rplacd: Done deepDethunk 2\n"); * /
 
 					LISP_VALUE * vvv1 = evaluate(actualParamExprs->value1, env);
 
 					printf("rplacd: Done evaluate vvv1\n");
 
-					operand1Value = vvv1; /* HACK 2022-09-15 */
+					operand1Value = vvv1; / * HACK 2022-09-15 * /
 
 					if (operand1Value->type != lispValueType_Pair) {
 						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair; type %d\n", operand1Value->type);
@@ -603,13 +610,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 					printf("rplacd: New cdr is ");
 					printValue(operand2Value);
-					printf("\n");
+					printf("\n"); */
 
 					getTailInPair(operand1Value) = operand2Value;
 
-					printf("rplacd: New operand1Value is ");
+					/* printf("rplacd: New operand1Value is ");
 					printValue(operand1Value);
-					printf("\n");
+					printf("\n"); */
 
 					printf("**** END rplacd ****\n");
 

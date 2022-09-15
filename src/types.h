@@ -154,4 +154,6 @@ void fail(char * str, char * file, int line);
 
 #define fatalError(str) fail(str, __FILE__, __LINE__)
 
+#define getval(ptr) (((ptr)->type == lispPseudoValueType_EvaluatedThunk) ? ((ptr)->next) : (ptr))
+
 /* **** The End **** */

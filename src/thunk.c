@@ -15,6 +15,7 @@ static BOOL isValueOrThunk(LISP_EXPR * expr) {
 }
 
 LISP_VALUE * exprToValueOrThunk(LISP_EXPR * expr, LISP_ENV * env) {
+	expr = getval(expr);
 
 	if (isValueOrThunk(expr)) {
 		return expr; /* expr is already a value or a thunk */
