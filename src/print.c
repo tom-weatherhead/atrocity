@@ -43,7 +43,7 @@ void printValue(LISP_VALUE * value) {
 			printValue(getHeadInPair(value));
 			separator = ' ';
 			failIf(getTailInPair(value) == NULL, "printValue() : value tail is NULL");
-			value = getTailInPair(value);
+			value = dethunk(getTailInPair(value));
 		}
 
 		printf(")");

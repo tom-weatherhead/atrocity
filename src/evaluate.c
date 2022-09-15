@@ -303,6 +303,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		/* failIf(value->type == lispPseudoValueType_ContinuationReturn, "Value in eeaa is a ContinuationReturn"); */
 	}
 
+	/* **** After this point, no operand value should be a thunk or an evaluated thunk **** */
+
 	LISP_VALUE * operand1Value = NULL;
 	LISP_VALUE * operand2Value = NULL;
 
@@ -349,9 +351,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			return dethunkedHead; */
 
-			return dethunk(getHeadInPair(pair));
+			getHeadInPair(pair) = dethunk(getHeadInPair(pair));
+
+			return getHeadInPair(pair);
 		} else if (!strcmp(op, "cdr")) {
-			return dethunk(getTailInPair(pair));
+			getTailInPair(pair) = dethunk(getTailInPair(pair));
+
+			return getTailInPair(pair);
 		}
 	}
 
@@ -558,6 +564,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					failIf(!isUnthunkedValue(operand1Value), "evaluate() : rplaca : operand1Value is not an UnthunkedValue");
 					failIf(!isUnthunkedValue(operand2Value), "evaluate() : rplaca : operand2Value is not an UnthunkedValue");
 
+					failIf(operand1Value->type != lispValueType_Pair, "rplaca: operand1Value is not a pair");
+
 					/* printf("actualParamExprs->value1 is %ld\n", actualParamExprs->value1);
 					printf("listOfValuesOrThunks->value1 is %ld\n", listOfValuesOrThunks->value1);
 
@@ -596,6 +604,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 					failIf(!isUnthunkedValue(operand1Value), "evaluate() : rplacd : operand1Value is not an UnthunkedValue");
 					failIf(!isUnthunkedValue(operand2Value), "evaluate() : rplacd : operand2Value is not an UnthunkedValue");
+
+					failIf(operand1Value->type != lispValueType_Pair, "rplacd: operand1Value is not a pair");
 
 					/* deepDethunk(operand1Value);
 					printf("rplacd: Done deepDethunk 1\n");
