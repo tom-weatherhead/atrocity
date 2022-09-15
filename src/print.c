@@ -24,7 +24,11 @@ void printValue(LISP_VALUE * value) {
 		printf("NULL");
 
 		return;
-	} else if (isList(value) /* && value->type != lispValueType_Null */) {
+	}
+
+	value = dethunk(value);
+
+	if (isList(value) /* && value->type != lispValueType_Null */) {
 		/* printf("printValue() : Value isList\n"); */
 
 		char separator = '\0';

@@ -41,7 +41,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 /* Functions */
 
-static BOOL isUnthunkedValue(SCHEME_UNIVERSAL_TYPE * ptr) {
+BOOL isUnthunkedValue(SCHEME_UNIVERSAL_TYPE * ptr) {
 	return ptr->type <= lispValueType_LastValue && ptr->type != lispValueType_Thunk;
 }
 
@@ -241,8 +241,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			return head;
 		}
 
-		printf("cons: head->type is %d\n", head->type);
-		printf("cons: head->name is %ld\n", head->name);
+		/* printf("cons: head->type is %d\n", head->type);
+		printf("cons: head->name is %ld\n", head->name); */
 		failIf(head->type == lispValueType_Symbol && head->name == NULL, "cons: head is a symbol with a NULL name");
 
 		LISP_VALUE * tail = getValueInValueListElement(listOfValuesOrThunks->next);
@@ -253,8 +253,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			return tail;
 		}
 
-		printf("cons: tail->type is %d\n", tail->type);
-		printf("cons: tail->name is %ld\n", tail->name);
+		/* printf("cons: tail->type is %d\n", tail->type);
+		printf("cons: tail->name is %ld\n", tail->name); */
 		failIf(tail->type == lispValueType_Symbol && tail->name == NULL, "cons: tail is a symbol with a NULL name");
 
 		return createPair(head, tail);
@@ -581,10 +581,14 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				} else if (!strcmp(op, "rplacd")) {
 					printf("**** BEGIN rplacd ****\n");
 
-					deepDethunk(operand1Value);
+					/* deepDethunk(operand1Value);
+					printf("rplacd: Done deepDethunk 1\n");
 					deepDethunk(operand2Value);
+					printf("rplacd: Done deepDethunk 2\n"); */
 
 					LISP_VALUE * vvv1 = evaluate(actualParamExprs->value1, env);
+
+					printf("rplacd: Done evaluate vvv1\n");
 
 					operand1Value = vvv1; /* HACK 2022-09-15 */
 
@@ -1006,6 +1010,7 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 
 	failIf(result == NULL, "evaluate() : Was about to return NULL");
 	failIf(result->type == lispValueType_Thunk, "evaluate() : Was about to return a thunk");
+	failIf(!isUnthunkedValue(result), "evaluate() : result is not an UnthunkedValue");
 
 	return result;
 }

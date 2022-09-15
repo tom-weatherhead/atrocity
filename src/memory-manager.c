@@ -81,6 +81,31 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 	memmgrRecords = mmRec;
 }
 
+int mmReplacePointer(SCHEME_UNIVERSAL_TYPE * old, SCHEME_UNIVERSAL_TYPE * new) {
+	MEMMGR_RECORD * mmRec;
+	int count = 0;
+
+	for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
+
+		if (mmRec->item->value1 == old) {
+			mmRec->item->value1 = new;
+			++count;
+		}
+
+		if (mmRec->item->value2== old) {
+			mmRec->item->value2 = new;
+			++count;
+		}
+
+		if (mmRec->item->value3 == old) {
+			mmRec->item->value3 = new;
+			++count;
+		}
+	}
+
+	return count;
+}
+
 /* int getNumMemMgrRecords() {
 	int n = 0;
 	MEMMGR_RECORD * mmRec;

@@ -142,7 +142,8 @@ enum {
 
 	stringBuilderType,
 
-	lispPseudoValueType_Freed
+	lispPseudoValueType_Freed,
+	lispPseudoValueType_EvaluatedThunk
 };
 
 void fail(char * str, char * file, int line);
