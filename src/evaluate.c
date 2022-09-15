@@ -41,6 +41,10 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 /* Functions */
 
+static BOOL isUnthunkedValue(SCHEME_UNIVERSAL_TYPE * ptr) {
+	return ptr->type <= lispValueType_LastValue && ptr->type != lispValueType_Thunk;
+}
+
 static LISP_VALUE * booleanToClonedValue(int b) {
 	/* return cloneValue(b ? globalTrueValue : globalNullValue); */
 	return b ? globalTrueValue : globalNullValue;
@@ -217,7 +221,7 @@ static LISP_VALUE * listOfValuesToListValue(SCHEME_UNIVERSAL_TYPE * listOfValues
 }
 
 static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	printf("BEGIN evaluatePrimitiveOperatorCall: op is %s\n", op);
+	/* printf("BEGIN evaluatePrimitiveOperatorCall: op is %s\n", op); */
 
 	LISP_VALUE * result = NULL;
 
@@ -231,6 +235,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	} else */ if (!strcmp(op, "cons") && listOfValuesOrThunks != NULL && listOfValuesOrThunks->next != NULL && listOfValuesOrThunks->next->next == NULL) {
 		LISP_VALUE * head = getValueInValueListElement(listOfValuesOrThunks);
 
+		dethunk(head); /* HACK 1 of 2 - Last before labyrinth works */
+
 		if (head->type == lispPseudoValueType_ContinuationReturn) {
 			return head;
 		}
@@ -240,6 +246,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		failIf(head->type == lispValueType_Symbol && head->name == NULL, "cons: head is a symbol with a NULL name");
 
 		LISP_VALUE * tail = getValueInValueListElement(listOfValuesOrThunks->next);
+
+		dethunk(tail); /* HACK 2 of 2 - Last before labyrinth works */
 
 		if (tail->type == lispPseudoValueType_ContinuationReturn) {
 			return tail;
@@ -265,44 +273,19 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		return listOfValuesToListValue(listOfValuesOrThunks);
 	}
 
-	/* switch (this.name.value) {
-		case 'cons':
-			return new SExpressionList(argumentsAsSExpressions[0], argumentsAsSExpressions[1]);
-			-> return createPair(listOfValuesOrThunks->value1, listOfValuesOrThunks->next->value1);
-
-		case 'list':
-			return SExpressionList.makeFromList(argumentsAsSExpressions);
-			-> return listOfValuesToListValue(listOfValuesOrThunks);
-
-		case 'if':
-			return this.executeIf(argumentsAsSExpressions, globalInfo as SASLGlobalInfo);
-			->
-			if (!strcmp(op, "if") && actualParamExprs->next->next != NULL && getExprInExprList(actualParamExprs->next->next) != NULL) {
-				LISP_EXPR * operand3Expr = getExprInExprList(actualParamExprs->next->next);
-				LISP_VALUE * operand1Value = dethunk(operand1Expr);
-
-				if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
-					return operand1Value;
-				}
-
-				return dethunk(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr);
-			}
-
-		case 'cond':
-			return this.executeCond(argumentsAsSExpressions, globalInfo);
-
-		default:
-			break;
-	}
-
-	*/
-
-	/* Dethunk: */
-	/* const evaluatedArguments = argumentsAsSExpressions.map((sexpr) =>
-		isThunk(sexpr) ? sexpr.dethunk(globalInfo) : sexpr
-	);
-	*/
 	LISP_VALUE_LIST_ELEMENT * evaluatedArguments = dethunkList(listOfValuesOrThunks);
+
+	LISP_VALUE_LIST_ELEMENT * eeaa = NULL;
+
+	for (eeaa = evaluatedArguments; eeaa != NULL; eeaa = eeaa->next) {
+
+		if (!isUnthunkedValue(getValueInValueListElement(eeaa))) {
+			printf("op is '%s'\n", op);
+			printf("getValueInValueListElement(eeaa)->type is %d\n", getValueInValueListElement(eeaa)->type);
+		}
+
+		failIf(!isUnthunkedValue(getValueInValueListElement(eeaa)), "Value in eeaa is not an UnthunkedValue");
+	}
 
 	/* Handle car, cdr:
 	- car: Return the dethunked head of arg 0
@@ -552,9 +535,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					are eq, or if they are numbers of the same type with
 					the same value, or if they are character objects that
 					represent the same character, or nil otherwise. */
-					printf("    =: BEGIN\n");
 					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
-					printf("    =: END\n");
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));
 				} else /* if (!strcmp(op, "cons")) {
@@ -681,7 +662,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	failIf(result == NULL, "evaluatePrimOp was about to return NULL");
 	failIf(result->type == lispValueType_Thunk, "evaluatePrimOp was about to return a thunk");
 
-	printf("END evaluatePrimitiveOperatorCall: op is %s\n", op);
+	/* printf("END evaluatePrimitiveOperatorCall: op is %s\n", op); */
 
 	return result;
 }

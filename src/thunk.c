@@ -34,6 +34,7 @@ LISP_VALUE_LIST_ELEMENT * exprListToListOfValuesOrThunks(LISP_EXPR_LIST_ELEMENT 
 	}
 
 	LISP_VALUE * valueOrThunk = exprToValueOrThunk(getExprInExprList(exprList), env);
+
 	LISP_VALUE_LIST_ELEMENT * next = exprListToListOfValuesOrThunks(exprList->next, env);
 
 	return createValueListElement(valueOrThunk, next);
