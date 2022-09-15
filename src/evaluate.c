@@ -492,7 +492,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		}
 
 		if (operand2Value != NULL) {
-			LISP_VALUE * operand2Value = getValueInValueListElement(evaluatedArguments->next);
 
 			if (isStringInList(op, twoArgumentPrimops)) {
 				/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
@@ -726,12 +725,10 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 		ep = ep->next;
 	}
 
-	LISP_VALUE * result = evaluate(getBodyInClosure(closure), newEnv);
+	return evaluate(getBodyInClosure(closure), newEnv);
 
 	/* ThAW 2022-08-18 : Don't free newEnv: Someone is still using it. E.g.:
 	parseAndEvaluate("(((lambda (x) (lambda (y) x)) 5) 8)"); */
-
-	return result;
 }
 
 static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
@@ -792,9 +789,9 @@ static LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 		return value;
 	}
 
-	printf("set: Variable '%s' := (%ld) ", getVarInExpr(setExpr)->name, value);
+	/* printf("set: Variable '%s' := (%ld) ", getVarInExpr(setExpr)->name, value);
 	printValue(value);
-	printf(" (type %d)\n", value->type);
+	printf(" (type %d)\n", value->type); */
 
 	/* X TODO: Use addBubbleDown() instead of setValueInEnvironment() */
 	setValueInEnvironment(env, getVarInExpr(setExpr), value);

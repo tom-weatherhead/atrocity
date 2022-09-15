@@ -135,12 +135,14 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		}
 
 		while (value->type != lispValueType_Null) {
+			LISP_VALUE * head = dethunk(getHeadInPair(value));
+
 			appendToStringBuilder(sb, separator);
 
-			printValueToString(sb, getHeadInPair(value), separatorBetweenListItems, TRUE);
+			printValueToString(sb, head, separatorBetweenListItems, TRUE);
 
 			separator = separatorBetweenListItems;
-			value = getTailInPair(value);
+			value = dethunk(getTailInPair(value));
 		}
 
 		if (printBracketsAroundList) {
@@ -150,9 +152,9 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		return sb;
 	} else if (value->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
-		printValueToString(sb, getHeadInPair(value), separatorBetweenListItems, printBracketsAroundList);
+		printValueToString(sb, dethunk(getHeadInPair(value)), separatorBetweenListItems, printBracketsAroundList);
 		appendToStringBuilder(sb, " . ");
-		printValueToString(sb, getTailInPair(value), separatorBetweenListItems, printBracketsAroundList);
+		printValueToString(sb, dethunk(getTailInPair(value)), separatorBetweenListItems, printBracketsAroundList);
 		appendToStringBuilder(sb, ")");
 
 		return sb;

@@ -8,6 +8,8 @@
 
 #include "types.h"
 
+#include "thunk.h"
+
 /* Functions */
 
 BOOL isStringAllWhitespace(char * str) {
@@ -90,6 +92,7 @@ void fail(char * str, char * file, int line) {
 } */
 
 BOOL isList(LISP_VALUE * value) {
+	value = dethunk(value);
 
 	switch (value->type) {
 		case lispValueType_Null:

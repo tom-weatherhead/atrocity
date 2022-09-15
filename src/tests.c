@@ -158,15 +158,15 @@ void runTests() {
 
 	test("(set! n 7)", "7");
 
-	/* cons * /
+	/* cons */
 	test("(cons 1 null)", "(1)");
 	test("(cons 1 (cons 2 null))", "(1 2)");
 	test("(cons 1 (cons 2 (cons 3 null)))", "(1 2 3)");
-	test("(cons 1 '(2 3))", "(1 2 3)"); */
-	test("(cons 1 null)", "(1 . <thunk>)");
+	test("(cons 1 '(2 3))", "(1 2 3)");
+	/* test("(cons 1 null)", "(1 . <thunk>)");
 	test("(cons 1 (cons 2 null))", "(1 . <thunk>)");
 	test("(cons 1 (cons 2 (cons 3 null)))", "(1 . <thunk>)");
-	test("(cons 1 '(2 3))", "(1 2 3)");
+	test("(cons 1 '(2 3))", "(1 2 3)"); */
 
 	/* car */
 	test("(car (cons 1 null))", "1");
@@ -178,8 +178,8 @@ void runTests() {
 	test("(cdr (cons 1 null))", "()");
 	test("(cdr '(1))", "()");
 
-	/* test("(cdr (cons 1 (cons 2 null)))", "(2)"); */
-	test("(cdr (cons 1 (cons 2 null)))", "(2 . <thunk>)");
+	test("(cdr (cons 1 (cons 2 null)))", "(2)");
+	/* test("(cdr (cons 1 (cons 2 null)))", "(2 . <thunk>)"); */
 
 	test("(cdr '(1 2))", "(2)");
 
@@ -348,10 +348,14 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 	};
 	char * expectedResultsRplacAssoc[] = {
 		"((a 1))",
-		"(<thunk> . <thunk>)",
+		/* "(<thunk> . <thunk>)",
 		"(<thunk> . <thunk>)",
 		"((a 7) . <thunk>)",
-		"((a 7) . <thunk>)",
+		"((a 7) . <thunk>)", */
+		"((a 1) (b 2))",
+		"((a 1) (b 2))",
+		"((a 7) (b 2))",
+		"((a 7) (b 2))",
 		"7",
 		NULL
 	};
@@ -361,7 +365,7 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 	multitest(inputsRplacAssoc, expectedResultsRplacAssoc);
 
 	/* SASL infinite list test */
-	printf("SASL infinite list test: BEGIN\n");
+	/* printf("SASL infinite list test: BEGIN\n");
 
 	char * inputsSaslInfiniteList[] = {
 		"(set! +1 (lambda (n) (+ n 1)))",
@@ -388,7 +392,7 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 
 	multitest(inputsSaslInfiniteList, expectedResultsSaslInfiniteList);
 
-	printf("SASL infinite list test: END\n");
+	printf("SASL infinite list test: END\n"); */
 
 	/* testGetIdentifier("abc (def weatherhead) ghi");
 	testGetIdentifier("(+1 7)");
