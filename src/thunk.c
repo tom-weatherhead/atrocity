@@ -15,6 +15,8 @@ static BOOL isValueOrThunk(LISP_EXPR * expr) {
 }
 
 LISP_VALUE * exprToValueOrThunk(LISP_EXPR * expr, LISP_ENV * env) {
+	failIf(expr == NULL, "exprToValueOrThunk() : expr == NULL");
+
 	expr = getval(expr);
 
 	if (isValueOrThunk(expr)) {
@@ -40,6 +42,12 @@ LISP_VALUE_LIST_ELEMENT * exprListToListOfValuesOrThunks(LISP_EXPR_LIST_ELEMENT 
 }
 
 LISP_VALUE * dethunk(LISP_VALUE * value) {
+	failIf(value == NULL, "dethunk() : value == NULL");
+
+	if (value == NULL) {
+		return NULL;
+	}
+
 	/* printf("dethunk BEGIN; value is %ld\n", value);
 	printf("-> value type is %d\n", value->type); */
 

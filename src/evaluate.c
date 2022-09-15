@@ -61,6 +61,9 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 	printf("  v1 is %ld\n", v1);
 	printf("  v2 is %ld\n", v2); */
 
+	failIf(v1 == NULL, "areValuesEqual() : v1 == NULL");
+	failIf(v2 == NULL, "areValuesEqual() : v2 == NULL");
+
 	v1 = dethunk(v1);
 	v2 = dethunk(v2);
 
@@ -291,6 +294,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	for (eeaa = evaluatedArguments; eeaa != NULL; eeaa = eeaa->next) {
 		LISP_VALUE * value = getValueInValueListElement(eeaa);
 
+		failIf(value == NULL, "evaluatePrimitiveOperatorCall() : eeaa loop: value == NULL");
+
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
 		} else if (!isUnthunkedValue(value)) {
@@ -298,8 +303,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			printf("getValueInValueListElement(eeaa)->type is %d\n", value->type);
 		}
 
-		failIf(!isUnthunkedValue(value), "Value in eeaa is not an UnthunkedValue");
-		failIf(value->type == lispPseudoValueType_Continuation, "Value in eeaa is a Continuation");
+		failIf(!isUnthunkedValue(value), "evaluatePrimitiveOperatorCall() : Value in eeaa is not an UnthunkedValue");
+		failIf(value->type == lispPseudoValueType_Continuation, "evaluatePrimitiveOperatorCall() : Value in eeaa is a Continuation");
 		/* failIf(value->type == lispPseudoValueType_ContinuationReturn, "Value in eeaa is a ContinuationReturn"); */
 	}
 
