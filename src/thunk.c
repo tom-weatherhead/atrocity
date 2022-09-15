@@ -17,9 +17,14 @@ static BOOL isValueOrThunk(LISP_EXPR * expr) {
 LISP_VALUE * exprToValueOrThunk(LISP_EXPR * expr, LISP_ENV * env) {
 	failIf(expr == NULL, "exprToValueOrThunk() : expr == NULL");
 
-	expr = getval(expr);
+	/* expr = getval(expr); */
 
-	if (isValueOrThunk(expr)) {
+	if (expr->type == lispPseudoValueType_EvaluatedThunk) {
+		failIf(expr->next == NULL, "exprToValueOrThunk() : EvaluatedThunk : expr->next == NULL");
+		failIf(!isUnthunkedValue(expr->next), "exprToValueOrThunk() : EvaluatedThunk : expr->next is not an UnthunkedValue");
+
+		return expr->next;
+	} else if (isValueOrThunk(expr)) {
 		return expr; /* expr is already a value or a thunk */
 	} else if (expr->type == lispExpressionType_Value) {
 		return getValueInExpr(expr);
@@ -52,6 +57,9 @@ LISP_VALUE * dethunk(LISP_VALUE * value) {
 	printf("-> value type is %d\n", value->type); */
 
 	if (value->type == lispPseudoValueType_EvaluatedThunk) {
+		failIf(value->next == NULL, "dethunk() : EvaluatedThunk : value->next == NULL");
+		failIf(!isUnthunkedValue(value->next), "dethunk() : EvaluatedThunk : value->next is not an UnthunkedValue");
+
 		return value->next;
 	} else if (value->type != lispValueType_Thunk) {
 		/* printf("dethunk : Returning early\n"); */

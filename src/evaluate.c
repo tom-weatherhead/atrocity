@@ -236,7 +236,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	} else */ if (!strcmp(op, "cons") && listOfValuesOrThunks != NULL && listOfValuesOrThunks->next != NULL && listOfValuesOrThunks->next->next == NULL) {
 		LISP_VALUE * head = getValueInValueListElement(listOfValuesOrThunks);
 
-		/* head = dethunk(head); / * HACK 1 of 2 - Last before labyrinth works getval */
+		/* head = dethunk(head); / * HACK 1 of 2 - Last before labyrinth works; TODO: getval */
 		head = dethunk(head);
 
 		if (head->type == lispPseudoValueType_ContinuationReturn) {
@@ -249,7 +249,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 		LISP_VALUE * tail = getValueInValueListElement(listOfValuesOrThunks->next);
 
-		/* tail = dethunk(tail); / * HACK 2 of 2 - Last before labyrinth works getval */
+		/* tail = dethunk(tail); / * HACK 2 of 2 - Last before labyrinth works; TODO: getval */
 		tail = dethunk(tail);
 
 		if (tail->type == lispPseudoValueType_ContinuationReturn) {
