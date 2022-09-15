@@ -291,21 +291,34 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	for (eeaa = evaluatedArguments; eeaa != NULL; eeaa = eeaa->next) {
 		LISP_VALUE * value = getValueInValueListElement(eeaa);
 
-		if (!isUnthunkedValue(value)) {
+		if (value->type == lispPseudoValueType_ContinuationReturn) {
+			return value;
+		} else if (!isUnthunkedValue(value)) {
 			printf("op is '%s'\n", op);
 			printf("getValueInValueListElement(eeaa)->type is %d\n", value->type);
 		}
 
 		failIf(!isUnthunkedValue(value), "Value in eeaa is not an UnthunkedValue");
 		failIf(value->type == lispPseudoValueType_Continuation, "Value in eeaa is a Continuation");
-		failIf(value->type == lispPseudoValueType_ContinuationReturn, "Value in eeaa is a ContinuationReturn");
+		/* failIf(value->type == lispPseudoValueType_ContinuationReturn, "Value in eeaa is a ContinuationReturn"); */
+	}
+
+	LISP_VALUE * operand1Value = NULL;
+	LISP_VALUE * operand2Value = NULL;
+
+	if (evaluatedArguments != NULL) {
+		operand1Value = getValueInValueListElement(evaluatedArguments);
+
+		if (evaluatedArguments->next != NULL) {
+			operand2Value = getValueInValueListElement(evaluatedArguments->next);
+		}
 	}
 
 	/* Handle car, cdr:
 	- car: Return the dethunked head of arg 0
 	- cdr: Return the dethunked tail of arg 0 */
-	if (evaluatedArguments != NULL && evaluatedArguments->next == NULL && (!strcmp(op, "car") || !strcmp(op, "cdr"))) {
-		LISP_VALUE * pair = getValueInValueListElement(evaluatedArguments);
+	if (operand1Value != NULL && operand2Value == NULL && (!strcmp(op, "car") || !strcmp(op, "cdr"))) {
+		LISP_VALUE * pair = operand1Value;
 
 		pair = dethunk(pair);
 
@@ -345,10 +358,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	/* END Thunk support */
 
 	/* if (actualParamExprs != NULL && getExprInExprList(actualParamExprs) != NULL) { */
-	if (evaluatedArguments != NULL && getValueInValueListElement(evaluatedArguments) != NULL) {
-		/* LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs); */
-		LISP_VALUE * operand1Value = getValueInValueListElement(evaluatedArguments);
-
+	if (operand1Value != NULL) {
 		/* BEGIN : Value type predicates */
 		if (!strcmp(op, "null?")) {
 			failIf(operand1Value->type == lispValueType_Thunk, "null? : operand1 is a thunk");
@@ -481,9 +491,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			return result;
 		}
 
-		/* if (actualParamExprs->next != NULL && getExprInExprList(actualParamExprs->next) != NULL) {
-			LISP_EXPR * operand2Expr = getExprInExprList(actualParamExprs->next); */
-		if (evaluatedArguments->next != NULL && getValueInValueListElement(evaluatedArguments->next) != NULL) {
+		if (operand2Value != NULL) {
 			LISP_VALUE * operand2Value = getValueInValueListElement(evaluatedArguments->next);
 
 			if (isStringInList(op, twoArgumentPrimops)) {

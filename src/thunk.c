@@ -61,6 +61,9 @@ LISP_VALUE * dethunk(LISP_VALUE * value) {
 		/* printf("-> result type is %d\n", result->type); */
 	}
 
+	failIf(result->type == lispPseudoValueType_EvaluatedThunk, "dethunk() : result is an EvaluatedThunk");
+	/* If the above line fails then: result = getval(result); */
+
 	/* printf("dethunk : Exited while loop\n");
 	printf("  value is %ld\n", value);
 	printf("  result is %ld\n", result);
@@ -122,7 +125,7 @@ LISP_VALUE_LIST_ELEMENT * dethunkList(LISP_VALUE_LIST_ELEMENT * listOfValuesOrTh
 
 	failIf(!isUnthunkedValue(dethunkedValue), "Value is not an unthunked value");
 
-	LISP_VALUE_LIST_ELEMENT * next = dethunkList(listOfValuesOrThunks->next);
+	LISP_VALUE_LIST_ELEMENT * next = (dethunkedValue->type == lispPseudoValueType_ContinuationReturn) ? NULL : dethunkList(listOfValuesOrThunks->next);
 
 	return createValueListElement(dethunkedValue, next);
 }
