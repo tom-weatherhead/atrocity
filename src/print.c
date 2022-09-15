@@ -18,7 +18,7 @@ void printValue(LISP_VALUE * value) {
 	/* printf("printValue() : Value pointer is %ld\n", value);
 	printf("printValue() : Value type is %d\n", value->type); */
 
-	deepDethunk(value);
+	/* deepDethunk(value); Can cause seg fault */
 
 	if (value == NULL) {
 		printf("NULL");

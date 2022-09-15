@@ -26,7 +26,7 @@ LISP_VALUE * createStringValue(char * value);
 LISP_VALUE * createSymbolValue(char * value);
 LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env);
 
-LISP_VALUE * cloneValue(LISP_VALUE * value);
+/* LISP_VALUE * cloneValue(LISP_VALUE * value); */
 
 /* Create expressions */
 LISP_EXPR * createBeginExpression(LISP_EXPR_LIST_ELEMENT * exprList);

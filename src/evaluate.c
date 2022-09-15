@@ -42,7 +42,8 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 /* Functions */
 
 static LISP_VALUE * booleanToClonedValue(int b) {
-	return cloneValue(b ? globalTrueValue : globalNullValue);
+	/* return cloneValue(b ? globalTrueValue : globalNullValue); */
+	return b ? globalTrueValue : globalNullValue;
 }
 
 /* static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int lispValueType) {
@@ -562,8 +563,27 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				} else */ if (!strcmp(op, "rplaca")) {
 					printf("BEGIN rplaca\n");
 
+					LISP_VALUE * v1 = evaluate(actualParamExprs->value1, env);
+
+					printf("actualParamExprs->value1 is %ld\n", actualParamExprs->value1);
+					printf("listOfValuesOrThunks->value1 is %ld\n", listOfValuesOrThunks->value1);
+
+					LISP_VALUE * vvv1 = evaluate(actualParamExprs->value1, env);
+
+					printf("vvv1 is %ld\n", vvv1);
+
+					printf("operand1Value (%ld) is type %d, value ", operand1Value, operand1Value->type);
+					printValue(operand1Value);
+					printf("\n");
+
 					deepDethunk(operand1Value);
 					deepDethunk(operand2Value);
+
+					printf("After deepDethunk: operand1Value (%ld) is type %d, value ", operand1Value, operand1Value->type);
+					printValue(operand1Value);
+					printf("\n");
+
+					operand1Value = vvv1; /* HACK 2022-09-15 */
 
 					if (operand1Value->type != lispValueType_Pair) {
 						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair; type %d\n", operand1Value->type);
@@ -572,7 +592,9 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 					getHeadInPair(operand1Value) = operand2Value;
 
-					printf("END rplaca\n");
+					printf("rplaca: operand1Value (%ld) is ", operand1Value);
+					printValue(operand1Value);
+					printf("\nEND rplaca\n");
 
 					return operand2Value;
 				} else if (!strcmp(op, "rplacd")) {
@@ -580,6 +602,10 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 					deepDethunk(operand1Value);
 					deepDethunk(operand2Value);
+
+					LISP_VALUE * vvv1 = evaluate(actualParamExprs->value1, env);
+
+					operand1Value = vvv1; /* HACK 2022-09-15 */
 
 					if (operand1Value->type != lispValueType_Pair) {
 						fprintf(stderr, "evaluatePrimitiveOperatorCall() : rplacd : Operand is not a pair; type %d\n", operand1Value->type);
@@ -764,6 +790,10 @@ static LISP_VALUE * evaluateSetExpression(LISP_EXPR * setExpr, LISP_ENV * env) {
 		return value;
 	}
 
+	printf("set: Variable '%s' := (%ld) ", getVarInExpr(setExpr)->name, value);
+	printValue(value);
+	printf(" (type %d)\n", value->type);
+
 	/* X TODO: Use addBubbleDown() instead of setValueInEnvironment() */
 	setValueInEnvironment(env, getVarInExpr(setExpr), value);
 
@@ -935,7 +965,8 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 	switch (expr->type) {
 		case lispExpressionType_Value:
 			/* Return a clone of the value so it can be freed separately */
-			result = cloneValue(getValueInExpr(expr));
+			/* result = cloneValue(getValueInExpr(expr)); */
+			result = getValueInExpr(expr);
 			break;
 
 		case lispExpressionType_Variable:
@@ -947,7 +978,8 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 				return NULL;
 			}
 
-			result = cloneValue(value);
+			/* result = cloneValue(value); */
+			result = value;
 			break;
 
 		case lispExpressionType_FunctionCall:

@@ -18,6 +18,8 @@ LISP_VALUE * exprToValueOrThunk(LISP_EXPR * expr, LISP_ENV * env) {
 
 	if (isValueOrThunk(expr)) {
 		return expr; /* expr is already a value or a thunk */
+	} else if (expr->type == lispExpressionType_Value) {
+		return getValueInExpr(expr);
 	}
 
 	return createThunk(expr, env);

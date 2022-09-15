@@ -163,10 +163,10 @@ void runTests() {
 	test("(cons 1 (cons 2 null))", "(1 2)");
 	test("(cons 1 (cons 2 (cons 3 null)))", "(1 2 3)");
 	test("(cons 1 '(2 3))", "(1 2 3)"); */
-	test("(cons 1 null)", "(<thunk> . <thunk>)");
-	test("(cons 1 (cons 2 null))", "(<thunk> . <thunk>)");
-	test("(cons 1 (cons 2 (cons 3 null)))", "(<thunk> . <thunk>)");
-	test("(cons 1 '(2 3))", "(<thunk> . <thunk>)");
+	test("(cons 1 null)", "(1 . <thunk>)");
+	test("(cons 1 (cons 2 null))", "(1 . <thunk>)");
+	test("(cons 1 (cons 2 (cons 3 null)))", "(1 . <thunk>)");
+	test("(cons 1 '(2 3))", "(1 2 3)");
 
 	/* car */
 	test("(car (cons 1 null))", "1");
@@ -179,7 +179,7 @@ void runTests() {
 	test("(cdr '(1))", "()");
 
 	/* test("(cdr (cons 1 (cons 2 null)))", "(2)"); */
-	test("(cdr (cons 1 (cons 2 null)))", "(<thunk> . <thunk>)");
+	test("(cdr (cons 1 (cons 2 null)))", "(2 . <thunk>)");
 
 	test("(cdr '(1 2))", "(2)");
 
@@ -349,9 +349,9 @@ test('LL(1) Scheme Global vs. Local Variable test', () => {
 	char * expectedResultsRplacAssoc[] = {
 		"((a 1))",
 		"(<thunk> . <thunk>)",
-		"((a 1) (b 2))",
-		"(7)",
-		"((a 7) (b 2))",
+		"(<thunk> . <thunk>)",
+		"((a 7) . <thunk>)",
+		"((a 7) . <thunk>)",
 		"7",
 		NULL
 	};
