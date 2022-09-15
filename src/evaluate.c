@@ -50,18 +50,10 @@ static LISP_VALUE * booleanToClonedValue(int b) {
 	return b ? globalTrueValue : globalNullValue;
 }
 
-/* static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int lispValueType) {
-	LISP_VALUE * operandValue = evaluate(operandExpr, env); */
-static LISP_VALUE * evaluateAndCompareType(LISP_VALUE * operandValue, LISP_ENV * env, int lispValueType) {
-	failIf(operandValue->type == lispValueType_Thunk, "evaluateAndCompareType() : operandValue is a thunk");
+static LISP_VALUE * compareType(LISP_VALUE * operandValue, int lispValueType) {
+	failIf(operandValue->type == lispValueType_Thunk, "compareType() : operandValue is a thunk");
 
-	if (operandValue->type == lispPseudoValueType_ContinuationReturn) {
-		return operandValue;
-	}
-
-	const int b = operandValue->type == lispValueType;
-
-	return booleanToClonedValue(b);
+	return booleanToClonedValue(operandValue->type == lispValueType);
 }
 
 static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
@@ -69,8 +61,8 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 	printf("  v1 is %ld\n", v1);
 	printf("  v2 is %ld\n", v2); */
 
-	dethunk(v1);
-	dethunk(v2);
+	v1 = dethunk(v1);
+	v2 = dethunk(v2);
 
 	/* printf("areValuesEqual() : Values dethunked\n");
 
@@ -89,6 +81,8 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 
 	failIf(v1->type == lispValueType_Thunk, "areValuesEqual() : v1 is a thunk");
 	failIf(v2->type == lispValueType_Thunk, "areValuesEqual() : v2 is a thunk");
+	failIf(v1->type == lispPseudoValueType_ContinuationReturn, "areValuesEqual() : v1 is a ContinuationReturn");
+	failIf(v2->type == lispPseudoValueType_ContinuationReturn, "areValuesEqual() : v2 is a ContinuationReturn");
 
 	if (v1->type != v2->type) {
 		/* printf("areValuesEqual() : EXIT 1\n"); */
@@ -146,17 +140,20 @@ static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 	return createPair(head, tail);
 } */
 
-static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
+/* static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * value = evaluate(expr, env);
 
 	return value->type == lispValueType_Null;
-}
+} */
 
 static LISP_VALUE * evaluateAnd(LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks, LISP_ENV * env) {
 
 	for (; listOfValuesOrThunks != NULL; listOfValuesOrThunks = listOfValuesOrThunks->next) {
+		LISP_VALUE * value = dethunk(getValueInValueListElement(listOfValuesOrThunks));
 
-		if (dethunk(getValueInValueListElement(listOfValuesOrThunks))->type == lispValueType_Null) {
+		if (value->type == lispPseudoValueType_ContinuationReturn) {
+			return value;
+		} else if (value->type == lispValueType_Null) {
 			/* Enable short-circuiting */
 			return globalNullValue;
 		}
@@ -168,8 +165,11 @@ static LISP_VALUE * evaluateAnd(LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks, 
 static LISP_VALUE * evaluateOr(LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks, LISP_ENV * env) {
 
 	for (; listOfValuesOrThunks != NULL; listOfValuesOrThunks = listOfValuesOrThunks->next) {
+		LISP_VALUE * value = dethunk(getValueInValueListElement(listOfValuesOrThunks));
 
-		if (dethunk(getValueInValueListElement(listOfValuesOrThunks))->type != lispValueType_Null) {
+		if (value->type == lispPseudoValueType_ContinuationReturn) {
+			return value;
+		} else if (value->type != lispValueType_Null) {
 			/* Enable short-circuiting */
 			return globalTrueValue;
 		}
@@ -187,10 +187,9 @@ static LISP_VALUE * evaluateDoubleQuestionMark(LISP_VALUE_LIST_ELEMENT * listOfV
 		LISP_VALUE * value = dethunk(getValueInValueListElement(listOfValuesOrThunks));
 
 		if (value->type != lispValueType_Null) {
+			/* This also handles the ContinuationReturn case */
 			return value;
 		}
-
-		/* freeValue(value); */
 	}
 
 	return globalNullValue;
@@ -208,7 +207,7 @@ static LISP_VALUE * listOfValuesToListValue(SCHEME_UNIVERSAL_TYPE * listOfValues
 		return head;
 	}
 
-	LISP_VALUE * tail = listOfValuesToListValue(listOfValuesOrThunks->next);
+	LISP_VALUE * tail = dethunk(listOfValuesToListValue(listOfValuesOrThunks->next));
 
 	if (tail->type == lispPseudoValueType_ContinuationReturn) {
 		return tail;
@@ -225,6 +224,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	/* BEGIN Thunk support */
 
 	LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks = exprListToListOfValuesOrThunks(actualParamExprs, env);
+
+	actualParamExprs = NULL; /* To ensure it isn't used later */
 
 	/* Handle cond, cons, if, list: */
 
@@ -283,18 +284,21 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 	LISP_VALUE_LIST_ELEMENT * evaluatedArguments = dethunkList(listOfValuesOrThunks);
 
-	listOfValuesOrThunks = NULL;
+	listOfValuesOrThunks = NULL; /* To ensure it isn't used later */
 
 	LISP_VALUE_LIST_ELEMENT * eeaa = NULL;
 
 	for (eeaa = evaluatedArguments; eeaa != NULL; eeaa = eeaa->next) {
+		LISP_VALUE * value = getValueInValueListElement(eeaa);
 
-		if (!isUnthunkedValue(getValueInValueListElement(eeaa))) {
+		if (!isUnthunkedValue(value)) {
 			printf("op is '%s'\n", op);
-			printf("getValueInValueListElement(eeaa)->type is %d\n", getValueInValueListElement(eeaa)->type);
+			printf("getValueInValueListElement(eeaa)->type is %d\n", value->type);
 		}
 
-		failIf(!isUnthunkedValue(getValueInValueListElement(eeaa)), "Value in eeaa is not an UnthunkedValue");
+		failIf(!isUnthunkedValue(value), "Value in eeaa is not an UnthunkedValue");
+		failIf(value->type == lispPseudoValueType_Continuation, "Value in eeaa is a Continuation");
+		failIf(value->type == lispPseudoValueType_ContinuationReturn, "Value in eeaa is a ContinuationReturn");
 	}
 
 	/* Handle car, cdr:
@@ -314,26 +318,26 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		failIf(pair->type != lispValueType_Pair, "evaluatePrimpOp: Was expecting a pair for car or cdr");
 
 		if (!strcmp(op, "car")) {
-			/* printf("car: pair is %ld\n", pair); */
+			/* printf("car: pair is %ld\n", pair); * /
 
 			LISP_VALUE * head = getHeadInPair(pair);
 
-			/* printf("car: head is %ld\n", head);
+			/ * printf("car: head is %ld\n", head);
 			printf("car: head->type is %d\n", head->type);
-			printf("car: head->name is %ld\n", head->name); */
+			printf("car: head->name is %ld\n", head->name); * /
 
 			LISP_VALUE * dethunkedHead = dethunk(head);
 
-			/* printf("car: dethunkedHead is %ld\n", dethunkedHead);
+			/ * printf("car: dethunkedHead is %ld\n", dethunkedHead);
 			printf("car: dethunkedHead->type is %d\n", dethunkedHead->type);
 			printf("car: dethunkedHead->name is %ld\n", dethunkedHead->name);
 
-			printf("END evaluatePrimitiveOperatorCall: op is %s\n", op); */
+			printf("END evaluatePrimitiveOperatorCall: op is %s\n", op); * /
 
-			return dethunkedHead;
+			return dethunkedHead; */
 
-			/* return dethunk(getHeadInPair(pair)); */
-		} else /* if (!strcmp(op, "cdr")) */ {
+			return dethunk(getHeadInPair(pair));
+		} else if (!strcmp(op, "cdr")) {
 			return dethunk(getTailInPair(pair));
 		}
 	}
@@ -348,24 +352,24 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		/* BEGIN : Value type predicates */
 		if (!strcmp(op, "null?")) {
 			failIf(operand1Value->type == lispValueType_Thunk, "null? : operand1 is a thunk");
-			return evaluateAndCompareType(operand1Value, env, lispValueType_Null);
+			return compareType(operand1Value, lispValueType_Null);
 		} else if (!strcmp(op, "number?")) {
-			return evaluateAndCompareType(operand1Value, env, lispValueType_Number);
+			return compareType(operand1Value, lispValueType_Number);
 		} else if (!strcmp(op, "string?")) {
-			return evaluateAndCompareType(operand1Value, env, lispValueType_String);
+			return compareType(operand1Value, lispValueType_String);
 		} else if (!strcmp(op, "symbol?")) {
-			return evaluateAndCompareType(operand1Value, env, lispValueType_Symbol);
+			return compareType(operand1Value, lispValueType_Symbol);
 		} else if (!strcmp(op, "pair?")) {
-			return evaluateAndCompareType(operand1Value, env, lispValueType_Pair);
+			return compareType(operand1Value, lispValueType_Pair);
 		} else if (!strcmp(op, "list?")) {
 			/* Note the difference between a pair and a list.
 			The set of lists is a proper subset of the set of pairs.
 			E.g. (cons 1 2) = (1 . 2) is a pair, but not a list. */
 			return booleanToClonedValue(isList(operand1Value));
 		} else if (!strcmp(op, "primop?")) {
-			return evaluateAndCompareType(operand1Value, env, lispValueType_PrimitiveOperator);
+			return compareType(operand1Value, lispValueType_PrimitiveOperator);
 		} else if (!strcmp(op, "closure?")) {
-			return evaluateAndCompareType(operand1Value, env, lispValueType_Closure);
+			return compareType(operand1Value, lispValueType_Closure);
 		}
 		/* END : Value type predicates */
 		else if (!strcmp(op, "print")) {
