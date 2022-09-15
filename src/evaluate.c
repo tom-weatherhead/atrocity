@@ -152,11 +152,11 @@ static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
 	return value->type == lispValueType_Null;
 }
 
-static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+static LISP_VALUE * evaluateAnd(LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks, LISP_ENV * env) {
 
-	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
+	for (; listOfValuesOrThunks != NULL; listOfValuesOrThunks = listOfValuesOrThunks->next) {
 
-		if (evaluatesToNull(getExprInExprList(actualParamExprs), env)) {
+		if (dethunk(getValueInValueListElement(listOfValuesOrThunks))->type == lispValueType_Null) {
 			/* Enable short-circuiting */
 			return globalNullValue;
 		}
@@ -165,11 +165,11 @@ static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_
 	return globalTrueValue;
 }
 
-static LISP_VALUE * evaluateOr(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+static LISP_VALUE * evaluateOr(LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks, LISP_ENV * env) {
 
-	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
+	for (; listOfValuesOrThunks != NULL; listOfValuesOrThunks = listOfValuesOrThunks->next) {
 
-		if (!evaluatesToNull(getExprInExprList(actualParamExprs), env)) {
+		if (dethunk(getValueInValueListElement(listOfValuesOrThunks))->type != lispValueType_Null) {
 			/* Enable short-circuiting */
 			return globalTrueValue;
 		}
@@ -181,10 +181,10 @@ static LISP_VALUE * evaluateOr(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_E
 /* Stolen from C# */
 /* E.g. In C#, a ?? b ?? c is equiv to (a != null) ? a : ((b != null) ? b : c) */
 
-static LISP_VALUE * evaluateDoubleQuestionMark(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+static LISP_VALUE * evaluateDoubleQuestionMark(LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks, LISP_ENV * env) {
 
-	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
-		LISP_VALUE * value = evaluate(getExprInExprList(actualParamExprs), env);
+	for (; listOfValuesOrThunks != NULL; listOfValuesOrThunks = listOfValuesOrThunks->next) {
+		LISP_VALUE * value = dethunk(getValueInValueListElement(listOfValuesOrThunks));
 
 		if (value->type != lispValueType_Null) {
 			return value;
@@ -201,9 +201,6 @@ static LISP_VALUE * listOfValuesToListValue(SCHEME_UNIVERSAL_TYPE * listOfValues
 	if (listOfValuesOrThunks == NULL) {
 		return createNull();
 	}
-
-	/* TEMP:
-	return createPair(getValueInValueListElement(listOfValuesOrThunks), listOfValuesToListValue(listOfValuesOrThunks->next)); */
 
 	LISP_VALUE * head = dethunk(getValueInValueListElement(listOfValuesOrThunks));
 
@@ -271,11 +268,22 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		LISP_VALUE * operand3Thunk = getValueInValueListElement(listOfValuesOrThunks->next->next);
 
 		return dethunk(operand1Value->type != lispValueType_Null ? operand2Thunk : operand3Thunk);
-	} else if (!strcmp(op, "list")) {
+	} else
+	/* BEGIN : These primops can take any number of args, including zero. */
+	if (!strcmp(op, "list")) {
 		return listOfValuesToListValue(listOfValuesOrThunks);
+	} else if (!strcmp(op, "and")) {
+		return evaluateAnd(listOfValuesOrThunks, env);
+	} else if (!strcmp(op, "or")) {
+		return evaluateOr(listOfValuesOrThunks, env);
+	} else if (!strcmp(op, "??")) {
+		return evaluateDoubleQuestionMark(listOfValuesOrThunks, env);
 	}
+	/* END : These primops can take any number of args, including zero. */
 
 	LISP_VALUE_LIST_ELEMENT * evaluatedArguments = dethunkList(listOfValuesOrThunks);
+
+	listOfValuesOrThunks = NULL;
 
 	LISP_VALUE_LIST_ELEMENT * eeaa = NULL;
 
@@ -331,18 +339,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	}
 
 	/* END Thunk support */
-
-	/* BEGIN : These primops can take any number of args, including zero. */
-	/* if (!strcmp(op, "list")) {
-		return exprListToListValue(actualParamExprs, env);
-	} else */ if (!strcmp(op, "and")) {
-		return evaluateAnd(actualParamExprs, env);
-	} else if (!strcmp(op, "or")) {
-		return evaluateOr(actualParamExprs, env);
-	} else if (!strcmp(op, "??")) {
-		return evaluateDoubleQuestionMark(actualParamExprs, env);
-	}
-	/* END : These primops can take any number of args, including zero. */
 
 	/* if (actualParamExprs != NULL && getExprInExprList(actualParamExprs) != NULL) { */
 	if (evaluatedArguments != NULL && getValueInValueListElement(evaluatedArguments) != NULL) {
