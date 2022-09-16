@@ -41,7 +41,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 /* Functions */
 
 static LISP_VALUE * booleanToClonedValue(int b) {
-	return cloneValue(b ? globalTrueValue : globalNullValue);
+	return b ? globalTrueValue : globalNullValue;
 }
 
 static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * env, int lispValueType) {
@@ -704,7 +704,7 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 	switch (expr->type) {
 		case lispExpressionType_Value:
 			/* Return a clone of the value so it can be freed separately */
-			return cloneValue(getValueInExpr(expr));
+			return getValueInExpr(expr);
 
 		case lispExpressionType_Variable:
 			value = lookupVariableInEnvironment(getVarInExpr(expr), env);
@@ -715,7 +715,7 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 				return NULL;
 			}
 
-			return cloneValue(value);
+			return value;
 
 		case lispExpressionType_FunctionCall:
 			return evaluateFunctionCall(expr, env);

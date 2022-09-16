@@ -262,7 +262,7 @@ LISP_VALUE * createContinuationReturn(int id, LISP_VALUE * value) {
 	);
 }
 
-LISP_VALUE * cloneValue(LISP_VALUE * value) {
+/* LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 	switch (value->type) {
 		case lispValueType_Number:
@@ -288,7 +288,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 
 		case lispPseudoValueType_Continuation:
 		case lispPseudoValueType_ContinuationReturn:
-			/* fprintf(stderr, "Warning: cloneValue() returning the original value for Continuation or ContinuationReturn\n"); */
+			/ * fprintf(stderr, "Warning: cloneValue() returning the original value for Continuation or ContinuationReturn\n"); * /
 			return value;
 
 		default:
@@ -297,7 +297,7 @@ LISP_VALUE * cloneValue(LISP_VALUE * value) {
 	}
 
 	return NULL;
-}
+} */
 
 // **** Expression struct creation functions ****
 
