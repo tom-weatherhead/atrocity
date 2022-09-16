@@ -106,8 +106,8 @@
 (set rplac-assoc (lambda (x y alist)
 	(cond
 		((null? alist) '())
-		((= x (caar alist)) (rplacd (car alist) (list y)))
-		((null? (cdr alist)) (rplacd alist (list (list x y))))
+		((= x (caar alist)) (begin (print 'rplacassoc2) (print (car alist)) (rplacd (car alist) (list y))))
+		((null? (cdr alist)) (begin (print 'rplacassoc3) (rplacd alist (list (list x y)))))
 		('T (rplac-assoc x y (cdr alist)))
 	)
 ))
@@ -235,11 +235,19 @@
 		(l6 (- (* 2 l2) l1))
 		(room6 (list l6 r1))
 		)
-		(any (list
-			(areConnected room3 room4)
-			(areConnected room1 room5)
-			(areConnected room2 room6)
-		))
+		(begin
+			(print (list 'any any))
+			(print (list 'room3 room3))
+			(print (list 'room4 room4))
+			(print (list 'c34 (areConnected room3 room4)))
+			(print (list 'c15 (areConnected room1 room5)))
+			(print (list 'c26 (areConnected room2 room6)))
+			(any (list
+				(areConnected room3 room4)
+				(areConnected room1 room5)
+				(areConnected room2 room6)
+			))
+		)
 	)
 ))
 
@@ -266,13 +274,20 @@
 		(openListStackLocal (list room))
 		(closedListSet '())
 		(roomFromOpenList '())
+		(neighbrs '())
 		)
+		(begin
+		(print "Begin propagateNewLabel")
 		(while (not (empty? openListStackLocal)) (begin
-			(print 'connections)
-			(print connections)
+			; (print 'connections)
+			; (print connections)
 			(set roomFromOpenList (peek openListStackLocal))
 			(set openListStackLocal (pop openListStackLocal))
+			(print (list "Neighbours of room " roomFromOpenList " are " (assoc roomFromOpenList connections)))
+			(print (list "Applying label " newLabel " to room " roomFromOpenList))
 			(rplac-assoc roomFromOpenList newLabel roomLabels)
+			(print '(roomLabels after rplacassoc))
+			(print roomLabels)
 			(print 'closedListSetBefore)
 			(print closedListSet)
 			(set closedListSet (addelt roomFromOpenList closedListSet))
@@ -286,19 +301,56 @@
 				'()
 			)
 
+			(print "closedListSet")
+			(print closedListSet)
+			(print "openListStackLocal before additions")
+			(print openListStackLocal)
+			(print "(assoc roomFromOpenList connections)")
+			(print (assoc roomFromOpenList connections))
+
 			; foreach
-			(mapcar
-				(lambda (room2)
+			; 2022-09-15 : No; we want to filter (assoc roomFromOpenList connections) and then append it to openListStackLocal
+			(set neighbrs (assoc roomFromOpenList connections))
+			(print "neighbrs")
+			(print neighbrs)
+			(print (null? neighbrs))
+			(print (not (null? neighbrs)))
+
+			(while (not (null? neighbrs)) (let ((room2 (car neighbrs)))
+				(begin
+					(print "Inside - room2 is")
+					(print room2)
 					(if (not (or (member? room2 openListStackLocal) (member? room2 closedListSet)))
 						(set openListStackLocal (push room2 openListStackLocal))
 						'()
 					)
+					(print 'openListStackLocal)
+					(print openListStackLocal)
+					(set neighbrs (cdr neighbrs))
 				)
-				(assoc roomFromOpenList connections)
-			)
+			))
+			;(mapcar
+			;	(lambda (room2)
+			;		(begin
+			;		(print "(member? room2 openListStackLocal)")
+			;		(print (member? room2 openListStackLocal))
+			;		(print "(member? room2 closedListSet)")
+			;		(print (member? room2 closedListSet))
+			;		(print "(or (member? room2 openListStackLocal) (member? room2 closedListSet))")
+			;		(print (or (member? room2 openListStackLocal) (member? room2 closedListSet)))
 
-			(print 'openListStackLocal1)
+			;		(if (not (or (member? room2 openListStackLocal) (member? room2 closedListSet)))
+			;			(set openListStackLocal (push room2 openListStackLocal))
+			;			'()
+			;		)
+			;		)
+			;	)
+			;	(assoc roomFromOpenList connections)
+			; )
+
+			(print "openListStackLocal after additions")
 			(print openListStackLocal)
+
 			(print 'closedListSet2)
 			(print closedListSet)
 			(print 'roomFromOpenList3)
@@ -306,6 +358,9 @@
 			(print 'roomConnections)
 			(print (assoc roomFromOpenList connections))
 		))
+		(print '(Final roomLabels))
+		(print roomLabels)
+		)
 	)
 ))
 
@@ -428,7 +483,11 @@
 		(print (numberOfUniqueRoomLabels))
 
 		(if (> (numberOfUniqueRoomLabels) 1)
-			(throw "The labyrinth is in multiple blobs.")
+			(begin
+				(print 'connections)
+				(print connections)
+				(throw "The labyrinth is in multiple blobs.")
+			)
 			'()
 		)
 
@@ -664,38 +723,82 @@
 				(set room1Index (random (length openList)))
 				(set room1 (nth room1Index openList))
 				(set possibleNeighbours (generatePossibleNeighbours room1 numberOfLevels numberOfRoomsPerLevel))
+				(print (list 'possibleNeighbours possibleNeighbours))
+				(print '(before set room2))
 				(set room2 (call/cc (lambda (exit) (begin
+					(print '(before while))
 					(while (not (null? possibleNeighbours)) (begin
+						(print '(before set room2Index))
 						(set room2Index (random (length possibleNeighbours)))
+						(print (list 'room2Index room2Index))
 						(set room2Temp (nth room2Index possibleNeighbours))
+						(print (list 'room2Temp room2Temp))
+
+						(print (list 'value1 (assoc room1 roomLabels)))
+						(print (list 'value2 (assoc room2Temp roomLabels)))
+						(print (list 'room1 room1))
+						(print (list 'connections connections))
+						(print (list 'value3 (findConflictingConnections room1 room2Temp)))
 
 						(if (and
 							(<> (assoc room1 roomLabels) (assoc room2Temp roomLabels))
 							(not (findConflictingConnections room1 room2Temp))
 							)
-							(exit room2Temp)
+							(begin (print '(callcc exit)) (exit room2Temp))
 							'()
 						)
 
 						(set possibleNeighbours (removesublist possibleNeighbours room2Index 1))
+						(print (list 'possibleNeighbours 'isnow possibleNeighbours))
 					))
 					(set openList (removesublist openList room1Index 1))
-					(continue '())
+					(begin (print '(callcc continue)) (continue '()))
 				))))
 
+				(print '(after set room2))
+				(print 'room1)
+				(print room1)
+				(print 'room2)
+				(print room2)
+				(print '(assoc room1 connections))
+				(print (assoc room1 connections))
+				(print '(cons room2 (assoc room1 connections)))
+				(print (cons room2 (assoc room1 connections)))
+
+				; (print 'connections1)
+				; (print connections)
+
 				; We have now chosen room1 and room2.
-				(rplac-assoc room1 (cons room2 (assoc room1 connections)) connections)
+				(rplac-assoc room1 (cons room2 (assoc room1 connections)) connections) ; Seg fault
+
+				; (print 'connections2)
+				; (print connections)
+
 				(rplac-assoc room2 (cons room1 (assoc room2 connections)) connections)
+
+				; (print 'connections3)
+				; (print connections)
+
+				; 2022-09-15 : rplac-assoc fscks up connections,
+				; leading to a seg fault
+
+				; (print '(after rplacassoc))
+
+				; (print '(before print connections again))
+				; (print (list 'connections connections))
+				; (print '(after print connections again))
 
 				; Join the two "blobs" to which the two rooms belong, by modifying room labels.
 				(set label1 (assoc room1 roomLabels))
 				(set label2 (assoc room2 roomLabels))
+				(print (list "Joining blobs with labels " label1 " and " label2))
 				(set minLabel (if (< label1 label2) label1 label2))
 				(set maxLabel (if (< label1 label2) label2 label1))
 				(set roomLabels (mapcar (lambda (x)
 					(if (= (cadr x) maxLabel) (list (car x) minLabel) x)
 				) roomLabels))
 				(set numberOfDifferentLabels (- numberOfDifferentLabels 1))
+				(print (list "numberOfDifferentLabels is now " numberOfDifferentLabels))
 			))))
 			(print "Labyrinth generation is complete.")
 			(report)
