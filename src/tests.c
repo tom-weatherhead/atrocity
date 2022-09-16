@@ -291,7 +291,7 @@ test('LL(1) Scheme let* non-recursive test', () => {
 	/* Call/cc test - From Kamin page 128 */
 
 	char * inputsCallCC[] = {
-		"(set gcd* (lambda (l) \
+		"(set! gcd* (lambda (l) \
 			(call/cc (lambda (exit) \
 				(letrec ((gcd*-aux (lambda (l) \
 					(if (= (car l) 1) (exit 1) \
@@ -315,27 +315,46 @@ test('LL(1) Scheme let* non-recursive test', () => {
 
 	multitest(inputsCallCC, expectedResultsCallCC);
 
-	/*
-test('LL(1) Scheme static scope test', () => {
-	// See page 135 of Kamin, or pages 128-137 for more context about static vs. dynamic scope.
-	schemeTest([
-		['(set add (lambda (x) (lambda (y) (+ x y))))', '<closure>'],
-		['(set add1 (add 1))', '<closure>'],
-		['(set f (lambda (x) (add1 x)))', '<closure>'],
-		// Assert that our Scheme uses static scope, as Scheme should.
-		['(f 5)', '6']
-	]);
-});
+	/* Scheme static scope test
+	See page 135 of Kamin, or pages 128-137 for more context about static vs. dynamic scope. */
 
-test('LL(1) Scheme Global vs. Local Variable test', () => {
-	schemeTest([
-		['(set a 1)', '1'],
-		['(set afunc (lambda () a))', '<closure>'],
-		['(set func2 (lambda (a) (afunc)))', '<closure>'],
-		['(func2 0)', '1']
-	]);
-});
-	*/
+	char * inputsStaticScope[] = {
+		"(set! add (lambda (x) (lambda (y) (+ x y))))",
+		"(set! add1 (add 1))",
+		"(set! f (lambda (x) (add1 x)))",
+		/* Assert that our Scheme uses static scope, as Scheme should. */
+		"(f 5)",
+		NULL
+	};
+	char * expectedResultsStaticScope[] = {
+		"<closure>",
+		"<closure>",
+		"<closure>",
+		"6",
+		NULL
+	};
+
+	multitest(inputsStaticScope, expectedResultsStaticScope);
+
+	/* Scheme Global vs. Local Variable test */
+
+	char * inputsGlobalVsLocalVar[] = {
+		"(set! a 1)",
+		"(set! afunc (lambda () a))",
+		"(set! func2 (lambda (a) (afunc)))",
+		/* Assert that our Scheme uses static scope, as Scheme should. */
+		"(func2 0)",
+		NULL
+	};
+	char * expectedResultsGlobalVsLocalVar[] = {
+		"1",
+		"<closure>",
+		"<closure>",
+		"1",
+		NULL
+	};
+
+	multitest(inputsGlobalVsLocalVar, expectedResultsGlobalVsLocalVar);
 
 	/* testGetIdentifier("abc (def weatherhead) ghi");
 	testGetIdentifier("(+1 7)");
