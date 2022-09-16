@@ -77,16 +77,10 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getIntegerValueInValue(v) ((v)->integerValue)
 #define getNameInValue(v) ((v)->name)
-/* #define getPairInValue(v) (v)
-#define getClosureInValue(v) (v) */
 #define getContinuationIdInValue(v) ((v)->integerValue)
 #define getContinuationReturnValueInValue(v) ((v)->value1)
 
 #define getExprListInExpr(e) ((e)->value1)
-/* #define getLambdaExprInExpr(e) ((e)->value1) */
-/* #define getLambdaExprInExpr(e) (e) */
-/* #define getFunctionCallInExpr(e) ((e)->value1) */
-/* #define getFunctionCallInExpr(e) (e) */
 #define getExprInExpr(e) ((e)->value2)
 #define getExpr2InExpr(e) ((e)->value1)
 #define getVarExprPairListInExpr(e) ((e)->value1)
@@ -98,20 +92,22 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 /* The NameValueList is a crude dictionary of values. */
 
 enum {
-	lispValueType_Number, /* 0 */
+	lispType_FirstValueType,
+	lispValueType_Number = lispType_FirstValueType,
 	lispValueType_String,
 	lispValueType_Symbol,
 	lispValueType_PrimitiveOperator,
 	lispValueType_Closure,
 	lispValueType_Pair,
 	lispValueType_Null, /* 6 */ /* TODO? Interpret the NULL pointer as a Null value? */
-	lispValueType_Thunk, /* -> A suspended computation; used to implement lazy evaluation in SASL */
-	/* lispValueType_Exception, */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
-	lispValueType_LastValue = lispPseudoValueType_ContinuationReturn,
+	lispType_LastValueType = lispPseudoValueType_ContinuationReturn,
+	/* lispValueType_Thunk, / * -> A suspended computation; used to implement lazy evaluation in SASL */
+	/* lispValueType_Exception, */
 
-	lispExpressionType_Value, /* 10 */
+	/* lispType_FirstExpressionType, */
+	lispExpressionType_Value /* = lispType_FirstExpressionType */,
 	lispExpressionType_Variable,
 	lispExpressionType_LambdaExpr,
 	lispExpressionType_FunctionCall,
@@ -121,27 +117,24 @@ enum {
 	lispExpressionType_Letrec,
 	lispExpressionType_Begin,
 	lispExpressionType_While,
-	lispExpressionType_Cons, /* 20 */
+	lispExpressionType_Cons,
 	lispExpressionType_Cond,
 	lispExpressionType_Car,
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
+	/* lispType_LastExpressionType = lispExpressionType_CallCC, */
 
-	schemeStructType_Environment, /* 25 */
+	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,
 	schemeStructType_ExpressionPairListElement,
-	/* schemeStructType_FunctionCall,
-	schemeStructType_LambdaExpr, */
-	schemeStructType_NameValueListElement, /* 28 */
+	schemeStructType_NameValueListElement,
 	schemeStructType_VariableListElement,
-	schemeStructType_VariableExpressionPairListElement, /* 30 */
+	schemeStructType_VariableExpressionPairListElement,
 
 	stringBuilderType
 };
 
 void fail(char * str, char * file, int line);
-
-/* #define failIf(b, str) if (b) { fprintf(stderr, "Fatal error '%s' in file %s at line %d\n", str, __FILE__, __LINE__); exit(1); } */
 
 #define failIf(b, str) if (b) { fail(str, __FILE__, __LINE__); }
 

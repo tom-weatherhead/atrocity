@@ -32,16 +32,17 @@ LISP_VALUE * dethunk(LISP_VALUE * value) {
 	}
 
 	failIf(value->name != NULL, "dethunk() : value->name != NULL");
+	failIf(result == value, "dethunk() : result == value");
 
-	value->mark = result->mark;
-	value->type = result->type;
-	value->integerValue = result->integerValue;
-	value->maxNameLength = result->maxNameLength;
-	NO: value->name = result->name;
-	value->value1 = result->value1;
-	value->value2 = result->value2;
-	value->value3 = result->value3;
-	value->next = result->next;
+	value->mark = 0;
+	value->type = lispPseudoValueType_EvaluatedThunk;
+	value->integerValue = 0;
+	value->maxNameLength = 0;
+	value->name = NULL;
+	value->value1 = result;
+	value->value2 = NULL;
+	value->value3 = NULL;
+	value->next = NULL;
 
 	TODO: Create a copy of the string result->name
 

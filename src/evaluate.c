@@ -485,9 +485,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 			return value;
 		}
 
-		/* newEnv->value1 = createNameValueListElement(np->name, value, newEnv->value1); */
 		addNameToEnvironment(newEnv, np->name, value);
-		/* freeValue(value); */
 		np = np->next;
 		ep = ep->next;
 	}
@@ -584,8 +582,6 @@ static LISP_VALUE * evaluateLetExpression(LISP_EXPR * expr, LISP_ENV * env) {
 
 		/* Note: This constructs the list in reverse order... */
 		/* TODO: Implement this using recursion instead. */
-		/* newEnv->nameValueList = createNameValueListElement(varExprPairList->var->name, value, newEnv->nameValueList); */
-		/* newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1); */
 		addNameToEnvironment(newEnv, varExprPairList->name, value);
 	}
 
@@ -609,7 +605,6 @@ static LISP_VALUE * evaluateLetStarExpression(LISP_EXPR * expr, LISP_ENV * env) 
 			return value;
 		}
 
-		/* newEnv->value1 = createNameValueListElement(varExprPairList->name, value, newEnv->value1); */
 		addNameToEnvironment(newEnv, varExprPairList->name, value);
 
 		env = newEnv;
@@ -635,7 +630,7 @@ static LISP_VALUE * evaluateLetrecExpression(LISP_EXPR * expr, LISP_ENV * env) {
 			return value;
 		}
 
-		updateNameIfFoundInNameValueList(newEnv->value1, varExprPairList->name, value);
+		updateNameIfFoundInNameValueList(getNameValuePairListInEnv(newEnv), varExprPairList->name, value);
 	}
 
 	return evaluate(getExprInExpr(expr), newEnv);
@@ -698,13 +693,19 @@ static LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return globalNullValue;
 }
 
+static BOOL isValueType(int type) {
+	return type >= lispType_FirstValueType && type <= lispType_LastValueType;
+}
+
 LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
+	LISP_VALUE * result = NULL;
 	LISP_VALUE * value = NULL;
 
 	switch (expr->type) {
 		case lispExpressionType_Value:
 			/* Return a clone of the value so it can be freed separately */
-			return getValueInExpr(expr);
+			result = getValueInExpr(expr);
+			break;
 
 		case lispExpressionType_Variable:
 			value = lookupVariableInEnvironment(getVarInExpr(expr), env);
@@ -715,39 +716,54 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 				return NULL;
 			}
 
-			return value;
+			result = value;
+			break;
 
 		case lispExpressionType_FunctionCall:
-			return evaluateFunctionCall(expr, env);
+			result = evaluateFunctionCall(expr, env);
+			break;
 
 		case lispExpressionType_LambdaExpr:
-			return evaluateLambdaExpression(expr, env);
+			result = evaluateLambdaExpression(expr, env);
+			break;
 
 		case lispExpressionType_SetExpr:
-			return evaluateSetExpression(expr, env);
+			result = evaluateSetExpression(expr, env);
+			break;
 
 		case lispExpressionType_Let:
-			return evaluateLetExpression(expr, env);
+			result = evaluateLetExpression(expr, env);
+			break;
 
 		case lispExpressionType_LetStar:
-			return evaluateLetStarExpression(expr, env);
+			result = evaluateLetStarExpression(expr, env);
+			break;
 
 		case lispExpressionType_Letrec:
-			return evaluateLetrecExpression(expr, env);
+			result = evaluateLetrecExpression(expr, env);
+			break;
 
 		case lispExpressionType_Begin:
-			return evaluateBeginExpression(expr, env);
+			result = evaluateBeginExpression(expr, env);
+			break;
 
 		case lispExpressionType_While:
-			return evaluateWhileExpression(expr, env);
+			result = evaluateWhileExpression(expr, env);
+			break;
 
 		case lispExpressionType_Cond:
-			return evaluateCondExpression(expr, env);
+			result = evaluateCondExpression(expr, env);
+			break;
 
 		default:
 			fatalError("evaluate() : Unrecognized expression type");
 			return NULL;
 	}
+
+	failIf(result == NULL, "evaluate() : result == NULL");
+	failIf(!isValueType(result->type), "evaluate() : result->type is not a value type");
+
+	return result;
 }
 
 /* **** The End **** */
