@@ -39,8 +39,7 @@
 } */
 
 static void multitest(char * inputs[], char * expectedOutputs[]) {
-	/* const int sizeOfActualOutput = maxStringValueLength * sizeof(char); */
-	char * actualOutput = NULL; /* mmAlloc(sizeOfActualOutput); */
+	char * actualOutput = NULL;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
 
 	BOOL valuePrintedSuccessfully = TRUE;
@@ -58,10 +57,6 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		}
 
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
-
-		/* memset(actualOutput, 0, sizeOfActualOutput); */
-
-		/* valuePrintedSuccessfully = printValueToString(value, actualOutput, maxStringValueLength); */
 		STRING_BUILDER_TYPE * sb = printValueToString(NULL, value, NULL, TRUE);
 
 		actualOutput = sb->name;
@@ -70,7 +65,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		 * double-freeing things. We must fix this. */
 		/* freeValue(value); */
 
-		outputValuesMatch = !strcmp(actualOutput, expectedOutput);
+		outputValuesMatch = strlen(expectedOutput) > 0 && !strcmp(actualOutput, expectedOutput);
 	}
 
 	if (!valuePrintedSuccessfully) {
@@ -84,10 +79,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		fprintf(stderr, "  Actual output: %s\n\n", actualOutput);
 	}
 
-	/* freeGlobalEnvironment(globalEnv); / * TODO: -> freeAllStructs(); */
 	freeAllStructs();
-
-	/* mmFree(actualOutput); */
 
 	if (!valuePrintedSuccessfully || !outputValuesMatch) {
 		exit(1);
@@ -117,8 +109,6 @@ static void testStringBuilder() {
 	printf("sb->name is '%s'\n", sb->name);
 	printf("sb->maxNameLength is %d\n", sb->maxNameLength);
 	failIf(sb->maxNameLength != 32, "sb->maxNameLength != 32");
-
-	/* failIf(, ""); */
 
 	printf("testStringBuilder() : END\n");
 }
@@ -244,6 +234,40 @@ void runTests() {
 
 	multitest(inputs6, expectedResults6);
 
+	/* filter */
+	char * inputsFilter[] = {
+		"(set! flatten1 (combine id append '()))",
+		"(set! pred2list (lambda (f) (lambda (a) (if (f a) (list a) '()))))",
+		"(set! filter (lambda (pred l) (flatten1 (mapcar (pred2list pred) l))))",
+		"(filter (lambda (n) (= 0 (mod n 2))) '(1 2 3 4 5 6 7 8))",
+		NULL
+	};
+	char * expectedResultsFilter[] = {
+		"<closure>",
+		"<closure>",
+		"<closure>",
+		"(2 4 6 8)",
+		NULL
+	};
+
+	multitest(inputsFilter, expectedResultsFilter);
+
+	/* length - version 2 */
+	char * inputsLengthV2[] = {
+		"(set! lengthv2 (combine (lambda (n) 1) + 0))",
+		"(lengthv2 '())",
+		"(lengthv2 '(2 3 5 7))",
+		NULL
+	};
+	char * expectedResultsLengthV2[] = {
+		"<closure>",
+		"0",
+		"4",
+		NULL
+	};
+
+	multitest(inputsLengthV2, expectedResultsLengthV2);
+
 	/* Tests from thaw-grammar:
 test('LL(1) Scheme let* non-recursive test', () => {
 	// 2014/02/17 : Derived from Kamin page 126.
@@ -262,30 +286,36 @@ test('LL(1) Scheme let* non-recursive test', () => {
 			].join('\n')
 		)
 	).toThrow();
-});
+}); */
 
-test('LL(1) Scheme call/cc test', () => {
-	// From Kamin page 128.
-	schemeTest([
-		['(set mod (lambda (m n) (- m (* n (/ m n)))))', '<closure>'],
-		['(set gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))', '<closure>'],
-		[
-			'(set gcd* (lambda (l) ' +
-				'(call/cc (lambda (exit) ' +
-				'(letrec ((gcd*-aux (lambda (l) ' +
-				'    (if (= (car l) 1) (exit 1) ' +
-				'        (if (null? (cdr l)) (car l) ' +
-				'            (gcd (car l) (gcd*-aux (cdr l)))))))) ' +
-				'    (gcd*-aux l))))))',
-			'<closure>'
-		],
-		["(gcd* '(9 27 81 60))", '3'],
-		["(gcd* '(101 202 103))", '1'],
-		["(gcd* '(9 27 1 81 60))", '1'],
-		["(gcd* '(9 27 81 60 1 NotANumber))", '1']
-	]);
-});
+	/* Call/cc test - From Kamin page 128 */
 
+	char * inputsCallCC[] = {
+		"(set gcd* (lambda (l) \
+			(call/cc (lambda (exit) \
+				(letrec ((gcd*-aux (lambda (l) \
+					(if (= (car l) 1) (exit 1) \
+						(if (null? (cdr l)) (car l) \
+							(gcd (car l) (gcd*-aux (cdr l)))))))) \
+					(gcd*-aux l))))))",
+		"(gcd* '(9 27 81 60))",
+		"(gcd* '(101 202 103))",
+		"(gcd* '(9 27 1 81 60))",
+		"(gcd* '(9 27 81 60 1 NotANumber))",
+		NULL
+	};
+	char * expectedResultsCallCC[] = {
+		"<closure>",
+		"3",
+		"1",
+		"1",
+		"1",
+		NULL
+	};
+
+	multitest(inputsCallCC, expectedResultsCallCC);
+
+	/*
 test('LL(1) Scheme static scope test', () => {
 	// See page 135 of Kamin, or pages 128-137 for more context about static vs. dynamic scope.
 	schemeTest([

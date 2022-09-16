@@ -31,9 +31,6 @@
 ; (set atom? (compose list? not)) ; Version 2
 ; (set atom? (compose pair? not)) ; Version 3; '() is a list but not a pair
 
-; (set equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
-(set equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
-
 ; (set >= (compose2args < not)) ; Comment out if Scheme implements >= as a primop
 ; (set <= (compose2args > not)) ; Comment out if Scheme implements <= as a primop
 ; (set <> (compose2args = not))
@@ -59,10 +56,16 @@
 ; (set take (lambda (n l) (if (or (null? l) (= n 0)) '() (cons (car l) (take (- n 1) (cdr l))))))
 ; (set abs (lambda (n) (if (< n 0) (- 0 n) n)))
 
+; (set length (lambda (l) (if (null? l) 0 (+1 (length (cdr l)))))) ; Adapted from Kamin page 29.
+
+; (set equal (lambda (l1 l2) (if (atom? l1) (= l1 l2) (if (atom? l2) '() (if (equal (car l1) (car l2)) (equal (cdr l1) (cdr l2)) '()))))) ; Version 1
+
+; **** Uncommented code starts here ****
+
+(set equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
+
 ; (set cadr (lambda (l) (car (cdr l)))) ; Version 1
 (set cadr (compose cdr car)) ; Version 2
-
-; (set length (lambda (l) (if (null? l) 0 (+1 (length (cdr l)))))) ; Adapted from Kamin page 29.
 
 ; (set find (lambda (pred lis) ; From page 104
 ; (if (null? lis) '()

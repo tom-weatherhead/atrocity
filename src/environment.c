@@ -231,6 +231,7 @@ LISP_ENV * createGlobalEnvironment() {
 
 	/* length : Adapted from Kamin page 29 */
 	parseAndEvaluateEx("(set! length (lambda (l) (if (null? l) 0 (+1 (length (cdr l))))))", globalEnv, FALSE);
+
 	/*
 (set! equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
 
