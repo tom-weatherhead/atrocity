@@ -240,7 +240,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		LISP_VALUE * head = getValueInValueListElement(listOfValuesOrThunks);
 
 		/* head = dethunk(head); / * HACK 1 of 2 - Last before labyrinth works; TODO: getval */
-		head = dethunk(head);
+		head = getval(head);
 
 		if (head->type == lispPseudoValueType_ContinuationReturn) {
 			return head;
@@ -253,7 +253,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		LISP_VALUE * tail = getValueInValueListElement(listOfValuesOrThunks->next);
 
 		/* tail = dethunk(tail); / * HACK 2 of 2 - Last before labyrinth works; TODO: getval */
-		tail = dethunk(tail);
+		tail = getval(tail);
 
 		if (tail->type == lispPseudoValueType_ContinuationReturn) {
 			return tail;
