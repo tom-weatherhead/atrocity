@@ -32,7 +32,7 @@ static char * primops[] = {
 	"!=", /* For all value types, not just numbers */
 	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
 	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
-	"if", "print", "random", "throw", "call/cc", "and", "or", "??",
+	"if", "print", "random", "throw", "call/cc", /* "and", "or", "??", */
 	/* Not yet implemented: "quote", "floor" */
 	NULL
 };
