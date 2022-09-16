@@ -182,30 +182,40 @@ LISP_ENV * createGlobalEnvironment() {
 
 	parseAndEvaluateEx("(set! id (lambda (x) x))", globalEnv, FALSE);
 
-	/* TODO? : We could write 'soft' implementations of:
-	mod > <= >= !=
-	(set! mod (lambda (m n) (- m (* n (/ m n)))))
-	(set! > (lambda (x y) (< y x))) ; or (set! > (reverse2args <))
-	(set! <= (compose2args > not))
-	(set! >= (compose2args < not))
-	(set! != (compose2args = not)) */
+	/*
+	*/
 
-	/* We could also implement Boolean logic functionally:
-	(set! true (lambda (t f) t))
-	(set! false (lambda (t f) f))
-	(set! if (lambda (b x y) (b x y)))
-	(set! and (lambda (x y) (if x y x)))
-	(set! or (lambda (x y) (if x x y)))
-	(set! not (lambda (x) (if x false true))) */
+	/* TODO? : We could implement Boolean logic functionally:
+	parseAndEvaluateEx("(set! true (lambda (t f) t))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! false (lambda (t f) f))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! if (lambda (b x y) (b x y)))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! and (lambda (x y) (if x y x)))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! or (lambda (x y) (if x x y)))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! not (lambda (x) (if x false true)))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("", globalEnv, FALSE);
+	*/
 
 	parseAndEvaluateEx("(set! compose2args (lambda (f g) (lambda (x y) (g (f x y)))))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! reverse2args (lambda (f) (lambda (x y) (f y x))))", globalEnv, FALSE);
 
 	parseAndEvaluateEx("(set! not (lambda (x) (if x '() 'T)))", globalEnv, FALSE);
+
+	/* TODO? : We could write 'soft' implementations of: mod > <= >= !=
+	parseAndEvaluateEx("(set! > (reverse2args <))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! >= (compose2args < not))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! <= (reverse2args >=))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! <> (compose2args = not))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! != <>)", globalEnv, FALSE);
+
+	parseAndEvaluateEx("(set! mod (lambda (m n) (- m (* n (/ m n)))))", globalEnv, FALSE);
+
+	parseAndEvaluateEx("", globalEnv, FALSE);
+	*/
+
 	parseAndEvaluateEx("(set! mod %)", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! gcd (lambda (m n) (if (= n 0) m (gcd n (mod m n)))))", globalEnv, FALSE);
 
-	/* (set! <> (compose2args = not)) ... or: */
 	parseAndEvaluateEx("(set! <> !=)", globalEnv, FALSE);
 
 	/* atom? Version 3; '() is a list but not a pair */
@@ -222,10 +232,6 @@ LISP_ENV * createGlobalEnvironment() {
 	/* length : Adapted from Kamin page 29 */
 	parseAndEvaluateEx("(set! length (lambda (l) (if (null? l) 0 (+1 (length (cdr l))))))", globalEnv, FALSE);
 	/*
-	parseAndEvaluateEx("(set! )", globalEnv, FALSE);
-
-; (set! > (reverse2args <)) ; Comment out if Scheme implements > as a primop
-
 (set! equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
 
 ; Version 2 (or use combine ?)
