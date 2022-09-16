@@ -122,7 +122,8 @@ enum {
 	lispExpressionType_Car,
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC,
-	/* lispType_LastExpressionType = lispExpressionType_CallCC, */
+	lispExpressionType_DefineMacro,
+	/* lispType_LastExpressionType = lispExpressionType_DefineMacro, */
 
 	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,

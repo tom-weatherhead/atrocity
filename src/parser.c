@@ -209,6 +209,10 @@ static LISP_EXPR * parseCondExpression(CharSource * cs) {
 	return createCondExpression(exprPairList);
 }
 
+/* static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
+	return createDefineMacroExpression(...);
+} */
+
 static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 	const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
@@ -235,6 +239,8 @@ static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return parseLetExpression(cs, lispExpressionType_LetStar);
 	} else if (!strcmp(dstBuf, "letrec")) {
 		return parseLetExpression(cs, lispExpressionType_Letrec);
+	/* } else if (!strcmp(dstBuf, "define-macro")) {
+		return parseDefineMacroExpression(cs); */
 	} else {
 		cs->i = csRewindPoint;
 		return parseFunctionCallExpression(cs);
