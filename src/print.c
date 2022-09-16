@@ -15,8 +15,7 @@
 #include "utilities.h"
 
 void printValue(LISP_VALUE * value) {
-	/* printf("printValue() : Value pointer is %ld\n", value);
-	printf("printValue() : Value type is %d\n", value->type); */
+	/* printf("printValue() : Value pointer is %ld\n", value); */
 
 	/* deepDethunk(value); Can cause seg fault */
 
@@ -26,7 +25,16 @@ void printValue(LISP_VALUE * value) {
 		return;
 	}
 
-	value = dethunk(value);
+	if (value->type == lispValueType_Thunk || value->type == lispPseudoValueType_EvaluatedThunk) {
+		/* printf("printValue() : Before dethunk: Value type is %d\n", value->type); */
+		value = dethunk(value);
+		/* printf("printValue() : After dethunk: Value type is %d\n", value->type); */
+	}
+
+	failIf(value->value1 == value, "printValue() : value->value1 == value");
+	failIf(value->value2 == value, "printValue() : value->value2 == value");
+	failIf(value->value3 == value, "printValue() : value->value3 == value");
+	failIf(value->next == value, "printValue() : value->next == value");
 
 	if (isList(value) /* && value->type != lispValueType_Null */) {
 		/* printf("printValue() : Value isList\n"); */
@@ -44,12 +52,19 @@ void printValue(LISP_VALUE * value) {
 			separator = ' ';
 			failIf(getTailInPair(value) == NULL, "printValue() : value tail is NULL");
 			value = dethunk(getTailInPair(value));
+
+			failIf(value->value1 == value, "printValue() : value->value1 == value");
+			failIf(value->value2 == value, "printValue() : value->value2 == value");
+			failIf(value->value3 == value, "printValue() : value->value3 == value");
+			failIf(value->next == value, "printValue() : value->next == value");
 		}
 
 		printf(")");
 
 		return;
 	}
+
+	/* printf("printValue() : Value is not List\n"); */
 
 	switch (value->type) {
 		case lispValueType_Number:

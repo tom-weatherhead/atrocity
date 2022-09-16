@@ -67,15 +67,29 @@ LISP_VALUE * dethunk(LISP_VALUE * value) {
 		return value;
 	}
 
+	LISP_EXPR * expr = getExprInThunk(value);
+	LISP_ENV * env = getEnvInThunk(value);
+
+	value->mark = 0;
+	value->type = lispValueType_Invalid;
+	value->integerValue = 0;
+	value->maxNameLength = 0;
+	value->value1 = NULL;
+	value->value2 = NULL;
+	value->value3 = NULL;
+	value->next = NULL;
+
 	LISP_VALUE * result = value;
 
-	while (result->type == lispValueType_Thunk) {
+	/* while (result->type == lispValueType_Thunk) { */
 		/* printf("dethunk : Inside while loop\n"); */
 
 		/* I.e. result = evaluate(result->body, result->env); */
-		result = evaluate(result->value1, result->value2);
+		result = evaluate(expr, env);
 		/* printf("-> result type is %d\n", result->type); */
-	}
+	/* } */
+
+	failIf(result->type == lispValueType_Thunk, "dethunk() : result is a Thunk");
 
 	failIf(result->type == lispPseudoValueType_EvaluatedThunk, "dethunk() : result is an EvaluatedThunk");
 	/* If the above line fails then: result = getval(result); */
@@ -146,16 +160,15 @@ LISP_VALUE_LIST_ELEMENT * dethunkList(LISP_VALUE_LIST_ELEMENT * listOfValuesOrTh
 	return createValueListElement(dethunkedValue, next);
 }
 
-/* LISP_VALUE * deepDethunk(LISP_VALUE * value) {
-	/ * Warning: This will go into an infinite loop if called with a circular
-	data structure. * /
+LISP_VALUE * deepDethunk(LISP_VALUE * value) {
+	/* Warning: This will go into an infinite loop if called with a circular
+	data structure. */
 
 	if (value == NULL) {
 		return NULL;
 	}
 
-	dethunk(value);
-	/ * value->mark = 1; * /
+	value = dethunk(value);
 
 	deepDethunk(value->value1);
 	deepDethunk(value->value2);
@@ -163,6 +176,6 @@ LISP_VALUE_LIST_ELEMENT * dethunkList(LISP_VALUE_LIST_ELEMENT * listOfValuesOrTh
 	deepDethunk(value->next);
 
 	return value;
-} */
+}
 
 /* **** The End **** */

@@ -5,6 +5,6 @@ SCHEME_UNIVERSAL_TYPE * exprListToListOfValuesOrThunks(LISP_EXPR_LIST_ELEMENT * 
 
 LISP_VALUE * dethunk(LISP_VALUE * value);
 LISP_VALUE_LIST_ELEMENT * dethunkList(LISP_VALUE_LIST_ELEMENT * listOfValuesOrThunks);
-/* LISP_VALUE * deepDethunk(LISP_VALUE * value); */
+LISP_VALUE * deepDethunk(LISP_VALUE * value);
 
 /* **** The End **** */

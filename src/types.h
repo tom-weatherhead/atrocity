@@ -98,6 +98,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getValueInExpr(e) ((e)->value1)
 #define getVarInExpr(e) ((e)->value1)
 
+#define getExprInThunk(th) ((th)->value1)
+#define getEnvInThunk(th) ((th)->value2)
+
 /* The NameValueList is a crude dictionary of values. */
 
 enum {
@@ -143,7 +146,8 @@ enum {
 	stringBuilderType,
 
 	lispPseudoValueType_Freed,
-	lispPseudoValueType_EvaluatedThunk
+	lispPseudoValueType_EvaluatedThunk, /* 34 */
+	lispValueType_Invalid = -1
 };
 
 void fail(char * str, char * file, int line);

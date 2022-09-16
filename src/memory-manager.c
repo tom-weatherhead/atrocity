@@ -198,4 +198,41 @@ int freeAllStructs() {
 	return freeUnmarkedStructs();
 }
 
+static BOOL isCyclicalHelper(SCHEME_UNIVERSAL_TYPE * ptr) {
+
+	if (ptr == NULL) {
+		return FALSE;
+	} else if (ptr->mark != 0) {
+		printf("Mark found; object type %d\n", ptr->type);
+		return TRUE;
+	}
+
+	ptr->mark = 1;
+
+	/* return isCyclicalHelper(ptr->value1) || isCyclicalHelper(ptr->value2) || isCyclicalHelper(ptr->value3) || isCyclicalHelper(ptr->next); */
+
+	if (isCyclicalHelper(ptr->value1)) {
+		printf("  Object of type %d : value1 is cyclical\n", ptr->type);
+		return TRUE;
+	} else if (isCyclicalHelper(ptr->value2)) {
+		printf("  Object of type %d : value2 is cyclical\n", ptr->type);
+		return TRUE;
+	} else if (isCyclicalHelper(ptr->value3)) {
+		printf("  Object of type %d : value3 is cyclical\n", ptr->type);
+		return TRUE;
+	} else if (isCyclicalHelper(ptr->next)) {
+		printf("  Object of type %d : next is cyclical\n", ptr->type);
+		return TRUE;
+	} else {
+		ptr->mark = 0;
+		return FALSE;
+	}
+}
+
+BOOL isCyclical(SCHEME_UNIVERSAL_TYPE * ptr) {
+	clearMarks();
+
+	return isCyclicalHelper(ptr);
+}
+
 /* **** The End **** */

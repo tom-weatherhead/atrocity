@@ -13,6 +13,7 @@
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "evaluate.h"
+#include "memory-manager.h"
 #include "print.h"
 #include "thunk.h"
 #include "utilities.h"
@@ -52,6 +53,8 @@ static LISP_VALUE * booleanToClonedValue(int b) {
 
 static LISP_VALUE * compareType(LISP_VALUE * operandValue, int lispValueType) {
 	failIf(operandValue->type == lispValueType_Thunk, "compareType() : operandValue is a thunk");
+	failIf(operandValue->type == lispPseudoValueType_EvaluatedThunk, "compareType() : operandValue is an EvaluatedThunk");
+	failIf(!isUnthunkedValue(operandValue), "compareType() : operandValue is not an UnthunkedValue");
 
 	return booleanToClonedValue(operandValue->type == lispValueType);
 }
@@ -237,7 +240,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		LISP_VALUE * head = getValueInValueListElement(listOfValuesOrThunks);
 
 		/* head = dethunk(head); / * HACK 1 of 2 - Last before labyrinth works; TODO: getval */
-		head = dethunk(head);
+		head = getval(head);
 
 		if (head->type == lispPseudoValueType_ContinuationReturn) {
 			return head;
@@ -250,7 +253,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		LISP_VALUE * tail = getValueInValueListElement(listOfValuesOrThunks->next);
 
 		/* tail = dethunk(tail); / * HACK 2 of 2 - Last before labyrinth works; TODO: getval */
-		tail = dethunk(tail);
+		tail = getval(tail);
 
 		if (tail->type == lispPseudoValueType_ContinuationReturn) {
 			return tail;
@@ -596,7 +599,11 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 						fatalError("evaluatePrimitiveOperatorCall() : rplaca : Operand is not a pair");
 					} */
 
-					getHeadInPair(operand1Value) = operand2Value;
+					/* getHeadInPair(operand1Value) = operand2Value; */
+					operand1Value = deepDethunk(operand1Value);
+					getHeadInPair(operand1Value) = deepDethunk(operand2Value);
+
+					failIf(isCyclical(operand1Value), "rplaca: isCyclical(operand1Value)");
 
 					/* printf("rplaca: operand1Value (%ld) is ", operand1Value);
 					printValue(operand1Value);
@@ -611,6 +618,11 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					failIf(!isUnthunkedValue(operand2Value), "evaluate() : rplacd : operand2Value is not an UnthunkedValue");
 
 					failIf(operand1Value->type != lispValueType_Pair, "rplacd: operand1Value is not a pair");
+
+					printf("rplacd: operand1Value type is %d\n", operand1Value->type);
+					printf("rplacd: operand1Value head type is %d\n", getHeadInPair(operand1Value)->type);
+					printf("rplacd: operand1Value tail type is %d\n", getTailInPair(operand1Value)->type);
+					printf("rplacd: operand2Value type is %d\n", operand2Value->type);
 
 					/* deepDethunk(operand1Value);
 					printf("rplacd: Done deepDethunk 1\n");
@@ -636,7 +648,11 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					printValue(operand2Value);
 					printf("\n"); */
 
-					getTailInPair(operand1Value) = operand2Value;
+					/* getTailInPair(operand1Value) = operand2Value; */
+					operand1Value = deepDethunk(operand1Value);
+					getTailInPair(operand1Value) = deepDethunk(operand2Value);
+
+					failIf(isCyclical(operand1Value), "rplacd: isCyclical(operand1Value)");
 
 					/* printf("rplacd: New operand1Value is ");
 					printValue(operand1Value);

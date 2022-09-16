@@ -92,13 +92,18 @@ void fail(char * str, char * file, int line) {
 } */
 
 BOOL isList(LISP_VALUE * value) {
+	/* printf("isList() : Before dethunk : value is %ld\n", value); */
+
 	value = dethunk(value);
+
+	/* printf("isList() : After dethunk : value is %ld\n", value); */
 
 	switch (value->type) {
 		case lispValueType_Null:
 			return TRUE;
 
 		case lispValueType_Pair:
+			failIf(getTailInPair(value) == value, "isList() : tail == self");
 			return isList(getTailInPair(value));
 
 		default:

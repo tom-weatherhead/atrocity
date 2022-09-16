@@ -10,4 +10,6 @@ void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item);
 int collectGarbage(SCHEME_UNIVERSAL_TYPE * exprTreesToMark[]);
 int freeAllStructs();
 
+BOOL isCyclical(SCHEME_UNIVERSAL_TYPE * ptr);
+
 /* **** The End **** */
