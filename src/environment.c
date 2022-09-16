@@ -189,12 +189,12 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set! true (lambda (t f) t))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! false (lambda (t f) f))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! if (lambda (b x y) (b x y)))", globalEnv, FALSE);
-	parseAndEvaluateEx("(set! and (lambda (x y) (if x y x)))", globalEnv, FALSE);
-	parseAndEvaluateEx("(set! or (lambda (x y) (if x x y)))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! not (lambda (x) (if x false true)))", globalEnv, FALSE);
 
 	parseAndEvaluateEx("", globalEnv, FALSE);
 	*/
+	parseAndEvaluateEx("(set! and (lambda (x y) (if x y x)))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! or (lambda (x y) (if x x y)))", globalEnv, FALSE);
 
 	parseAndEvaluateEx("(set! compose2args (lambda (f g) (lambda (x y) (g (f x y)))))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! reverse2args (lambda (f) (lambda (x y) (f y x))))", globalEnv, FALSE);

@@ -27,12 +27,18 @@ static LISP_VALUE * createQuotedList(CharSource * cs);
 /* Constants */
 
 static char * primops[] = {
-	"+", "-", "*", "/", "%", "<", ">", "<=", ">=",
+	/* TODO? :
+	- Write >, <=, and >= in terms of <, not
+	- Write != in terms of =, not
+	- Distinguish between reference-equal and value-equal
+	*/
+	"+", "-", "*", "/", "%", "<",
 	"=", /* For all value types, not just numbers */
-	"!=", /* For all value types, not just numbers */
+	"!=", ">", "<=", ">=", /* We may comment these out later */
+	/* TODO: Remove either list? or pair? */
 	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
 	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
-	"if", "print", "random", "throw", "call/cc", "and", "or", "??",
+	"if", "print", "random", "throw", "call/cc", /* "and", "or", "??", */
 	/* Not yet implemented: "quote", "floor" */
 	NULL
 };
