@@ -195,14 +195,6 @@ LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_
 	return closure;
 }
 
-/* TODO:
-A thunk is a suspended computation; used to implement lazy evaluation in SASL.
-A thunk is implemented as a closure thqt takes no arguments.
-
-LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env) {
-	return createClosure(NULL, body, env);
-} */
-
 LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail) {
 	return createUniversalStruct(
 		lispValueType_Pair,
@@ -229,6 +221,10 @@ LISP_VALUE * createNull() {
 	);
 }
 
+/* TODO:
+A thunk is a suspended computation; used to implement lazy evaluation in SASL.
+A thunk is implemented as a closure thqt takes no arguments.
+
 LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env) {
 	return createUniversalStruct(
 		lispValueType_Thunk,
@@ -240,6 +236,7 @@ LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env) {
 		NULL
 	);
 }
+*/
 
 LISP_VALUE * createContinuation(int id) {
 	return createUniversalStruct(
