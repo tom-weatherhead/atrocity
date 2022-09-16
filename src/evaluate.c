@@ -109,13 +109,13 @@ static LISP_VALUE * exprListToListValue(LISP_EXPR_LIST_ELEMENT * exprList, LISP_
 	return createPair(head, tail);
 }
 
-static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
+/* static BOOL evaluatesToNull(LISP_EXPR * expr, LISP_ENV * env) {
 	LISP_VALUE * value = evaluate(expr, env);
 
 	return value->type == lispValueType_Null;
 }
 
-/* static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+static LISP_VALUE * evaluateAnd(LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 
 	for (; actualParamExprs != NULL; actualParamExprs = actualParamExprs->next) {
 
@@ -451,6 +451,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					return operand1Value;
 				}
 
+				/* Only one of [operand2Expr, operand3Expr] will be evaluated */
 				result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
 			}
 		}
@@ -525,15 +526,6 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 				return actualParamValue;
 			}
 
-			/* return createUniversalStruct(
-				lispPseudoValueType_ContinuationReturn,
-				getContinuationIdInValue(callableValue),
-				0,
-				NULL,
-				actualParamValue,
-				NULL,
-				NULL
-			); */
 			return createContinuationReturn(getContinuationIdInValue(callableValue), actualParamValue);
 
 		default:
@@ -647,7 +639,6 @@ static LISP_VALUE * evaluateBeginExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	}
 
 	if (result == NULL) {
-		fprintf(stderr, "evaluateBeginExpression() tried to return NULL\n");
 		fatalError("evaluateBeginExpression() tried to return NULL");
 	}
 

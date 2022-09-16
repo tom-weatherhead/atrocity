@@ -12,7 +12,6 @@
 
 #include "types.h" /* Needed to provide BOOL */
 
-/* #include "char-source.h" */
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "memory-manager.h"

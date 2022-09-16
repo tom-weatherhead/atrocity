@@ -30,7 +30,6 @@ LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
 	LISP_EXPR * parseTree = parseExpression(cs);
 	LISP_VALUE * value = evaluate(parseTree, globalEnv);
 
-	/* freeExpression(parseTree); */
 	freeCharSource(cs);
 
 	return value;
