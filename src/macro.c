@@ -16,12 +16,14 @@
 
 /* External constants / variables */
 
-extern LISP_VALUE * globalNullValue;
+/* extern LISP_VALUE * globalNullValue; */
 
 /* Functions */
 
-LISP_VALUE * invokeMacro(SCHEME_UNIVERSAL_TYPE * macro, LISP_ENV * env) {
-	return globalNullValue;
+LISP_VALUE * invokeMacro(SCHEME_UNIVERSAL_TYPE * macro, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+	/* return globalNullValue; */
+
+	return createNumericValue(1337);
 }
 
 /* Typescript:

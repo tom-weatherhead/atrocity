@@ -505,10 +505,11 @@ static SCHEME_UNIVERSAL_TYPE * getMacro(LISP_EXPR * expr) {
 		return NULL;
 	}
 
-	char * macroName = expr->name;
-	SCHEME_UNIVERSAL_TYPE * macro = NULL;
+	char * macroName = getVarInExpr(expr)->name;
+	SCHEME_UNIVERSAL_TYPE * mle = NULL;
 
-	for (macro = macroList; macro != NULL; macro = macro->next) {
+	for (mle = macroList; mle != NULL; mle = mle->next) {
+		SCHEME_UNIVERSAL_TYPE * macro = getMacroInMacroListElement(mle);
 
 		if (!strcmp(macroName, macro->name)) {
 			return getMacroInMacroListElement(macro);
@@ -525,7 +526,7 @@ static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP
 	SCHEME_UNIVERSAL_TYPE * macro = getMacro(firstExpr);
 
 	if (macro != NULL) {
-		return invokeMacro(macro, env);
+		return invokeMacro(macro, getActualParamExprsInFunctionCall(functionCall), env);
 	}
 
 	LISP_VALUE * callableValue = evaluate(firstExpr, env);
