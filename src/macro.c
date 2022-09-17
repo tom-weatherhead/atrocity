@@ -14,6 +14,16 @@
 #include "print.h"
 #include "utilities.h"
 
+/* External constants / variables */
+
+extern LISP_VALUE * globalNullValue;
+
+/* Functions */
+
+LISP_VALUE * invokeMacro(SCHEME_UNIVERSAL_TYPE * macro, LISP_ENV * env) {
+	return globalNullValue;
+}
+
 /* Typescript:
 
 export class MacroDefinition implements IExpression<ISExpression>, IMacroDefinition<ISExpression> {

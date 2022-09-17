@@ -13,6 +13,7 @@
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "evaluate.h"
+#include "macro.h"
 #include "print.h"
 #include "utilities.h"
 
@@ -498,9 +499,35 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 	return result;
 }
 
+static SCHEME_UNIVERSAL_TYPE * getMacro(LISP_EXPR * expr) {
+
+	if (expr->type != lispExpressionType_Variable) {
+		return NULL;
+	}
+
+	char * macroName = expr->name;
+	SCHEME_UNIVERSAL_TYPE * macro = NULL;
+
+	for (macro = macroList; macro != NULL; macro = macro->next) {
+
+		if (!strcmp(macroName, macro->name)) {
+			return getMacroInMacroListElement(macro);
+		}
+	}
+
+	return NULL;
+}
+
 static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
 	LISP_EXPR * firstExpr = getFirstExprInFunctionCall(functionCall);
-	/* TODO: If firstExpr is a variable, search for a macro with the same name */
+
+	/* If firstExpr is a variable, search for a macro with the same name */
+	SCHEME_UNIVERSAL_TYPE * macro = getMacro(firstExpr);
+
+	if (macro != NULL) {
+		return invokeMacro(macro, env);
+	}
+
 	LISP_VALUE * callableValue = evaluate(firstExpr, env);
 
 	if (callableValue->type == lispPseudoValueType_ContinuationReturn) {
