@@ -499,7 +499,9 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 }
 
 static LISP_VALUE * evaluateFunctionCall(LISP_FUNCTION_CALL * functionCall, LISP_ENV * env) {
-	LISP_VALUE * callableValue = evaluate(getFirstExprInFunctionCall(functionCall), env);
+	LISP_EXPR * firstExpr = getFirstExprInFunctionCall(functionCall);
+	/* TODO: If firstExpr is a variable, search for a macro with the same name */
+	LISP_VALUE * callableValue = evaluate(firstExpr, env);
 
 	if (callableValue->type == lispPseudoValueType_ContinuationReturn) {
 		return callableValue;
