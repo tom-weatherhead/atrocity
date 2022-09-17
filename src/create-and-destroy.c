@@ -509,13 +509,25 @@ LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 
 LISP_EXPR * createDefineMacroExpression(char * dstBuf, LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * expr) {
 	return allocateStringAndCreateUniversalStruct(
-		lispExpressionType_DefineMacro,
+		lispExpressionType_Macro,
 		0,
 		0,
 		dstBuf,
 		args,
 		expr,
 		NULL
+	);
+}
+
+SCHEME_UNIVERSAL_TYPE * createMacroListElement(LISP_EXPR * macro, SCHEME_UNIVERSAL_TYPE * macroList) {
+	return createUniversalStruct(
+		schemeStructType_MacroListElement,
+		0,
+		0,
+		NULL,
+		macro,
+		NULL,
+		macroList
 	);
 }
 

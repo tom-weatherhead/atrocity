@@ -30,6 +30,7 @@ static char * twoArgumentPrimops[] = {
 
 /* Local variables */
 
+static SCHEME_UNIVERSAL_TYPE * macroList = NULL;
 static int nextContinuationId = 0;
 
 /* Function prototypes */
@@ -682,6 +683,14 @@ static LISP_VALUE * evaluateCondExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return globalNullValue;
 }
 
+static LISP_VALUE * evaluateDefineMacroExpression(LISP_EXPR * macro, LISP_ENV * env) {
+	/* Note bene: This does not check for an existing macro with the same name. Just create a schemeStructType_Macro object and add it to the head of the list. */
+
+	macroList = createMacroListElement(macro, macroList);
+
+	return globalTrueValue;
+}
+
 static BOOL isValueType(int type) {
 	return type >= lispType_FirstValueType && type <= lispType_LastValueType;
 }
@@ -742,6 +751,10 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 
 		case lispExpressionType_Cond:
 			result = evaluateCondExpression(expr, env);
+			break;
+
+		case lispExpressionType_Macro:
+			result = evaluateDefineMacroExpression(expr, env);
 			break;
 
 		default:

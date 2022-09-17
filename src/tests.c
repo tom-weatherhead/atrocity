@@ -365,7 +365,7 @@ test('LL(1) Scheme let* non-recursive test', () => {
 	/* macro test */
 	/* From Kamin pages 56-57, and Exercise 12, from pages 62-63 (in the LISP chapter) */
 
-	/* char * inputsMacro[] = {
+	char * inputsMacro[] = {
 		"(define-macro for (indexvar lower upper body) \
 			(list 'begin \
 				(list 'set indexvar lower) \
@@ -374,19 +374,19 @@ test('LL(1) Scheme let* non-recursive test', () => {
 					(list 'begin body \
 						(list 'set indexvar (list '+ indexvar 1))))))",
 		"(set! sum 0)",
-		"(for x 1 10 (set sum (+ sum x)))",
-		"(sum)",
+		/* "(for x 1 10 (set sum (+ sum x)))",
+		"(sum)", */
 		NULL
 	};
 	char * expectedResultsMacro[] = {
 		"T",
 		"0",
-		"()",
-		"55",
+		/* "()",
+		"55", */
 		NULL
 	};
 
-	multitest(inputsMacro, expectedResultsMacro); */
+	multitest(inputsMacro, expectedResultsMacro);
 
 	printf("\nDone.\n");
 }
