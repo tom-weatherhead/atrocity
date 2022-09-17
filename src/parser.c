@@ -209,9 +209,36 @@ static LISP_EXPR * parseCondExpression(CharSource * cs) {
 	return createCondExpression(exprPairList);
 }
 
-/* static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
-	return createDefineMacroExpression(...);
-} */
+static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
+	const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize];
+
+	/* Parse the name of the macro */
+
+	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+		fatalError("parseDefineMacroExpression() : Expected macro name, found EOF");
+	} else if (!strcmp(dstBuf, "(")) {
+		fatalError("parseDefineMacroExpression() : Expected macro name, found '('");
+	} else if (!strcmp(dstBuf, ")")) {
+		fatalError("parseDefineMacroExpression() : Expected macro name, found ')'");
+	}
+
+	if (!consumeStr(cs, "(")) {
+		fatalError("parseDefineMacroExpression() : Expected (");
+	}
+
+	/* Parse variable list and consume ) */
+	LISP_VAR_LIST_ELEMENT * args = parseVariableList(cs);
+
+	/* Parse expression */
+	LISP_EXPR * expr = parseExpression(cs);
+
+	if (!consumeStr(cs, ")")) {
+		fatalError("parseLambdaExpression() : Expected )");
+	}
+
+	return createDefineMacroExpression(dstBuf, args, expr);
+}
 
 static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 	const int dstBufSize = maxStringValueLength;
@@ -239,8 +266,8 @@ static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 		return parseLetExpression(cs, lispExpressionType_LetStar);
 	} else if (!strcmp(dstBuf, "letrec")) {
 		return parseLetExpression(cs, lispExpressionType_Letrec);
-	/* } else if (!strcmp(dstBuf, "define-macro")) {
-		return parseDefineMacroExpression(cs); */
+	} else if (!strcmp(dstBuf, "define-macro")) {
+		return parseDefineMacroExpression(cs);
 	} else {
 		cs->i = csRewindPoint;
 		return parseFunctionCallExpression(cs);

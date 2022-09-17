@@ -507,6 +507,18 @@ LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 	);
 }
 
+LISP_EXPR * createDefineMacroExpression(char * dstBuf, LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * expr) {
+	return allocateStringAndCreateUniversalStruct(
+		lispExpressionType_DefineMacro,
+		0,
+		0,
+		dstBuf,
+		args,
+		expr,
+		NULL
+	);
+}
+
 STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize) {
 	const int defaultBufferIncrementSize = 16;
 

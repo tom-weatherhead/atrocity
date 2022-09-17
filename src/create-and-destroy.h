@@ -21,6 +21,7 @@ LISP_VALUE * createSymbolValue(char * value);
 /* Create expressions */
 LISP_EXPR * createBeginExpression(LISP_EXPR_LIST_ELEMENT * exprList);
 LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList);
+LISP_EXPR * createDefineMacroExpression(char * dstBuf, LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * expr);
 LISP_EXPR * createFunctionCallExpression(LISP_EXPR_LIST_ELEMENT * exprList);
 LISP_EXPR * createLambdaExpression(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body);
 LISP_EXPR * createLetExpression(int exprType, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList, LISP_EXPR * expr);

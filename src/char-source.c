@@ -70,6 +70,8 @@ static void skipWhiteSpace(CharSource * cs) {
 	}
 }
 
+/* TODO: Modify getIdentifier to create or populate a StringBuilder */
+
 int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize, BOOL * pIsSingleQuoted) {
 	memset(dstBuf, 0, dstBufSize);
 
