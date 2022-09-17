@@ -121,6 +121,33 @@ void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value) {
 	}
 }
 
+/* TODO: Use this:
+LISP_ENV * composeEnvironment(LISP_VAR_LIST_ELEMENT * variableList, LISP_VALUE_LIST_ELEMENT * valueList, LISP_ENV * env) {
+	LISP_ENV * newEnv = createEnvironment(env);
+
+	while (variableList != NULL || valueList != NULL) {
+
+		if (variableList == NULL || valueList == NULL) {
+			fatalError("composeEnvironment() : The formal and actual parameter lists have different lengths.");
+			return NULL;
+		}
+
+		failIf(variableList->type != schemeStructType_VariableListElement, "composeEnvironment() : variableList->type != schemeStructType_VariableListElement");
+
+		LISP_VALUE * value = getValueFromValueListElement(valueList);
+
+		/ * if (value->type == lispPseudoValueType_ContinuationReturn) {
+			return value;
+		} * /
+
+		addNameToEnvironment(newEnv, variableList->name, value);
+		variableList = variableList->next;
+		valueList = valueList->next;
+	}
+
+	return newEnv;
+} */
+
 /* void printEnvironment(LISP_ENV * env) {
 	int i = 0;
 

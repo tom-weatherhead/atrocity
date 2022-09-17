@@ -65,6 +65,10 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getArgsInLambdaExpr(le) ((le)->value1)
 #define getBodyInLambdaExpr(le) ((le)->value2)
 
+#define getNameInMacro(m) ((m)->name)
+#define getArgsInMacro(m) ((m)->value1)
+#define getBodyInMacro(m) ((m)->value2)
+
 #define getMacroInMacroListElement(mle) ((mle)->value1)
 
 #define getValueInNameValuePairListElement(nvple) ((nvple)->value1)

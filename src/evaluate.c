@@ -462,7 +462,24 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	return result;
 }
 
+/* TODO: Use this:
+static LISP_VALUE_LIST_ELEMENT * evaluateExpressionList(LISP_EXPR_LIST_ELEMENT * exprList, LISP_ENV * env) {
+
+	if (exprList == NULL) {
+		return NULL;
+	}
+
+	LISP_VALUE * value = evaluate(getExprInExprList(exprList), env);
+	LISP_VALUE_LIST_ELEMENT * next = evaluateExpressionList(exprList->next, env);
+
+	return createValueListElement(value, next);
+} */
+
 static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
+	/* TODO: Use composeEnvironment() :
+	LISP_VALUE_LIST_ELEMENT * valueList = evaluateExpressionList(actualParamExprs, env);
+	LISP_ENV * newEnv = composeEnvironment(getArgsInClosure(closure), valueList, env);
+	*/
 	LISP_ENV * newEnv = createEnvironment(getEnvInClosure(closure));
 
 	LISP_VAR_LIST_ELEMENT * np = getArgsInClosure(closure); /* closure->args; */
@@ -471,9 +488,6 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 	while (np != NULL || ep != NULL) {
 
 		if (np == NULL || ep == NULL) {
-			/* The formal and actual parameter lists have different lengths. */
-			fprintf(stderr, "evaluateClosureCall() : The formal and actual parameter lists have different lengths.\n");
-			/* freeEnvironment(newEnv); */
 			fatalError("evaluateClosureCall() : The formal and actual parameter lists have different lengths.");
 			return NULL;
 		}
@@ -491,12 +505,10 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 		ep = ep->next;
 	}
 
-	LISP_VALUE * result = evaluate(getBodyInClosure(closure), newEnv);
+	return evaluate(getBodyInClosure(closure), newEnv);
 
 	/* ThAW 2022-08-18 : Don't free newEnv: Someone is still using it. E.g.:
 	parseAndEvaluate("(((lambda (x) (lambda (y) x)) 5) 8)"); */
-
-	return result;
 }
 
 static SCHEME_UNIVERSAL_TYPE * getMacro(LISP_EXPR * expr) {
