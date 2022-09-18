@@ -548,9 +548,9 @@ LISP_VALUE * createAssociativeArray(int numBuckets) {
 		NULL
 	);
 
-	result->aux = (LISP_VALUE **)mmAlloc(numBuckets * sizeof(LISP_VALUE *));
+	result->aux = (SCHEME_UNIVERSAL_TYPE **)mmAlloc(numBuckets * sizeof(SCHEME_UNIVERSAL_TYPE *));
 
-	memset(result->aux, 0, numBuckets * sizeof(LISP_VALUE *));
+	memset(result->aux, 0, numBuckets * sizeof(SCHEME_UNIVERSAL_TYPE *));
 
 	return result;
 }

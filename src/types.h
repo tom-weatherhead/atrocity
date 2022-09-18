@@ -53,6 +53,9 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define STRING_BUILDER_TYPE SCHEME_UNIVERSAL_TYPE
 
+#define getKeyInAssociativeArrayListElement(aale) ((aale)->value1)
+#define getValueInAssociativeArrayListElement(aale) ((aale)->value2)
+
 #define getArgsInClosure(c) ((c)->value1)
 #define getBodyInClosure(c) ((c)->value3)
 #define getEnvInClosure(c) ((c)->value2)
