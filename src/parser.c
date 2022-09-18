@@ -40,6 +40,7 @@ static char * primops[] = {
 	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
 	"if", "print", "random", "throw", "call/cc", /* "and", "or", "??", */
 	/* Not yet implemented: "quote", "floor" */
+	"mkaa", "aaget", "aaset",
 	NULL
 };
 

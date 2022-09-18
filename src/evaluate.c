@@ -174,8 +174,10 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	} */
 	/* END : These primops can take any number of args, including zero. */
 
-	if (actualParamExprs != NULL && getExprInExprList(actualParamExprs) != NULL) {
+	if (actualParamExprs != NULL) {
 		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);
+
+		failIf(operand1Expr == NULL, "evaluatePrimitiveOperatorCall() : operand1Expr == NULL");
 
 		/* BEGIN : Value type predicates */
 		if (!strcmp(op, "null?")) {
@@ -294,17 +296,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : call/cc : Closure does not take exactly one argument");
 			}
 
-			/* SCHEME_UNIVERSAL_TYPE * currentContinuation = createUniversalStruct(
-				lispPseudoValueType_Continuation,
-				nextContinuationId,
-				0,
-				NULL,
-				NULL,
-				NULL,
-				NULL
-			);
-
-			nextContinuationId++; */
 			SCHEME_UNIVERSAL_TYPE * currentContinuation = createContinuation(nextContinuationId++);
 
 			/* Now call the closure (operand1Value), passing in
@@ -319,10 +310,21 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			}
 
 			return result;
+		} else if (!strcmp(op, "mkaa")) {
+			fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aa has not been implemented yet\n");
+			return globalNullValue;
+		} else if (!strcmp(op, "aaget")) {
+			fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aa has not been implemented yet\n");
+			return globalNullValue;
+		} else if (!strcmp(op, "aaset")) {
+			fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aa has not been implemented yet\n");
+			return globalNullValue;
 		}
 
-		if (actualParamExprs->next != NULL && getExprInExprList(actualParamExprs->next) != NULL) {
+		if (actualParamExprs->next != NULL) {
 			LISP_EXPR * operand2Expr = getExprInExprList(actualParamExprs->next);
+
+			failIf(operand2Expr == NULL, "evaluatePrimitiveOperatorCall() : operand2Expr == NULL");
 
 			if (isStringInList(op, twoArgumentPrimops)) {
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
