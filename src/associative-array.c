@@ -13,8 +13,8 @@
 static int hashString(char * str) {
 	int result = 0;
 
-	while (str != NULL) {
-		result *= 13 * (int)*str;
+	while (*str != '\0') {
+		result *= 13 * (int)*str++;
 		result += 37;
 	}
 

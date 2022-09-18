@@ -12,6 +12,7 @@
 
 #include "types.h" /* Needed to provide BOOL */
 
+#include "associative-array.h"
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "memory-manager.h"
@@ -92,6 +93,42 @@ static void test(char * input, char * expectedOutput) {
 	multitest(inputs, expectedOutputs);
 }
 
+static void testAssociativeArray() {
+	printf("testAssociativeArray() : BEGIN\n");
+
+	LISP_VALUE * associativeArray = aaCreate();
+
+	LISP_VALUE * keyAbc = createStringValue("abc");
+	LISP_VALUE * key456 = createNumericValue(456);
+
+	LISP_VALUE * value123 = createNumericValue(123);
+	LISP_VALUE * valueDef = createStringValue("def");
+
+	LISP_VALUE * getResult0 = aaGet(associativeArray, keyAbc);
+
+	failIf(getResult0 != NULL, "testAssociativeArray() : getResult0 != NULL");
+
+	LISP_VALUE * setResult1 = aaSet(associativeArray, keyAbc, value123);
+	LISP_VALUE * setResult2 = aaSet(associativeArray, key456, valueDef);
+
+	LISP_VALUE * getResult1 = aaGet(associativeArray, keyAbc);
+	LISP_VALUE * getResult2 = aaGet(associativeArray, key456);
+
+	failIf(getResult1 == NULL, "testAssociativeArray() : getResult1 == NULL");
+	failIf(getResult1->type != value123->type, "testAssociativeArray() : getResult1 has wrong type");
+	failIf(getIntegerValueInValue(getResult1) != getIntegerValueInValue(value123), "testAssociativeArray() : getResult1 has wrong value");
+
+	failIf(getResult2 == NULL, "testAssociativeArray() : getResult2 == NULL");
+	failIf(getResult2->type != valueDef->type, "testAssociativeArray() : getResult2 has wrong type");
+	failIf(getNameInValue(getResult2) == NULL, "testAssociativeArray() : getResult2 name == NULL");
+	failIf(getNameInValue(valueDef) == NULL, "testAssociativeArray() : valueDef name == NULL");
+	failIf(strcmp(getNameInValue(getResult2), getNameInValue(valueDef)), "testAssociativeArray() : getResult2 has wrong name");
+
+	freeAllStructs();
+
+	printf("testAssociativeArray() : END\n");
+}
+
 static void testStringBuilder() {
 	printf("testStringBuilder() : BEGIN\n");
 
@@ -120,6 +157,7 @@ void runTests() {
 	testGetIdentifier("(((a b) c) d)");
 	/ * testGetIdentifier(""); */
 
+	testAssociativeArray();
 	testStringBuilder();
 
 	test("7", "7");
