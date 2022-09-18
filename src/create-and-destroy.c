@@ -537,15 +537,33 @@ SCHEME_UNIVERSAL_TYPE * createMacroListElement(LISP_EXPR * macro, SCHEME_UNIVERS
 	);
 }
 
-LISP_VALUE * createAssociativeArray() {
-	return createUniversalStruct(
+LISP_VALUE * createAssociativeArray(int numBuckets) {
+	LISP_VALUE * result = createUniversalStruct(
 		lispValueType_AssociativeArray,
-		0,
+		numBuckets,
 		0,
 		NULL,
 		NULL,
 		NULL,
 		NULL
+	);
+
+	result->aux = (LISP_VALUE **)mmAlloc(numBuckets * sizeof(LISP_VALUE *));
+
+	memset(result->aux, 0, numBuckets * sizeof(LISP_VALUE *));
+
+	return result;
+}
+
+SCHEME_UNIVERSAL_TYPE * createAssociativeArrayListElement(LISP_VALUE * key, LISP_VALUE * value, SCHEME_UNIVERSAL_TYPE * next) {
+	return createUniversalStruct(
+		schemeStructType_AssociativeArrayListElement,
+		0,
+		0,
+		NULL,
+		key,
+		value,
+		next
 	);
 }
 

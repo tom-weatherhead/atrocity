@@ -37,16 +37,9 @@ static int hashKey(LISP_VALUE * key) {
 }
 
 LISP_VALUE * aaCreate() {
-	/* int numBuckets = 256;
-	LISP_VALUE ** buckets = (LISP_VALUE **)malloc(numBuckets * sizeof(LISP_VALUE *));
+	const int numBuckets = 256;
 
-	memset(buckets, 0, numBuckets * sizeof(LISP_VALUE *)); */
-
-	LISP_VALUE * result = createAssociativeArray();
-
-	/* result->aux = buckets; */ /* typeof aux is void * */
-
-	return result;
+	return createAssociativeArray(numBuckets);
 }
 
 /* BOOL aaHas(LISP_VALUE * key); */

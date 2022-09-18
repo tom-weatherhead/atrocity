@@ -134,6 +134,7 @@ enum {
 	lispExpressionType_Macro,
 	/* lispType_LastExpressionType = lispExpressionType_DefineMacro, */
 
+	schemeStructType_AssociativeArrayListElement,
 	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,
 	schemeStructType_ExpressionPairListElement,
