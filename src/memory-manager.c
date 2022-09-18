@@ -22,6 +22,8 @@ extern LISP_VALUE * globalTrueValue;
 static int numMallocs = 0;
 static int numFrees = 0;
 
+static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr);
+
 typedef struct MEMMGR_RECORD_STRUCT {
 	SCHEME_UNIVERSAL_TYPE * item;
 	struct MEMMGR_RECORD_STRUCT * next;
@@ -100,6 +102,13 @@ static void clearMarks() {
 	}
 }
 
+static void setMarksInAA(int n, SCHEME_UNIVERSAL_TYPE ** aux) {
+
+	while (n-- > 0) {
+		setMarksInExprTree(aux[n]);
+	}
+}
+
 static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 
 	if (expr == NULL || expr->mark == 1) {
@@ -117,6 +126,10 @@ static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 	setMarksInExprTree(expr->value2);
 	setMarksInExprTree(expr->value3);
 	setMarksInExprTree(expr->next);
+
+	if (expr->type == lispValueType_AssociativeArray) {
+		setMarksInAA(expr->integerValue, (SCHEME_UNIVERSAL_TYPE **)expr->aux);
+	}
 }
 
 static int freeUnmarkedStructs() {

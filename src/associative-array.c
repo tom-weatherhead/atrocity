@@ -8,8 +8,45 @@
 
 #include "types.h"
 
-SCHEME_UNIVERSAL_TYPE * aaCreate() {
-	return NULL;
+#include "create-and-destroy.h"
+
+static int hashString(char * str) {
+	int result = 0;
+
+	while (str != NULL) {
+		result *= 13 * (int)*str;
+		result += 37;
+	}
+
+	return result;
+}
+
+static int hashKey(LISP_VALUE * key) {
+
+	switch (key->type) {
+		case lispValueType_Number:
+			return getIntegerValueInValue(key);
+
+		case lispValueType_String:
+			return hashString(getNameInValue(key));
+
+		default:
+			fatalError("hashKey() : Key type is not hashable");
+			return 0;
+	}
+}
+
+LISP_VALUE * aaCreate() {
+	/* int numBuckets = 256;
+	LISP_VALUE ** buckets = (LISP_VALUE **)malloc(numBuckets * sizeof(LISP_VALUE *));
+
+	memset(buckets, 0, numBuckets * sizeof(LISP_VALUE *)); */
+
+	LISP_VALUE * result = createAssociativeArray();
+
+	/* result->aux = buckets; */ /* typeof aux is void * */
+
+	return result;
 }
 
 /* BOOL aaHas(LISP_VALUE * key); */

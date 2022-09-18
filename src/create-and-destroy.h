@@ -3,6 +3,7 @@
 /* int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value); */
 
 /* Create values */
+LISP_VALUE * createAssociativeArray();
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env);
 LISP_VALUE * createContinuation(int id);
 LISP_VALUE * createContinuationReturn(int id, LISP_VALUE * value);

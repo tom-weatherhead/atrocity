@@ -18,7 +18,7 @@
 /* Every expression can be evaluated to a value. */
 
 typedef struct SCHEME_UNIVERSAL_STRUCT {
-	/* Contains nine members. */
+	/* Contains ten members. */
 
 	int mark; /* All dynamically allocated structs must have this member */
 
@@ -34,6 +34,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	struct SCHEME_UNIVERSAL_STRUCT * value3;
 
 	struct SCHEME_UNIVERSAL_STRUCT * next; /* To allow linked lists */
+
+	void * aux;
 } SCHEME_UNIVERSAL_TYPE;
 
 #define LISP_CLOSURE SCHEME_UNIVERSAL_TYPE
@@ -106,6 +108,7 @@ enum {
 	lispValueType_Closure,
 	lispValueType_Pair,
 	lispValueType_Null, /* 6 */ /* TODO? Interpret the NULL pointer as a Null value? */
+	lispValueType_AssociativeArray,
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
 	lispType_LastValueType = lispPseudoValueType_ContinuationReturn,

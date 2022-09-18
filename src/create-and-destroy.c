@@ -34,6 +34,7 @@ static SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
 	result->value2 = value2;
 	result->value3 = NULL;
 	result->next = next;
+	result->aux = NULL;
 
 	addItemToMemMgrRecords(result);
 
@@ -101,6 +102,11 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 	if (expr->next != NULL) {
 		freeUniversalStruct(expr->next);
 		expr->next = NULL;
+	}
+
+	if (expr->aux != NULL) {
+		mmFree(expr->aux);
+		expr->aux = NULL;
 	}
 
 	mmFree(expr);
@@ -528,6 +534,18 @@ SCHEME_UNIVERSAL_TYPE * createMacroListElement(LISP_EXPR * macro, SCHEME_UNIVERS
 		macro,
 		NULL,
 		macroList
+	);
+}
+
+LISP_VALUE * createAssociativeArray() {
+	return createUniversalStruct(
+		lispValueType_AssociativeArray,
+		0,
+		0,
+		NULL,
+		NULL,
+		NULL,
+		NULL
 	);
 }
 
