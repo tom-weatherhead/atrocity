@@ -69,6 +69,10 @@ void printValue(LISP_VALUE * value) {
 			printf("()");
 			break; */
 
+		case lispValueType_Array:
+			printf("<array>");
+			break;
+
 		case lispValueType_AssociativeArray:
 			printf("<associative array>");
 			break;
@@ -169,6 +173,10 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 
 		case lispValueType_AssociativeArray:
 			appendToStringBuilder(sb, "<associative array>");
+			break;
+
+		case lispValueType_Array:
+			appendToStringBuilder(sb, "<array>");
 			break;
 
 		case lispPseudoValueType_Continuation:

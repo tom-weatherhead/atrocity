@@ -39,8 +39,14 @@ static char * primops[] = {
 	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
 	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
 	"if", "print", "random", "throw", "call/cc", /* "and", "or", "??", */
-	/* Not yet implemented: "quote", "floor" */
+
+	/* For arrays (ordered sequences of values) : */
+	"mkarray", /* "alength", "apush", "apop", "apeek", "ashift", "aunshift", "aslice", "a...", */
+
+	/* For associative arrays (dictionaries) : */
 	"mkaa", "aaget", "aaset",
+
+	/* Not yet implemented: "ref=", "quote", "floor" */
 	NULL
 };
 

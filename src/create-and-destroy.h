@@ -3,6 +3,7 @@
 /* int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value); */
 
 /* Create values */
+LISP_VALUE * createArray();
 LISP_VALUE * createAssociativeArray(int numBuckets);
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env);
 LISP_VALUE * createContinuation(int id);
@@ -34,6 +35,7 @@ LISP_EXPR * createExpressionFromVariable(LISP_VAR * var);
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value);
 
 /* Create other stuff */
+SCHEME_UNIVERSAL_TYPE * createArrayListElement(LISP_VALUE * value, SCHEME_UNIVERSAL_TYPE * next);
 SCHEME_UNIVERSAL_TYPE * createAssociativeArrayListElement(LISP_VALUE * key, LISP_VALUE * value, SCHEME_UNIVERSAL_TYPE * next);
 LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR_LIST_ELEMENT * next);
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next);

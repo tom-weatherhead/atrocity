@@ -180,6 +180,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 		if (!strcmp(op, "mkaa")) {
 			return aaCreate();
+		} else if (!strcmp(op, "mkarray")) {
+			return createArray();
 		}
 	} else {
 		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);

@@ -18,6 +18,7 @@ string< (string-is-less-than)
 tostring ?
 stringtolist ?
 stringtosymbol ?
+Default values for formal parameters
 */
 
 /* TODO: Implement lazy evaluation via thunks (suspended computations) :
@@ -27,7 +28,6 @@ nothing would be gained by suspending a computation that is just an identity fn
 
 - createThunk(expr, env) and/or exprToValueOrThunk(expr, env)
 - dethunk(expr)
-
 */
 
 #include <stdlib.h>

@@ -113,7 +113,8 @@ enum {
 	lispValueType_Closure,
 	lispValueType_Pair,
 	lispValueType_Null, /* 6 */ /* TODO? Interpret the NULL pointer as a Null value? */
-	lispValueType_AssociativeArray,
+	lispValueType_Array,
+	lispValueType_AssociativeArray, /* I.e. a Dictionary */
 	lispPseudoValueType_Continuation,
 	lispPseudoValueType_ContinuationReturn,
 	lispType_LastValueType = lispPseudoValueType_ContinuationReturn,
@@ -139,6 +140,7 @@ enum {
 	lispExpressionType_Macro,
 	/* lispType_LastExpressionType = lispExpressionType_DefineMacro, */
 
+	schemeStructType_ArrayListElement,
 	schemeStructType_AssociativeArrayListElement,
 	schemeStructType_Environment,
 	schemeStructType_ExpressionListElement,

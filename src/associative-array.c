@@ -11,6 +11,8 @@
 #include "evaluate.h"
 #include "memory-manager.h"
 
+/* For associative arrays (dictionaries) : */
+
 static const int maxNumItemsInAnyBucket = 16;
 
 static int hashString(char * str) {
