@@ -1,14 +1,17 @@
 /* atrocity/src/associative-array.c */
 
 #include <stdlib.h>
-/* #include <stdio.h> */
+#include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
+#include "associative-array.h"
 #include "create-and-destroy.h"
+#include "evaluate.h"
+#include "memory-manager.h"
+
+static const int maxNumItemsInAnyBucket = 16;
 
 static int hashString(char * str) {
 	int result = 0;
@@ -36,40 +39,47 @@ static int hashKey(LISP_VALUE * key) {
 	}
 }
 
-static BOOL areKeysEqual(LISP_VALUE * key1, LISP_VALUE * key2) {
-
-	if (key1->type != key2->type) {
-		return FALSE;
-	}
-
-	switch (key1->type) {
-		case lispValueType_Number:
-			return getIntegerValueInValue(key1) == getIntegerValueInValue(key2);
-
-		case lispValueType_String:
-			return !strcmp(getNameInValue(key1), getNameInValue(key2));
-
-		default:
-			fatalError("areKeysEqual() : Key type is not comparable");
-			return FALSE;
-	}
-}
-
 LISP_VALUE * aaCreate() {
 	const int numBuckets = 256;
 
 	return createAssociativeArray(numBuckets);
 }
 
-/* BOOL aaHas(LISP_VALUE * key); */
+static void resizeAA(LISP_VALUE * aa, int newNumBuckets) {
+	printf("Resizing associative array...\n");
+
+	SCHEME_UNIVERSAL_TYPE ** oldAux = (SCHEME_UNIVERSAL_TYPE **)(aa->aux);
+	int oldNumBuckets = getNumBucketsInAssociativeArray(aa);
+
+	getNumBucketsInAssociativeArray(aa) = newNumBuckets;
+	aa->aux = (SCHEME_UNIVERSAL_TYPE **)mmAlloc(newNumBuckets * sizeof(SCHEME_UNIVERSAL_TYPE *));
+
+	memset(aa->aux, 0, newNumBuckets * sizeof(SCHEME_UNIVERSAL_TYPE *));
+
+	while (oldNumBuckets > 0) {
+		SCHEME_UNIVERSAL_TYPE * bucketPtr = oldAux[oldNumBuckets--];
+
+		while (bucketPtr != NULL) {
+			/* TODO: Prevent this aaSet call from causing a resize within a resize */
+			aaSet(aa, getKeyInAssociativeArrayListElement(bucketPtr), getValueInAssociativeArrayListElement(bucketPtr));
+			bucketPtr = bucketPtr->next;
+		}
+	}
+
+	printf("Done resizing associative array\n");
+}
+
+/* BOOL aaHas(LISP_VALUE * aa, LISP_VALUE * key) {
+	return aaGet(aa, key) != NULL;
+} */
 
 LISP_VALUE * aaGet(LISP_VALUE * aa, LISP_VALUE * key) {
-	int hashValue = hashKey(key) % getIntegerValueInValue(aa);
+	int hashValue = hashKey(key) % getNumBucketsInAssociativeArray(aa);
 	SCHEME_UNIVERSAL_TYPE * bucketPtr = ((SCHEME_UNIVERSAL_TYPE **)(aa->aux))[hashValue];
 
 	while (bucketPtr != NULL) {
 
-		if (areKeysEqual(key, getKeyInAssociativeArrayListElement(bucketPtr))) {
+		if (areValuesEqual(key, getKeyInAssociativeArrayListElement(bucketPtr))) {
 			return getValueInAssociativeArrayListElement(bucketPtr);
 		}
 
@@ -81,29 +91,36 @@ LISP_VALUE * aaGet(LISP_VALUE * aa, LISP_VALUE * key) {
 
 LISP_VALUE * aaSet(LISP_VALUE * aa, LISP_VALUE * key, LISP_VALUE * value) {
 	/* Update value if key is found; else insert */
-	int hashValue = hashKey(key) % getIntegerValueInValue(aa);
+	int hashValue = hashKey(key) % getNumBucketsInAssociativeArray(aa);
 	SCHEME_UNIVERSAL_TYPE ** buckets = (SCHEME_UNIVERSAL_TYPE **)(aa->aux);
 	SCHEME_UNIVERSAL_TYPE * bucketPtr = buckets[hashValue];
+	int numItemsInBucket = 0;
 
 	/* 1) Update value if key is found */
 
 	while (bucketPtr != NULL) {
 
-		if (areKeysEqual(key, getKeyInAssociativeArrayListElement(bucketPtr))) {
+		if (areValuesEqual(key, getKeyInAssociativeArrayListElement(bucketPtr))) {
 			getValueInAssociativeArrayListElement(bucketPtr) = value;
 
 			return value;
 		}
 
 		bucketPtr = bucketPtr->next;
+		numItemsInBucket++;
 	}
 
 	/* 2) Insert */
 	buckets[hashValue] = createAssociativeArrayListElement(key, value, buckets[hashValue]);
 
+	if (numItemsInBucket > maxNumItemsInAnyBucket) {
+		resizeAA(aa, 2 * getNumBucketsInAssociativeArray(aa));
+	}
+
+	/* If the number of items in this bucket becomes too large,
+	then resize the AssociativeArray, which will rehash all keys */
+
 	return value;
 }
-
-/* TODO: LISP_VALUE * resizeAA(LISP_VALUE * aa, int newNumBuckets); */
 
 /* **** The End **** */

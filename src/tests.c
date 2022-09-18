@@ -108,8 +108,8 @@ static void testAssociativeArray() {
 
 	failIf(getResult0 != NULL, "testAssociativeArray() : getResult0 != NULL");
 
-	LISP_VALUE * setResult1 = aaSet(associativeArray, keyAbc, value123);
-	LISP_VALUE * setResult2 = aaSet(associativeArray, key456, valueDef);
+	/* LISP_VALUE * setResult1 = */ aaSet(associativeArray, keyAbc, value123);
+	/* LISP_VALUE * setResult2 = */ aaSet(associativeArray, key456, valueDef);
 
 	LISP_VALUE * getResult1 = aaGet(associativeArray, keyAbc);
 	LISP_VALUE * getResult2 = aaGet(associativeArray, key456);
@@ -123,6 +123,17 @@ static void testAssociativeArray() {
 	failIf(getNameInValue(getResult2) == NULL, "testAssociativeArray() : getResult2 name == NULL");
 	failIf(getNameInValue(valueDef) == NULL, "testAssociativeArray() : valueDef name == NULL");
 	failIf(strcmp(getNameInValue(getResult2), getNameInValue(valueDef)), "testAssociativeArray() : getResult2 has wrong name");
+
+	/* Update a key's value */
+	LISP_VALUE * value1337 = createNumericValue(1337);
+
+	/* LISP_VALUE * setResult3 = */ aaSet(associativeArray, keyAbc, value1337);
+
+	LISP_VALUE * getResult3 = aaGet(associativeArray, keyAbc);
+
+	failIf(getResult3 == NULL, "testAssociativeArray() : getResult3 == NULL");
+	failIf(getResult3->type != value1337->type, "testAssociativeArray() : getResult3 has wrong type");
+	failIf(getIntegerValueInValue(getResult3) != getIntegerValueInValue(value1337), "testAssociativeArray() : getResult3 has wrong value");
 
 	freeAllStructs();
 

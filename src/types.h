@@ -53,6 +53,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define STRING_BUILDER_TYPE SCHEME_UNIVERSAL_TYPE
 
+#define getNumBucketsInAssociativeArray(aa) ((aa)->integerValue)
+
 #define getKeyInAssociativeArrayListElement(aale) ((aale)->value1)
 #define getValueInAssociativeArrayListElement(aale) ((aale)->value2)
 

@@ -58,7 +58,7 @@ static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * e
 	return booleanToClonedValue(b);
 }
 
-static BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
+BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
 
 	if (v1->type != v2->type) {
 		return FALSE;
