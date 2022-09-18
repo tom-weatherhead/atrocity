@@ -10,6 +10,7 @@
 
 #include "types.h"
 
+#include "associative-array.h"
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "evaluate.h"
@@ -174,7 +175,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	} */
 	/* END : These primops can take any number of args, including zero. */
 
-	if (actualParamExprs != NULL) {
+	if (actualParamExprs == NULL) {
+		/* These primops take exactly zero args */
+
+		if (!strcmp(op, "mkaa")) {
+			return aaCreate();
+		}
+	} else {
 		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);
 
 		failIf(operand1Expr == NULL, "evaluatePrimitiveOperatorCall() : operand1Expr == NULL");
@@ -310,15 +317,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			}
 
 			return result;
-		} else if (!strcmp(op, "mkaa")) {
-			fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aa has not been implemented yet\n");
-			return globalNullValue;
-		} else if (!strcmp(op, "aaget")) {
-			fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aa has not been implemented yet\n");
-			return globalNullValue;
-		} else if (!strcmp(op, "aaset")) {
-			fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aa has not been implemented yet\n");
-			return globalNullValue;
 		}
 
 		if (actualParamExprs->next != NULL) {
@@ -405,6 +403,9 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					getTailInPair(operand1Value) = operand2Value;
 
 					return operand2Value;
+				} else if (!strcmp(op, "aaget")) {
+					fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aaget has not been implemented yet\n");
+					return globalNullValue;
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
 					/* Both operands must be numeric */
 					const int operand1 = getIntegerValueInValue(operand1Value);
@@ -447,16 +448,24 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* If it is non-null, then evaluate and return the second operand. */
 			/* Else evaluate and return the third operand. */
 
-			if (!strcmp(op, "if") && actualParamExprs->next->next != NULL && getExprInExprList(actualParamExprs->next->next) != NULL) {
+			if (actualParamExprs->next->next != NULL) {
 				LISP_EXPR * operand3Expr = getExprInExprList(actualParamExprs->next->next);
-				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
-				if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
-					return operand1Value;
+				failIf(operand3Expr == NULL, "evaluatePrimitiveOperatorCall() : operand3Expr == NULL");
+
+				if (!strcmp(op, "if")) {
+					LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+
+					if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
+						return operand1Value;
+					}
+
+					/* Only one of [operand2Expr, operand3Expr] will be evaluated */
+					result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
+				} else if (!strcmp(op, "aaset")) {
+					fprintf(stderr, "evaluatePrimitiveOperatorCall() : Primop aaset has not been implemented yet\n");
+					return globalNullValue;
 				}
-
-				/* Only one of [operand2Expr, operand3Expr] will be evaluated */
-				result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
 			}
 		}
 	}
