@@ -30,8 +30,20 @@ static int hashKey(LISP_VALUE * key) {
 		case lispValueType_Number:
 			return getIntegerValueInValue(key);
 
+		case lispValueType_PrimitiveOperator:
 		case lispValueType_String:
+		case lispValueType_Symbol:
 			return hashString(getNameInValue(key));
+
+		case lispValueType_Pair:
+			return hashKey(getHeadInPair(key)) * 37 + hashKey(getTailInPair(key)) + 17;
+
+		case lispValueType_AssociativeArray:
+		case lispValueType_Closure:
+		case lispValueType_Null:
+		case lispPseudoValueType_Continuation:
+		case lispPseudoValueType_ContinuationReturn:
+			return 0;
 
 		default:
 			fatalError("hashKey() : Key type is not hashable");
