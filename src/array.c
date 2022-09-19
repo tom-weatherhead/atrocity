@@ -53,7 +53,7 @@ LISP_VALUE * push(LISP_VALUE * array, LISP_VALUE * value) {
 }
 
 LISP_VALUE * pop(LISP_VALUE * array) {
-	/* Append value to the end of the array */
+	/* Remove value from the end of the array */
 	failIf(array == NULL, "pop() : array == NULL");
 	failIf(array->type != lispValueType_Array, "pop() : array->type != lispValueType_Array");
 
@@ -79,5 +79,49 @@ LISP_VALUE * pop(LISP_VALUE * array) {
 
 	return getValueInArrayListElement(ptr);
 }
+
+LISP_VALUE * peek(LISP_VALUE * array) {
+	/* Return value at the end of the array */
+	failIf(array == NULL, "peek() : array == NULL");
+	failIf(array->type != lispValueType_Array, "peek() : array->type != lispValueType_Array");
+
+	SCHEME_UNIVERSAL_TYPE * ptr = getHeadInArray(array);
+
+	failIf(ptr == NULL, "peek() : array is empty");
+
+	while (ptr->next != NULL) {
+		ptr = ptr->next;
+	}
+
+	return getValueInArrayListElement(ptr);
+}
+
+LISP_VALUE * unshiftArray(LISP_VALUE * array, LISP_VALUE * value) {
+	/* Prepend value to the beginning of the array */
+	failIf(array == NULL, "unshiftArray() : array == NULL");
+	failIf(value == NULL, "unshiftArray() : value == NULL");
+	failIf(array->type != lispValueType_Array, "unshiftArray() : array->type != lispValueType_Array");
+
+	getHeadInArray(array) = createArrayListElement(value, getHeadInArray(array));
+
+	return value;
+}
+
+LISP_VALUE * shiftArray(LISP_VALUE * array) {
+	/* Remove value from the beginning of the array */
+	failIf(array == NULL, "shiftArray() : array == NULL");
+	failIf(array->type != lispValueType_Array, "shiftArray() : array->type != lispValueType_Array");
+
+	SCHEME_UNIVERSAL_TYPE * ptr = getHeadInArray(array);
+
+	failIf(ptr == NULL, "shiftArray() : array is empty");
+
+	getHeadInArray(array) = ptr->next;
+
+	return getValueInArrayListElement(ptr);
+}
+
+/* TODO:
+sliceArray */
 
 /* **** The End **** */
