@@ -178,15 +178,16 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	} */
 	/* END : These primops can take any number of args, including zero. */
 
-	if (actualParamExprs == NULL) {
-		/* These primops take exactly zero args */
+	/* if (actualParamExprs == NULL) {
+		/ * These primops take exactly zero args * /
 
 		if (!strcmp(op, "mkaa")) {
 			return createAssociativeArray();
 		} else if (!strcmp(op, "mkarray")) {
 			return createArray();
 		}
-	} else {
+	} else */
+	if (actualParamExprs != NULL) {
 		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);
 
 		failIf(operand1Expr == NULL, "evaluatePrimitiveOperatorCall() : operand1Expr == NULL");

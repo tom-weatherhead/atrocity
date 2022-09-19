@@ -42,7 +42,7 @@ static char * primops[] = {
 	"if", "print", "random", "throw", "call/cc", /* "and", "or", "??", */
 
 	/* For arrays (ordered sequences of values) : */
-	"mkarray", /* "alength", "apush", "apop", "apeek", "ashift", "aunshift", "aslice", "a...", */
+	"alength", "apush", "apop", "apeek", "ashift", "aunshift", /* "mkarray", "aslice", "a...", */
 
 	/* For associative arrays (dictionaries) : */
 	"mkaa", "aaget", "aaset",

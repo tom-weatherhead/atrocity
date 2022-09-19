@@ -14,6 +14,8 @@
 #include "utilities.h"
 
 void printValue(LISP_VALUE * value) {
+	SCHEME_UNIVERSAL_TYPE * ptr = NULL;
+	char * separatorStr = "";
 
 	if (value == NULL) {
 		printf("NULL");
@@ -70,11 +72,20 @@ void printValue(LISP_VALUE * value) {
 			break; */
 
 		case lispValueType_Array:
-			printf("<array>");
+			/* printf("<array>"); */
+			printf("[");
+
+			for (ptr = getHeadInArray(value); ptr != NULL; ptr = ptr->next) {
+				printf("%s", separatorStr);
+				printValue(getValueInArrayListElement(ptr));
+				separatorStr = ", ";
+			}
+
+			printf("]");
 			break;
 
 		case lispValueType_AssociativeArray:
-			printf("<associative array>");
+			printf("<associative array (i.e. dictionary)>");
 			break;
 
 		case lispPseudoValueType_Continuation:
