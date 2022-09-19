@@ -13,6 +13,7 @@
 #include "char-source.h"
 
 #include "associative-array.h"
+#include "evaluate.h"
 #include "create-and-destroy.h"
 #include "memory-manager.h"
 #include "parser.h"
@@ -26,30 +27,6 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs);
 static LISP_VALUE * createQuotedList(CharSource * cs);
 
 /* Constants */
-
-static char * primops[] = {
-	/* TODO? :
-	- Write >, <=, and >= in terms of <, not
-	- Write != in terms of =, not
-	- Distinguish between reference-equal and value-equal
-	*/
-	"+", "-", "*", "/", "%", "<",
-	"=", /* For all value types, not just numbers */
-	"!=", ">", "<=", ">=", /* We may comment these out later */
-	/* TODO: Remove either list? or pair? */
-	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
-	"cons", "car", "cdr", "list", "listtostring", "rplaca", "rplacd",
-	"if", "print", "random", "throw", "call/cc", /* "and", "or", "??", */
-
-	/* For arrays (ordered sequences of values) : */
-	"alength", "apush", "apop", "apeek", "ashift", "aunshift", /* "mkarray", "aslice", "a...", */
-
-	/* For associative arrays (dictionaries) : */
-	"mkaa", "aaget", "aaset",
-
-	/* Not yet implemented: "ref=", "quote", "floor" */
-	NULL
-};
 
 /* Functions */
 
@@ -371,7 +348,7 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		return createExpressionFromValue(createQuotedValue(cs));
 	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
 		return createExpressionFromValue(createStringValue(dstBuf));
-	} else if (isStringInList(dstBuf, primops)) {
+	} else if (isPrimop(dstBuf)) {
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
 	} else if (!strcmp(dstBuf, "[]")) {
 		return createExpressionFromValue(createArray());

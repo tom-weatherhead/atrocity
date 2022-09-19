@@ -26,12 +26,35 @@ extern LISP_VALUE * globalTrueValue;
 
 /* Local constants */
 
-/* static char * oneArgumentPrimops[] = { ..., NULL }; */
+/* Primops (primitive operators) : TODO? :
+- Write >, <=, and >= in terms of <, not
+- Write != in terms of =, not
+- Distinguish between reference-equal and value-equal
+*/
+/* "and", "or", "??", */
+/* Not yet implemented: "quote", "floor" */
+
+static char * oneArgumentPrimops[] = {
+	/* Type predicates */
+	/* TODO: Remove either list? or pair? */
+	"closure?", "list?", "null?", "number?", "pair?", "primop?", "string?", "symbol?",
+
+	/* For LISP-style lists: */
+	"car", "cdr", "list", "listtostring",
+
+	/* For arrays (ordered sequences of values) : */
+	"alength", "apop", "apeek", "ashift",
+
+	/* Miscellaneous */
+	"print", "random", "throw", "call/cc",
+
+	NULL
+};
 static char * twoArgumentPrimops[] = {
 	"+", "-", "*", "/", "%", "<", ">", "<=", ">=", "=", "!=",
-	"cons", "rplaca", "rplacd", "aaget", "apush", "aunshift", NULL
+	"cons", "rplaca", "rplacd", "aaget", "apush", "aunshift", "ref=", NULL
 };
-/* static char * threArgumentPrimops[] = { "aaset", NULL }; */
+static char * threArgumentPrimops[] = { "if", "aaset", /* "aslice", */ NULL };
 
 /* Local variables */
 
@@ -46,7 +69,11 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 /* Functions */
 
-static LISP_VALUE * booleanToClonedValue(int b) {
+BOOL isPrimop(char * str) {
+	return isStringInList(str, oneArgumentPrimops) || isStringInList(str, twoArgumentPrimops) || isStringInList(str, threArgumentPrimops);
+}
+
+static LISP_VALUE * booleanToSchemeValue(int b) {
 	return b ? globalTrueValue : globalNullValue;
 }
 
@@ -59,7 +86,7 @@ static LISP_VALUE * evaluateAndCompareType(LISP_EXPR * operandExpr, LISP_ENV * e
 
 	const int b = operandValue->type == lispValueType;
 
-	return booleanToClonedValue(b);
+	return booleanToSchemeValue(b);
 }
 
 BOOL areValuesEqual(LISP_VALUE * v1, LISP_VALUE * v2) {
@@ -179,7 +206,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	/* END : These primops can take any number of args, including zero. */
 
 	/* if (actualParamExprs == NULL) {
-		/ * These primops take exactly zero args * /
+		/ * These primops take exactly zero arguments * /
 
 		if (!strcmp(op, "mkaa")) {
 			return createAssociativeArray();
@@ -191,6 +218,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);
 
 		failIf(operand1Expr == NULL, "evaluatePrimitiveOperatorCall() : operand1Expr == NULL");
+
+		/* These primops take exactly one argument */
 
 		/* BEGIN : Value type predicates */
 		if (!strcmp(op, "null?")) {
@@ -207,7 +236,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			/* Note the difference between a pair and a list.
 			The set of lists is a proper subset of the set of pairs.
 			E.g. (cons 1 2) = (1 . 2) is a pair, but not a list. */
-			return booleanToClonedValue(isList(evaluate(operand1Expr, env)));
+			return booleanToSchemeValue(isList(evaluate(operand1Expr, env)));
 		} else if (!strcmp(op, "primop?")) {
 			return evaluateAndCompareType(operand1Expr, env, lispValueType_PrimitiveOperator);
 		} else if (!strcmp(op, "closure?")) {
@@ -338,6 +367,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			failIf(operand2Expr == NULL, "evaluatePrimitiveOperatorCall() : operand2Expr == NULL");
 
+			/* These primops take exactly two arguments */
+
 			if (isStringInList(op, twoArgumentPrimops)) {
 				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
@@ -391,9 +422,9 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					are eq, or if they are numbers of the same type with
 					the same value, or if they are character objects that
 					represent the same character, or nil otherwise. */
-					result = booleanToClonedValue(areValuesEqual(operand1Value, operand2Value));
+					result = booleanToSchemeValue(areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "!=")) {
-					result = booleanToClonedValue(!areValuesEqual(operand1Value, operand2Value));
+					result = booleanToSchemeValue(!areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "cons")) {
 					/* Return without freeing the values */
 					return createPair(operand1Value, operand2Value);
@@ -423,6 +454,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					return push(operand1Value, operand2Value);
 				} else if (!strcmp(op, "aunshift")) {
 					return unshiftArray(operand1Value, operand2Value);
+				} else if (!strcmp(op, "ref=")) {
+					return booleanToSchemeValue(operand1Value == operand2Value);
 				} else if (operand1Value->type == lispValueType_Number && operand2Value->type == lispValueType_Number) {
 					/* Both operands must be numeric */
 					const int operand1 = getIntegerValueInValue(operand1Value);
@@ -449,28 +482,28 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 							result = createNumericValue(operand1 % operand2);
 						}
 					} else if (!strcmp(op, "<")) {
-						result = booleanToClonedValue(operand1 < operand2);
+						result = booleanToSchemeValue(operand1 < operand2);
 					} else if (!strcmp(op, ">")) {
-						result = booleanToClonedValue(operand1 > operand2);
+						result = booleanToSchemeValue(operand1 > operand2);
 					} else if (!strcmp(op, "<=")) {
-						result = booleanToClonedValue(operand1 <= operand2);
+						result = booleanToSchemeValue(operand1 <= operand2);
 					} else if (!strcmp(op, ">=")) {
-						result = booleanToClonedValue(operand1 >= operand2);
+						result = booleanToSchemeValue(operand1 >= operand2);
 					}
 				}
 			}
-
-			/* Handle if */
-			/* There must be 3 operands. First, evaluate the first operand. */
-			/* If it is non-null, then evaluate and return the second operand. */
-			/* Else evaluate and return the third operand. */
 
 			if (actualParamExprs->next->next != NULL) {
 				LISP_EXPR * operand3Expr = getExprInExprList(actualParamExprs->next->next);
 
 				failIf(operand3Expr == NULL, "evaluatePrimitiveOperatorCall() : operand3Expr == NULL");
 
+				/* These primops take exactly three arguments */
+
 				if (!strcmp(op, "if")) {
+					/* There must be 3 operands. First, evaluate the first operand. */
+					/* If it is non-null, then evaluate and return the second operand. */
+					/* Else evaluate and return the third operand. */
 					LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
 					if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
