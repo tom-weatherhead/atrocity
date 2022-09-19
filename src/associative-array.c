@@ -13,7 +13,15 @@
 
 /* For associative arrays (dictionaries) : */
 
+/* External constants / variables */
+
+extern LISP_VALUE * globalNullValue;
+
+/* Local constants */
+
 static const int maxNumItemsInAnyBucket = 16;
+
+/* Functions */
 
 static int hashString(char * str) {
 	int result = 0;
@@ -100,7 +108,7 @@ LISP_VALUE * aaGet(LISP_VALUE * aa, LISP_VALUE * key) {
 		bucketPtr = bucketPtr->next;
 	}
 
-	return NULL;
+	return globalNullValue;
 }
 
 LISP_VALUE * aaSet(LISP_VALUE * aa, LISP_VALUE * key, LISP_VALUE * value) {
@@ -136,5 +144,27 @@ LISP_VALUE * aaSet(LISP_VALUE * aa, LISP_VALUE * key, LISP_VALUE * value) {
 
 	return value;
 }
+
+LISP_VALUE * aaSize(LISP_VALUE * aa) {
+	const int numBuckets = getNumBucketsInAssociativeArray(aa);
+	SCHEME_UNIVERSAL_TYPE ** buckets = (SCHEME_UNIVERSAL_TYPE **)(aa->aux);
+	int i;
+	int result = 0;
+
+
+	for (i = 0; i < numBuckets; ++i) {
+		SCHEME_UNIVERSAL_TYPE * bucketPtr;
+
+		for (bucketPtr = buckets[i]; bucketPtr != NULL; bucketPtr = bucketPtr->next) {
+			++result;
+		}
+	}
+
+	return createNumericValue(result);
+}
+
+/* TODO:
+aaDeleteKey
+*/
 
 /* **** The End **** */
