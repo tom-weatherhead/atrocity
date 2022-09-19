@@ -561,7 +561,7 @@ SCHEME_UNIVERSAL_TYPE * createArrayListElement(LISP_VALUE * value, SCHEME_UNIVER
 	);
 }
 
-LISP_VALUE * createAssociativeArray(int numBuckets) {
+LISP_VALUE * createAssociativeArrayEx(int numBuckets) {
 	LISP_VALUE * result = createUniversalStruct(
 		lispValueType_AssociativeArray,
 		numBuckets,

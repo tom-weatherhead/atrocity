@@ -53,10 +53,10 @@ static int hashKey(LISP_VALUE * key) {
 	}
 }
 
-LISP_VALUE * aaCreate() {
+LISP_VALUE * createAssociativeArray() {
 	const int numBuckets = 256;
 
-	return createAssociativeArray(numBuckets);
+	return createAssociativeArrayEx(numBuckets);
 }
 
 static void resizeAA(LISP_VALUE * aa, int newNumBuckets) {

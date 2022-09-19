@@ -182,7 +182,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		/* These primops take exactly zero args */
 
 		if (!strcmp(op, "mkaa")) {
-			return aaCreate();
+			return createAssociativeArray();
 		} else if (!strcmp(op, "mkarray")) {
 			return createArray();
 		}

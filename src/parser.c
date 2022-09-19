@@ -12,6 +12,7 @@
 
 #include "char-source.h"
 
+#include "associative-array.h"
 #include "create-and-destroy.h"
 #include "memory-manager.h"
 #include "parser.h"
@@ -372,6 +373,10 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (isStringInList(dstBuf, primops)) {
 		return createExpressionFromValue(createPrimitiveOperator(dstBuf));
+	} else if (!strcmp(dstBuf, "[]")) {
+		return createExpressionFromValue(createArray());
+	} else if (!strcmp(dstBuf, "{}")) {
+		return createExpressionFromValue(createAssociativeArray());
 	} else if (!strcmp(dstBuf, "(")) {
 		return parseBracketedExpression(cs);
 	} else if (!strcmp(dstBuf, ")")) {

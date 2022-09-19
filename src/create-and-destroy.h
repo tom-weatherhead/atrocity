@@ -4,7 +4,7 @@
 
 /* Create values */
 LISP_VALUE * createArray();
-LISP_VALUE * createAssociativeArray(int numBuckets);
+LISP_VALUE * createAssociativeArrayEx(int numBuckets);
 LISP_VALUE * createClosure(LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * body, LISP_ENV * env);
 LISP_VALUE * createContinuation(int id);
 LISP_VALUE * createContinuationReturn(int id, LISP_VALUE * value);

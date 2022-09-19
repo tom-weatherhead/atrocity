@@ -96,7 +96,7 @@ static void test(char * input, char * expectedOutput) {
 static void testAssociativeArray() {
 	printf("testAssociativeArray() : BEGIN\n");
 
-	LISP_VALUE * associativeArray = aaCreate();
+	LISP_VALUE * associativeArray = createAssociativeArray();
 
 	LISP_VALUE * keyAbc = createStringValue("abc");
 	LISP_VALUE * key456 = createNumericValue(456);
