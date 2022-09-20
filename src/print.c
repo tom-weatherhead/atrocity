@@ -206,47 +206,6 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 	return sb;
 }
 
-/* STRING_BUILDER_TYPE * printExpressionToString(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
-
-	if (sb == NULL) {
-		sb = createStringBuilder(0);
-	}
-
-	switch (expr->type) {
-		case lispExpressionType_While:
-			appendToStringBuilder(sb, "(while ");
-			printExpressionToString(sb, getExprInExpr(expr));
-			appendToStringBuilder(sb, " ");
-			printExpressionToString(sb, getExpr2InExpr(expr));
-			appendToStringBuilder(sb, ")");
-			break;
-
-		case lispExpressionType_Value:
-			printValueToString(sb, getValueInExpr(expr), NULL, FALSE);
-			break;
-
-		case lispExpressionType_Variable:
-			appendToStringBuilder(sb, getVarInExpr(expr)->name);
-			break;
-
-		case lispExpressionType_LambdaExpr:
-		case lispExpressionType_FunctionCall:
-		case lispExpressionType_SetExpr:
-		case lispExpressionType_Let:
-		case lispExpressionType_LetStar:
-		case lispExpressionType_Letrec:
-		case lispExpressionType_Begin:
-		case lispExpressionType_Cond:
-		case lispExpressionType_Macro:
-		default:
-			fprintf(stderr, "printExpressionToString() : Unsupported expr type %d\n", expr->type);
-			fatalError("printExpressionToString() : Unsupported expr type");
-			break;
-	}
-
-	return sb;
-} */
-
 STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)) {
 	LISP_EXPR_LIST_ELEMENT * exprList;
 
@@ -283,10 +242,14 @@ STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_E
 			break;
 
 		case lispExpressionType_QuotedConstantWithApostrophe:
-			fatalError("printExpressionToStringEx() : Handler was not called.");
-			/* appendToStringBuilder(sb, "(quote ");
-			printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr));
-			appendToStringBuilder(sb, ")"); */
+			appendToStringBuilder(sb, "'");
+			printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr), fnHandler);
+			break;
+
+		case lispExpressionType_QuotedConstantWithQuoteKeyword:
+			appendToStringBuilder(sb, "(quote ");
+			printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr), fnHandler);
+			appendToStringBuilder(sb, ")");
 			break;
 
 		case lispExpressionType_SetExpr:
@@ -313,8 +276,6 @@ STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_E
 			appendToStringBuilder(sb, ")");
 			break;
 
-		/* lispExpressionType_Value
-		lispExpressionType_Variable, */
 		case lispExpressionType_LambdaExpr:
 		case lispExpressionType_Let:
 		case lispExpressionType_LetStar:
