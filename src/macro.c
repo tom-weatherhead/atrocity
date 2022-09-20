@@ -8,17 +8,28 @@
 
 #include "types.h"
 
+#include "char-source.h"
 #include "create-and-destroy.h"
 #include "environment.h"
 #include "evaluate.h"
+#include "parser.h"
 #include "print.h"
+#include "string-builder.h"
 #include "utilities.h"
 
 /* External constants / variables */
 
 /* extern LISP_VALUE * globalNullValue; */
 
+/* Forward references */
+
+static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * sexpression);
+
 /* Functions */
+
+static BOOL isQuotedConstantWithApostrophe(LISP_EXPR * expr) {
+	return expr->type == lispExpressionType_QuotedConstantWithApostrophe;
+}
 
 /* Typescript:
 
@@ -153,9 +164,163 @@ public objectToString_ApostrophesToQuoteKeywords(expr: unknown): string {
 	} else {
 		return `${expr}`;
 	}
+} */
+
+static void objectToString_ApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
+	LISP_EXPR_LIST_ELEMENT * exprList;
+
+	switch (expr->type) {
+		case lispExpressionType_Begin:
+			appendToStringBuilder(sb, "(begin");
+
+			for (exprList = getExprListInBeginExpr(expr); exprList != NULL; exprList = exprList->next) {
+				appendToStringBuilder(sb, " ");
+				objectToString_ApostrophesToQuoteKeywords(sb, getExprInExprList(exprList));
+			}
+
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_FunctionCall:
+			appendToStringBuilder(sb, "(");
+			objectToString_ApostrophesToQuoteKeywords(sb, getFirstExprInFunctionCall(expr));
+
+			for (exprList = getActualParamExprsInFunctionCall(expr); exprList != NULL; exprList = exprList->next) {
+				appendToStringBuilder(sb, " ");
+				objectToString_ApostrophesToQuoteKeywords(sb, getExprInExprList(exprList));
+			}
+
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_QuotedConstantWithApostrophe:
+			appendToStringBuilder(sb, "(quote ");
+			objectToString_ApostrophesToQuoteKeywords(sb, getValueInApostropheQuotedExpr(expr));
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_SetExpr:
+			appendToStringBuilder(sb, "(set! ");
+			appendToStringBuilder(sb, getVarInSetExpr(expr)->name);
+			appendToStringBuilder(sb, " ");
+			objectToString_ApostrophesToQuoteKeywords(sb, getExprInSetExpr(expr));
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_While:
+			appendToStringBuilder(sb, "(while ");
+			objectToString_ApostrophesToQuoteKeywords(sb, getExprInExpr(expr));
+			appendToStringBuilder(sb, " ");
+			objectToString_ApostrophesToQuoteKeywords(sb, getExpr2InExpr(expr));
+			appendToStringBuilder(sb, ")");
+			break;
+
+		/* lispExpressionType_Value
+		lispExpressionType_Variable, */
+		case lispExpressionType_LambdaExpr:
+		case lispExpressionType_Let:
+		case lispExpressionType_LetStar:
+		case lispExpressionType_Letrec:
+		case lispExpressionType_Cond:
+		case lispExpressionType_Macro:
+			fprintf(stderr, "macro: objectToString_ApostrophesToQuoteKeywords() : expr type is %d\n", expr->type);
+			fprintf(stderr, "macro: objectToString_ApostrophesToQuoteKeywords() : lispExpressionType_SetExpr is %d\n", lispExpressionType_SetExpr);
+			fatalError("macro: objectToString_ApostrophesToQuoteKeywords() : Unsupported expr type");
+			break;
+
+		default:
+			printExpressionToString(sb, expr);
+			break;
+	}
+
+	/* if (isFunctionDefinition<ISExpression>(expr)) {
+		return `(define ${expr.functionName} (${expr.argList
+			.map((a) => a.name)
+			.join(' ')}) ${this.objectToString_ApostrophesToQuoteKeywords(expr.body)})`;
+	} else if (isIfUsage<ISExpression>(expr)) {
+		return `(if ${this.objectToString_ApostrophesToQuoteKeywords(
+			expr.condition
+		)} ${this.objectToString_ApostrophesToQuoteKeywords(
+			expr.ifBody
+		)} ${this.objectToString_ApostrophesToQuoteKeywords(expr.elseBody)})`;
+	} else if (isCondUsage<ISExpression>(expr)) {
+		const exprPairListString = expr.exprPairList
+			.map(
+				([expr1, expr2]: [IExpression<ISExpression>, IExpression<ISExpression>]) =>
+					`(${this.objectToString_ApostrophesToQuoteKeywords(
+						expr1
+					)} ${this.objectToString_ApostrophesToQuoteKeywords(expr2)})`
+			)
+			.join(' ');
+
+		return `(cond ${exprPairListString})`;
+	} else if (isLetUsage<ISExpression>(expr)) {
+		const bindingsString = expr.bindings
+			.map(
+				([v, e]: [IVariable<ISExpression>, IExpression<ISExpression>]) =>
+					`(${v} ${this.objectToString_ApostrophesToQuoteKeywords(e)})`
+			)
+			.join(' ');
+
+		return `(let (${bindingsString}) ${this.objectToString_ApostrophesToQuoteKeywords(
+			expr.expression
+		)})`;
+	} else if (isLetStarUsage<ISExpression>(expr)) {
+		const bindingsString = expr.bindings
+			.map(
+				([v, e]: [IVariable<ISExpression>, IExpression<ISExpression>]) =>
+					`(${v} ${this.objectToString_ApostrophesToQuoteKeywords(e)})`
+			)
+			.join(' ');
+
+		return `(let* (${bindingsString}) ${this.objectToString_ApostrophesToQuoteKeywords(
+			expr.expression
+		)})`;
+	} else if (isOperatorUsage<ISExpression>(expr) / * && !(expr is Scheme.PrimOp) * /) {
+		if (expr.expressionList.length === 0) {
+			return `(${expr.operatorName})`;
+		}
+
+		const exprListString = expr.expressionList
+			.map((e) => this.objectToString_ApostrophesToQuoteKeywords(e))
+			.join(' ');
+
+		return `(${expr.operatorName} ${exprListString})`;
+	} else if (isQuotedConstantWithApostrophe(expr)) {
+		return `(quote ${expr.sexpression})`;
+	}
+	// 	/ *
+	// else if (expr is SExpressionList) // Not an IExpression<ISExpression>
+	// {
+	// 	return string.Format("({0})", SExpressionListToString_ApostrophesToQuoteKeywords((SExpressionList)expr));
+	// }
+	// 	 * /
+	else if (isMacroDefinition(expr)) {
+		return `(define-macro ${expr.macroName} ${
+			expr.argList
+		} ${this.objectToString_ApostrophesToQuoteKeywords(expr.body)})`;
+	} else if (isLambdaExpression(expr)) {
+		return `(lambda ${expr.argList} ${this.objectToString_ApostrophesToQuoteKeywords(
+			expr.body
+		)})`;
+	} else if (isLetRecUsage<ISExpression>(expr)) {
+		const fnBindingAsString = ([v, expr2]: [
+			IVariable<ISExpression>,
+			IExpression<ISExpression>
+		]) => `(${v} ${this.objectToString_ApostrophesToQuoteKeywords(expr2)})`;
+		const bindingsAsString = expr.bindings.map(fnBindingAsString).join(' ');
+
+		return `(letrec (${bindingsAsString}) ${this.objectToString_ApostrophesToQuoteKeywords(
+			expr.expression
+		)})`;
+	} else if (isCallCCUsage(expr)) {
+		return `(call/cc ${this.objectToString_ApostrophesToQuoteKeywords(expr.body)})`;
+	} else {
+		printExpressionToString(sb, expr);
+	} */
 }
 
-private expressionToSExpression(
+/* private expressionToSExpression(
 	expr: IExpression<ISExpression>,
 	globalInfo: IGlobalInfo<ISExpression>
 ): ISExpression {
@@ -190,9 +355,44 @@ private expressionToSExpression(
 	// var quotedConst = (QuotedConstantWithApostrophe)parserResult;
 
 	return parserResult.evaluate(globalInfo);
+} */
+
+static LISP_VALUE * expressionToSExpression(LISP_EXPR * expr, LISP_ENV * env) {
+	STRING_BUILDER_TYPE * sb = createStringBuilder(0);
+
+	if (isQuotedConstantWithApostrophe(expr)) {
+		printExpressionToString(sb, expr);
+	} else {
+		appendToStringBuilder(sb, "'");
+		objectToString_ApostrophesToQuoteKeywords(sb, expr);
+	}
+
+	/* let parserResult: unknown;
+
+	try {
+		parserResult = globalInfo.parser.parse(globalInfo.tokenizer.tokenize(quotedConstStr));
+	} catch (ex) {
+		throw new Error(`Error while parsing ${quotedConstStr} : ${ex}`);
+	} */
+	/* printf("expressionToSExpression() : Parsing '%s'\n", getStringInStringBuilder(sb)); */
+
+	CharSource * cs = createCharSource(getStringInStringBuilder(sb));
+	LISP_EXPR * parserResult = parseExpression(cs);
+
+	/* if (parserResult != NULL) {
+		printf("expressionToSExpression() : parserResult->type is %d\n", parserResult->type);
+	} */
+
+	failIf(!isQuotedConstantWithApostrophe(parserResult), "MacroDefinition.ExpressionToSExpression() : quotedConstStr did not parse to a quoted constant with apostrophe");
+
+	LISP_VALUE * value = evaluate(parserResult, env);
+
+	freeCharSource(cs);
+
+	return value;
 }
 
-private sExpressionListToStringWithoutBracketsForReparse(l: SExpressionList): string {
+/* private sExpressionListToStringWithoutBracketsForReparse(l: SExpressionList): string {
 	const headAsString = this.sExpressionToStringForReparse(l.head);
 
 	if (isNullSExpression(l.tail)) {
@@ -249,31 +449,72 @@ private sExpressionToStringForReparse(sexpression: ISExpression): string {
 	}
 } */
 
-/* void sExpressionListToStringWithoutBracketsForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * sexpression) {
-	;
+static void sExpressionListToStringWithoutBracketsForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * l) {
+	/* failIf(l->type != lispValueType_Pair, "macro: sExpressionListToStringWithoutBracketsForReparse() : typeof l is not Pair"); */
+
+	sExpressionToStringForReparse(sb, getHeadInPair(l));
+
+	if (getTailInPair(l)->type == lispValueType_Null) {
+		return;
+	}
+	// else if (l.Tail is Thunk)
+	// {
+	// 	return string.Format("{0} {1}", headAsString, this.sExpressionToStringForReparse(l.Tail));
+	// }
+	else if (getTailInPair(l)->type == lispValueType_Pair) {
+		appendToStringBuilder(sb, " ");
+		sExpressionListToStringWithoutBracketsForReparse(sb, getTailInPair(l));
+	} else {
+		// Tail is a symbol, an integer literal, a string, a closure, etc.
+		appendToStringBuilder(sb, " . ");
+		sExpressionToStringForReparse(sb, getTailInPair(l));
+	}
 }
 
-void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * sexpression) {
+static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * sexpression) {
 
+	/* TODO after isQuotedConstantWithQuoteKeyword() has been implemented:
 	if (isQuotedConstantWithQuoteKeyword(sexpression)) {
 		appendToStringBuilder(sb, "'");
-		appendToStringBuilder(sb, sexpression.sexpression.toString());
-	} else if (!isSExpressionList(sexpression)) {
-		appendToStringBuilder(sb, sexpression.toString());
-	} else {
+		appendToStringBuilder(sb, sexpression.sexpression);
+	} else */ /* if (isList(sexpression)) { */
+	if (sexpression->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
 		sExpressionListToStringWithoutBracketsForReparse(sb, sexpression);
 		appendToStringBuilder(sb, ")");
+	} else {
+		printValueToString(sb, sexpression, NULL, FALSE);
 	}
+}
+
+static LISP_VALUE_LIST_ELEMENT * exprListToSExpressionList(LISP_EXPR_LIST_ELEMENT * exprList, LISP_ENV * env) {
+
+	if (exprList == NULL) {
+		return NULL;
+	}
+
+	LISP_VALUE * value = expressionToSExpression(getExprInExprList(exprList), env);
+	LISP_VALUE_LIST_ELEMENT * next = exprListToSExpressionList(exprList->next, env);
+
+	return createValueListElement(value, next);
+}
+
+/* static int getLinkedListLength(SCHEME_UNIVERSAL_TYPE * ptr) {
+
+	if (ptr == NULL) {
+		return 0;
+	}
+
+	return getLinkedListLength(ptr->next) + 1;
 } */
 
 LISP_VALUE * invokeMacro(SCHEME_UNIVERSAL_TYPE * macro, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	/* return globalNullValue; */
+	failIf(macro->type != lispExpressionType_Macro, "invokeMacro() : Macro is not a macro");
 
-	return createNumericValue(1337);
+	LISP_VALUE_LIST_ELEMENT * valueList = exprListToSExpressionList(actualParamExprs, env);
 
-	/* C:
-	LISP_VALUE_LIST_ELEMENT * valueList = unevaluatedArguments.map((expr) => expressionToSExpression(expr);
+	/* printf("invokeMacro() : Num formal params: %d\n", getLinkedListLength(getArgsInMacro(macro)));
+	printf("invokeMacro() : Num actual params: %d\n", getLinkedListLength(valueList)); */
 
 	LISP_ENV * rhoPrime = composeEnvironment(getArgsInMacro(macro), valueList, env);
 
@@ -289,32 +530,6 @@ LISP_VALUE * invokeMacro(SCHEME_UNIVERSAL_TYPE * macro, LISP_EXPR_LIST_ELEMENT *
 	freeCharSource(cs);
 
 	return evaluate(parseTree, env);
-	*/
-
-	/* Typescript:
-	const rhoPrime = new EnvironmentFrame<ISExpression>(localEnvironment);
-
-	rhoPrime.compose(
-		this.argList,
-		unevaluatedArguments.map((expr) => this.expressionToSExpression(expr, globalInfo))
-	);
-
-	const substitutedBody = this.body.evaluate(globalInfo, rhoPrime);
-	const substitutedBodyAsString = this.sExpressionToStringForReparse(substitutedBody);
-	let parserResult: unknown;
-
-	try {
-		parserResult = globalInfo.parser.parse(
-			globalInfo.tokenizer.tokenize(substitutedBodyAsString)
-		);
-	} catch (ex) {
-		throw new Error(`Error while parsing ${substitutedBodyAsString} : ${ex}`);
-	}
-
-	const exprParsed = parserResult as IExpression<ISExpression>;
-
-	return exprParsed.evaluate(globalInfo, localEnvironment);
-	*/
 }
 
 /* **** The End **** */

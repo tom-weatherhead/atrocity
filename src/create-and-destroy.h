@@ -31,6 +31,7 @@ LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr);
 LISP_VAR * createVariable(char * name);
 LISP_EXPR * createWhileExpression(LISP_EXPR * condition, LISP_EXPR * body);
 
+LISP_EXPR * createApostropheQuotedExpressionFromValue(LISP_VALUE * value);
 LISP_EXPR * createExpressionFromVariable(LISP_VAR * var);
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value);
 
@@ -40,6 +41,7 @@ SCHEME_UNIVERSAL_TYPE * createAssociativeArrayListElement(LISP_VALUE * key, LISP
 LISP_EXPR_LIST_ELEMENT * createExpressionListElement(LISP_EXPR * expr, LISP_EXPR_LIST_ELEMENT * next);
 LISP_EXPR_PAIR_LIST_ELEMENT * createExpressionPairListElement(LISP_EXPR * expr, LISP_EXPR * expr2, LISP_EXPR_PAIR_LIST_ELEMENT * next);
 SCHEME_UNIVERSAL_TYPE * createMacroListElement(LISP_EXPR * macro, SCHEME_UNIVERSAL_TYPE * macroList);
+LISP_VALUE_LIST_ELEMENT * createValueListElement(LISP_VALUE * value, LISP_VALUE_LIST_ELEMENT * next);
 LISP_VAR_EXPR_PAIR_LIST_ELEMENT * createVariableExpressionPairListElement(char * buf, LISP_EXPR * expr, LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next);
 LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_ELEMENT * next);
 

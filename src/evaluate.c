@@ -56,7 +56,7 @@ static char * oneArgumentPrimops[] = {
 static char * twoArgumentPrimops[] = {
 	"+", "-", "*", "/", "%", "<", ">", "<=", ">=", "=", "!=",
 	"cons", "rplaca", "rplacd",
-	"aaget", /* "aadeletekey", */
+	"aaget", "aadeletekey",
 	"apush", "aunshift",
 	"ref=",
 	NULL
@@ -229,6 +229,13 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 		if (isStringInList(op, oneArgumentPrimops)) {
 			operand1Value = evaluate(operand1Expr, env);
+
+			/* TODO? Is this worth doing?
+			if (operand1Value->type == lispValueType_Array && isStringInList(op, arrayPrimops)) {
+				return evaluateArrayPrimitiveOperatorCall(op, operand1Value, actualParamExprs->next, env);
+			} else if (operand1Value->type == lispValueType_AssociativeArray && isStringInList(op, arrayPrimops)) {
+				return evaluateAssociativeArrayPrimitiveOperatorCall(op, operand1Value, actualParamExprs->next, env);
+			} */
 		}
 
 		/* These primops take exactly one argument */
@@ -465,6 +472,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					return operand2Value;
 				} else if (!strcmp(op, "aaget")) {
 					return aaGet(operand1Value, operand2Value);
+				} else if (!strcmp(op, "aadeletekey")) {
+					return aaDeleteKey(operand1Value, operand2Value);
 				} else if (!strcmp(op, "apush")) {
 					return push(operand1Value, operand2Value);
 				} else if (!strcmp(op, "aunshift")) {
@@ -603,7 +612,7 @@ static SCHEME_UNIVERSAL_TYPE * getMacro(LISP_EXPR * expr) {
 		SCHEME_UNIVERSAL_TYPE * macro = getMacroInMacroListElement(mle);
 
 		if (!strcmp(macroName, macro->name)) {
-			return getMacroInMacroListElement(macro);
+			return macro;
 		}
 	}
 
@@ -822,8 +831,11 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 
 	switch (expr->type) {
 		case lispExpressionType_Value:
-			/* Return a clone of the value so it can be freed separately */
 			result = getValueInExpr(expr);
+			break;
+
+		case lispExpressionType_QuotedConstantWithApostrophe:
+			result = getValueInApostropheQuotedExpr(expr);
 			break;
 
 		case lispExpressionType_Variable:
@@ -878,6 +890,7 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 			result = evaluateDefineMacroExpression(expr, env);
 			break;
 
+		case lispExpressionType_QuotedConstantWithQuoteKeyword:
 		default:
 			fatalError("evaluate() : Unrecognized expression type");
 			return NULL;

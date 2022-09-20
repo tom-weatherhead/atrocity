@@ -417,6 +417,18 @@ LISP_EXPR * createExpressionFromVariable(LISP_VAR * var) {
 	);
 }
 
+LISP_VALUE_LIST_ELEMENT * createValueListElement(LISP_VALUE * value, LISP_VALUE_LIST_ELEMENT * next) {
+	return createUniversalStruct(
+		schemeStructType_ValueListElement,
+		0,
+		0,
+		NULL,
+		value,
+		NULL,
+		next
+	);
+}
+
 LISP_NAME_VALUE_LIST_ELEMENT * createNameValueListElement(char * name, LISP_VALUE * value, LISP_NAME_VALUE_LIST_ELEMENT * next) {
 	return allocateStringAndCreateUniversalStruct(
 		schemeStructType_NameValueListElement,
@@ -444,6 +456,18 @@ LISP_ENV * createEnvironment(LISP_ENV * next) {
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
 	return createUniversalStruct(
 		lispExpressionType_Value,
+		0,
+		0,
+		NULL,
+		value,
+		NULL,
+		NULL
+	);
+}
+
+LISP_EXPR * createApostropheQuotedExpressionFromValue(LISP_VALUE * value) {
+	return createUniversalStruct(
+		lispExpressionType_QuotedConstantWithApostrophe,
 		0,
 		0,
 		NULL,
@@ -514,6 +538,9 @@ LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 }
 
 LISP_EXPR * createDefineMacroExpression(char * dstBuf, LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * expr) {
+	/* printf("createDefineMacroExpression() : macro name is %s\n", dstBuf);
+	printf("createDefineMacroExpression() : args ptr is %ld\n", args); */
+
 	return allocateStringAndCreateUniversalStruct(
 		lispExpressionType_Macro,
 		0,
@@ -526,6 +553,8 @@ LISP_EXPR * createDefineMacroExpression(char * dstBuf, LISP_VAR_LIST_ELEMENT * a
 }
 
 SCHEME_UNIVERSAL_TYPE * createMacroListElement(LISP_EXPR * macro, SCHEME_UNIVERSAL_TYPE * macroList) {
+	failIf(macro->type != lispExpressionType_Macro, "createMacroListElement() : Macro is not a macro");
+
 	return createUniversalStruct(
 		schemeStructType_MacroListElement,
 		0,

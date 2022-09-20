@@ -215,6 +215,8 @@ static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
 	/* Parse variable list and consume ) */
 	LISP_VAR_LIST_ELEMENT * args = parseVariableList(cs);
 
+	/* printf("parseDefineMacroExpression() : args ptr is %ld\n", args); */
+
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
 
@@ -292,6 +294,9 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 	char dstBuf[dstBufSize];
 	int dstBufAsInt = 0;
 
+	/* TODO: Use lispExpressionType_QuotedConstantWithApostrophe and
+	(elsewhere) lispExpressionType_QuotedConstantWithQuoteKeyword */
+
 	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
 		fatalError("createQuotedValue() : Error : Expected a literal value, found EOF");
 		return NULL;
@@ -345,7 +350,10 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 		the current quote state (i.e. is quoted or is not quoted)
 		-> Or let the functions createQuotedValue() / createQuotedValue() match the quoted brackets (i.e. via recursive descent parsing) ?
 		We can keep track of state data in the CharSource, if necessary. */
-		return createExpressionFromValue(createQuotedValue(cs));
+
+		/* return createExpressionFromValue(createQuotedValue(cs)); */
+
+		return createApostropheQuotedExpressionFromValue(createQuotedValue(cs));
 	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
 		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (isPrimop(dstBuf)) {

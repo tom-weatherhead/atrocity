@@ -5,5 +5,6 @@ LISP_VALUE * createAssociativeArray();
 LISP_VALUE * aaGet(LISP_VALUE * aa, LISP_VALUE * key);
 LISP_VALUE * aaSet(LISP_VALUE * aa, LISP_VALUE * key, LISP_VALUE * value);
 LISP_VALUE * aaSize(LISP_VALUE * aa);
+LISP_VALUE * aaDeleteKey(LISP_VALUE * aa, LISP_VALUE * key);
 
 /* **** The End **** */

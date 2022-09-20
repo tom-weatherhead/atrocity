@@ -48,6 +48,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define LISP_NAME_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_PAIR SCHEME_UNIVERSAL_TYPE
 #define LISP_VALUE SCHEME_UNIVERSAL_TYPE
+#define LISP_VALUE_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_EXPR_PAIR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
 #define LISP_VAR_LIST_ELEMENT SCHEME_UNIVERSAL_TYPE
@@ -61,6 +62,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getKeyInAssociativeArrayListElement(aale) ((aale)->value1)
 #define getValueInAssociativeArrayListElement(aale) ((aale)->value2)
+
+#define getExprListInBeginExpr(be) ((be)->value1)
 
 #define getArgsInClosure(c) ((c)->value1)
 #define getBodyInClosure(c) ((c)->value3)
@@ -90,6 +93,13 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getExprInPairListElement(ple) ((ple)->value1)
 #define getExpr2InPairListElement(ple) ((ple)->value2)
 
+#define getVarInSetExpr(se) ((se)->value1)
+#define getExprInSetExpr(se) ((se)->value2)
+
+#define getStringInStringBuilder(sb) ((sb)->name)
+
+#define getValueInValueListElement(vle) ((vle)->value1)
+
 #define getExprInVarExprPairListElement(veple) ((veple)->value1)
 
 #define getIntegerValueInValue(v) ((v)->integerValue)
@@ -105,6 +115,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 
 #define getValueInExpr(e) ((e)->value1)
 #define getVarInExpr(e) ((e)->value1)
+
+#define getValueInApostropheQuotedExpr(e) ((e)->value1)
 
 /* The NameValueList is a crude dictionary of values. */
 
@@ -136,12 +148,14 @@ enum {
 	lispExpressionType_Letrec,
 	lispExpressionType_Begin,
 	lispExpressionType_While,
-	lispExpressionType_Cons,
+	/* lispExpressionType_Cons, */
 	lispExpressionType_Cond,
-	lispExpressionType_Car,
+	/* lispExpressionType_Car,
 	lispExpressionType_Cdr,
-	lispExpressionType_CallCC,
+	lispExpressionType_CallCC, */
 	lispExpressionType_Macro,
+	lispExpressionType_QuotedConstantWithApostrophe, /* `'${sexpression}` */
+	lispExpressionType_QuotedConstantWithQuoteKeyword, /* `(quote ${sexpression})` */
 	/* lispType_LastExpressionType = lispExpressionType_DefineMacro, */
 
 	schemeStructType_ArrayListElement,
@@ -151,6 +165,7 @@ enum {
 	schemeStructType_ExpressionPairListElement,
 	schemeStructType_MacroListElement,
 	schemeStructType_NameValueListElement,
+	schemeStructType_ValueListElement,
 	schemeStructType_VariableListElement,
 	schemeStructType_VariableExpressionPairListElement,
 

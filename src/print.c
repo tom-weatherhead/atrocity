@@ -206,4 +206,52 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 	return sb;
 }
 
+STRING_BUILDER_TYPE * printExpressionToString(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
+	/* fatalError("printExpressionToString() has not been implemented yet");
+
+	return NULL; */
+
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
+
+	switch (expr->type) {
+		case lispExpressionType_While:
+			/* (while ${this.objectToString_ApostrophesToQuoteKeywords(
+				expr.condition
+			)} ${this.objectToString_ApostrophesToQuoteKeywords(expr.body)}) */
+
+			appendToStringBuilder(sb, "(while ");
+			printExpressionToString(sb, getExprInExpr(expr));
+			appendToStringBuilder(sb, " ");
+			printExpressionToString(sb, getExpr2InExpr(expr));
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_Value:
+			printValueToString(sb, getValueInExpr(expr), NULL, FALSE);
+			break;
+
+		case lispExpressionType_Variable:
+			appendToStringBuilder(sb, getVarInExpr(expr)->name);
+			break;
+
+		case lispExpressionType_LambdaExpr:
+		case lispExpressionType_FunctionCall:
+		case lispExpressionType_SetExpr:
+		case lispExpressionType_Let:
+		case lispExpressionType_LetStar:
+		case lispExpressionType_Letrec:
+		case lispExpressionType_Begin:
+		case lispExpressionType_Cond:
+		case lispExpressionType_Macro:
+		default:
+			fprintf(stderr, "printExpressionToString() : Unsupported expr type %d\n", expr->type);
+			fatalError("printExpressionToString() : Unsupported expr type");
+			break;
+	}
+
+	return sb;
+}
+
 /* **** The End **** */

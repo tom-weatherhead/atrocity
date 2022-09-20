@@ -96,7 +96,7 @@ static void resizeAA(LISP_VALUE * aa, int newNumBuckets) {
 } */
 
 LISP_VALUE * aaGet(LISP_VALUE * aa, LISP_VALUE * key) {
-	int hashValue = hashKey(key) % getNumBucketsInAssociativeArray(aa);
+	const int hashValue = hashKey(key) % getNumBucketsInAssociativeArray(aa);
 	SCHEME_UNIVERSAL_TYPE * bucketPtr = ((SCHEME_UNIVERSAL_TYPE **)(aa->aux))[hashValue];
 
 	while (bucketPtr != NULL) {
@@ -113,7 +113,7 @@ LISP_VALUE * aaGet(LISP_VALUE * aa, LISP_VALUE * key) {
 
 LISP_VALUE * aaSet(LISP_VALUE * aa, LISP_VALUE * key, LISP_VALUE * value) {
 	/* Update value if key is found; else insert */
-	int hashValue = hashKey(key) % getNumBucketsInAssociativeArray(aa);
+	const int hashValue = hashKey(key) % getNumBucketsInAssociativeArray(aa);
 	SCHEME_UNIVERSAL_TYPE ** buckets = (SCHEME_UNIVERSAL_TYPE **)(aa->aux);
 	SCHEME_UNIVERSAL_TYPE * bucketPtr = buckets[hashValue];
 	int numItemsInBucket = 0;
@@ -163,8 +163,33 @@ LISP_VALUE * aaSize(LISP_VALUE * aa) {
 	return createNumericValue(result);
 }
 
-/* TODO:
-aaDeleteKey
-*/
+LISP_VALUE * aaDeleteKey(LISP_VALUE * aa, LISP_VALUE * key) {
+	const int hashValue = hashKey(key) % getNumBucketsInAssociativeArray(aa);
+	SCHEME_UNIVERSAL_TYPE ** buckets = (SCHEME_UNIVERSAL_TYPE **)(aa->aux);
+	SCHEME_UNIVERSAL_TYPE * bucketPtr = buckets[hashValue];
+	SCHEME_UNIVERSAL_TYPE * prevPtr = NULL;
+
+	for (; bucketPtr != NULL; bucketPtr = bucketPtr->next) {
+
+		if (areValuesEqual(key, getKeyInAssociativeArrayListElement(bucketPtr))) {
+			break;
+		}
+
+		prevPtr = bucketPtr;
+	}
+
+	if (bucketPtr == NULL) {
+		/* The key was not found. */
+		return globalNullValue;
+	}
+
+	if (prevPtr == NULL) {
+		buckets[hashValue] = bucketPtr->next;
+	} else {
+		prevPtr->next = bucketPtr->next;
+	}
+
+	return getValueInAssociativeArrayListElement(bucketPtr);
+}
 
 /* **** The End **** */

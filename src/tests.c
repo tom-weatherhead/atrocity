@@ -429,15 +429,14 @@ test('LL(1) Scheme let* non-recursive test', () => {
 						(list 'set indexvar (list '+ indexvar 1))))))",
 		"(set! sum 0)",
 		"(for x 1 10 (set sum (+ sum x)))",
-		/* "(sum)", */
+		"sum",
 		NULL
 	};
 	char * expectedResultsMacro[] = {
 		"T",
 		"0",
-		"1337",
-		/* "()",
-		"55", */
+		"()",
+		"55",
 		NULL
 	};
 
