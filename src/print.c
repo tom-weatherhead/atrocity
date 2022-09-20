@@ -206,10 +206,7 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 	return sb;
 }
 
-STRING_BUILDER_TYPE * printExpressionToString(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
-	/* fatalError("printExpressionToString() has not been implemented yet");
-
-	return NULL; */
+/* STRING_BUILDER_TYPE * printExpressionToString(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
 
 	if (sb == NULL) {
 		sb = createStringBuilder(0);
@@ -217,10 +214,6 @@ STRING_BUILDER_TYPE * printExpressionToString(STRING_BUILDER_TYPE * sb, LISP_EXP
 
 	switch (expr->type) {
 		case lispExpressionType_While:
-			/* (while ${this.objectToString_ApostrophesToQuoteKeywords(
-				expr.condition
-			)} ${this.objectToString_ApostrophesToQuoteKeywords(expr.body)}) */
-
 			appendToStringBuilder(sb, "(while ");
 			printExpressionToString(sb, getExprInExpr(expr));
 			appendToStringBuilder(sb, " ");
@@ -252,6 +245,94 @@ STRING_BUILDER_TYPE * printExpressionToString(STRING_BUILDER_TYPE * sb, LISP_EXP
 	}
 
 	return sb;
+} */
+
+STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)) {
+	LISP_EXPR_LIST_ELEMENT * exprList;
+
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
+
+	if (fnHandler != NULL && (*fnHandler)(sb, expr)) {
+		return sb;
+	}
+
+	switch (expr->type) {
+		case lispExpressionType_Begin:
+			appendToStringBuilder(sb, "(begin");
+
+			for (exprList = getExprListInBeginExpr(expr); exprList != NULL; exprList = exprList->next) {
+				appendToStringBuilder(sb, " ");
+				printExpressionToStringEx(sb, getExprInExprList(exprList), fnHandler);
+			}
+
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_FunctionCall:
+			appendToStringBuilder(sb, "(");
+			printExpressionToStringEx(sb, getFirstExprInFunctionCall(expr), fnHandler);
+
+			for (exprList = getActualParamExprsInFunctionCall(expr); exprList != NULL; exprList = exprList->next) {
+				appendToStringBuilder(sb, " ");
+				printExpressionToStringEx(sb, getExprInExprList(exprList), fnHandler);
+			}
+
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_QuotedConstantWithApostrophe:
+			fatalError("printExpressionToStringEx() : Handler was not called.");
+			/* appendToStringBuilder(sb, "(quote ");
+			printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr));
+			appendToStringBuilder(sb, ")"); */
+			break;
+
+		case lispExpressionType_SetExpr:
+			appendToStringBuilder(sb, "(set! ");
+			appendToStringBuilder(sb, getVarInSetExpr(expr)->name);
+			appendToStringBuilder(sb, " ");
+			printExpressionToStringEx(sb, getExprInSetExpr(expr), fnHandler);
+			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_Value:
+			printValueToString(sb, getValueInExpr(expr), NULL, FALSE);
+			break;
+
+		case lispExpressionType_Variable:
+			appendToStringBuilder(sb, getVarInExpr(expr)->name);
+			break;
+
+		case lispExpressionType_While:
+			appendToStringBuilder(sb, "(while ");
+			printExpressionToStringEx(sb, getExprInExpr(expr), fnHandler);
+			appendToStringBuilder(sb, " ");
+			printExpressionToStringEx(sb, getExpr2InExpr(expr), fnHandler);
+			appendToStringBuilder(sb, ")");
+			break;
+
+		/* lispExpressionType_Value
+		lispExpressionType_Variable, */
+		case lispExpressionType_LambdaExpr:
+		case lispExpressionType_Let:
+		case lispExpressionType_LetStar:
+		case lispExpressionType_Letrec:
+		case lispExpressionType_Cond:
+		case lispExpressionType_Macro:
+		default:
+			fprintf(stderr, "printExpressionToStringEx() : expr type is %d\n", expr->type);
+			fprintf(stderr, "printExpressionToStringEx() : lispExpressionType_SetExpr is %d\n", lispExpressionType_SetExpr);
+			fatalError("printExpressionToStringEx() : Unsupported expr type");
+			break;
+	}
+
+	return sb;
+}
+
+STRING_BUILDER_TYPE * printExpressionToString(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
+	return printExpressionToStringEx(sb, expr, NULL);
 }
 
 /* **** The End **** */

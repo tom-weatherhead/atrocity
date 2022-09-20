@@ -23,6 +23,8 @@
 
 /* Forward references */
 
+/* static void objectToString_ApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)); */
+
 static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * sexpression);
 
 /* Functions */
@@ -166,8 +168,26 @@ public objectToString_ApostrophesToQuoteKeywords(expr: unknown): string {
 	}
 } */
 
-static void objectToString_ApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
+static BOOL handlerApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
+
+	if (expr->type == lispExpressionType_QuotedConstantWithApostrophe) {
+		appendToStringBuilder(sb, "(quote ");
+		printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr), handlerApostrophesToQuoteKeywords);
+		appendToStringBuilder(sb, ")");
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+/* TODO: This function can replace printExpressionToString() in print.c */
+/* static void objectToString_ApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)) {
 	LISP_EXPR_LIST_ELEMENT * exprList;
+
+	if (fnHandler != NULL && (*fnHandler)(sb, expr)) {
+		return;
+	}
 
 	switch (expr->type) {
 		case lispExpressionType_Begin:
@@ -175,7 +195,7 @@ static void objectToString_ApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, 
 
 			for (exprList = getExprListInBeginExpr(expr); exprList != NULL; exprList = exprList->next) {
 				appendToStringBuilder(sb, " ");
-				objectToString_ApostrophesToQuoteKeywords(sb, getExprInExprList(exprList));
+				objectToString_ApostrophesToQuoteKeywords(sb, getExprInExprList(exprList), fnHandler);
 			}
 
 			appendToStringBuilder(sb, ")");
@@ -183,57 +203,67 @@ static void objectToString_ApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, 
 
 		case lispExpressionType_FunctionCall:
 			appendToStringBuilder(sb, "(");
-			objectToString_ApostrophesToQuoteKeywords(sb, getFirstExprInFunctionCall(expr));
+			objectToString_ApostrophesToQuoteKeywords(sb, getFirstExprInFunctionCall(expr), fnHandler);
 
 			for (exprList = getActualParamExprsInFunctionCall(expr); exprList != NULL; exprList = exprList->next) {
 				appendToStringBuilder(sb, " ");
-				objectToString_ApostrophesToQuoteKeywords(sb, getExprInExprList(exprList));
+				objectToString_ApostrophesToQuoteKeywords(sb, getExprInExprList(exprList), fnHandler);
 			}
 
 			appendToStringBuilder(sb, ")");
 			break;
 
 		case lispExpressionType_QuotedConstantWithApostrophe:
-			appendToStringBuilder(sb, "(quote ");
+			fatalError("objectToString_ApostrophesToQuoteKeywords() : Handler was not called.");
+			/ * appendToStringBuilder(sb, "(quote ");
 			objectToString_ApostrophesToQuoteKeywords(sb, getValueInApostropheQuotedExpr(expr));
-			appendToStringBuilder(sb, ")");
+			appendToStringBuilder(sb, ")"); * /
 			break;
 
 		case lispExpressionType_SetExpr:
 			appendToStringBuilder(sb, "(set! ");
 			appendToStringBuilder(sb, getVarInSetExpr(expr)->name);
 			appendToStringBuilder(sb, " ");
-			objectToString_ApostrophesToQuoteKeywords(sb, getExprInSetExpr(expr));
+			objectToString_ApostrophesToQuoteKeywords(sb, getExprInSetExpr(expr), fnHandler);
 			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_Value:
+			printValueToString(sb, getValueInExpr(expr), NULL, FALSE);
+			break;
+
+		case lispExpressionType_Variable:
+			appendToStringBuilder(sb, getVarInExpr(expr)->name);
 			break;
 
 		case lispExpressionType_While:
 			appendToStringBuilder(sb, "(while ");
-			objectToString_ApostrophesToQuoteKeywords(sb, getExprInExpr(expr));
+			objectToString_ApostrophesToQuoteKeywords(sb, getExprInExpr(expr), fnHandler);
 			appendToStringBuilder(sb, " ");
-			objectToString_ApostrophesToQuoteKeywords(sb, getExpr2InExpr(expr));
+			objectToString_ApostrophesToQuoteKeywords(sb, getExpr2InExpr(expr), fnHandler);
 			appendToStringBuilder(sb, ")");
 			break;
 
-		/* lispExpressionType_Value
-		lispExpressionType_Variable, */
+		/ * lispExpressionType_Value
+		lispExpressionType_Variable, * /
 		case lispExpressionType_LambdaExpr:
 		case lispExpressionType_Let:
 		case lispExpressionType_LetStar:
 		case lispExpressionType_Letrec:
 		case lispExpressionType_Cond:
 		case lispExpressionType_Macro:
+		default:
 			fprintf(stderr, "macro: objectToString_ApostrophesToQuoteKeywords() : expr type is %d\n", expr->type);
 			fprintf(stderr, "macro: objectToString_ApostrophesToQuoteKeywords() : lispExpressionType_SetExpr is %d\n", lispExpressionType_SetExpr);
 			fatalError("macro: objectToString_ApostrophesToQuoteKeywords() : Unsupported expr type");
 			break;
 
-		default:
+		/ * default:
 			printExpressionToString(sb, expr);
-			break;
+			break; * /
 	}
 
-	/* if (isFunctionDefinition<ISExpression>(expr)) {
+	/ * if (isFunctionDefinition<ISExpression>(expr)) {
 		return `(define ${expr.functionName} (${expr.argList
 			.map((a) => a.name)
 			.join(' ')}) ${this.objectToString_ApostrophesToQuoteKeywords(expr.body)})`;
@@ -317,8 +347,8 @@ static void objectToString_ApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, 
 		return `(call/cc ${this.objectToString_ApostrophesToQuoteKeywords(expr.body)})`;
 	} else {
 		printExpressionToString(sb, expr);
-	} */
-}
+	} * /
+} */
 
 /* private expressionToSExpression(
 	expr: IExpression<ISExpression>,
@@ -364,7 +394,7 @@ static LISP_VALUE * expressionToSExpression(LISP_EXPR * expr, LISP_ENV * env) {
 		printExpressionToString(sb, expr);
 	} else {
 		appendToStringBuilder(sb, "'");
-		objectToString_ApostrophesToQuoteKeywords(sb, expr);
+		printExpressionToStringEx(sb, expr, handlerApostrophesToQuoteKeywords);
 	}
 
 	/* let parserResult: unknown;
