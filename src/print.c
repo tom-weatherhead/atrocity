@@ -3,13 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
 #include "create-and-destroy.h"
-#include "memory-manager.h"
 #include "string-builder.h"
 #include "utilities.h"
 

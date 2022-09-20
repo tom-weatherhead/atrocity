@@ -1,10 +1,7 @@
 /* atrocity/src/macro.c */
 
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
+/* #include <stdio.h> */
 
 #include "types.h"
 
@@ -15,7 +12,6 @@
 #include "parser.h"
 #include "print.h"
 #include "string-builder.h"
-#include "utilities.h"
 
 /* External constants / variables */
 
