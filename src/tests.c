@@ -41,6 +41,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 	char * input = NULL;
 	char * expectedOutput = NULL;
 	int i;
+	STRING_BUILDER_TYPE * sb = NULL;
 
 	for (i = 0; valuePrintedSuccessfully && outputValuesMatch; ++i) {
 		input = inputs[i];
@@ -51,7 +52,9 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		}
 
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
-		STRING_BUILDER_TYPE * sb = printValueToStringEx(NULL, value, NULL, TRUE);
+
+		clearStringBuilder(sb);
+		sb = printValueToStringEx(sb, value, NULL, TRUE);
 
 		actualOutput = sb->name;
 
@@ -82,6 +85,14 @@ static void test(char * input, char * expectedOutput) {
 
 	multitest(inputs, expectedOutputs);
 }
+
+/* static void testArray() {
+	printf("testArray() : BEGIN\n");
+
+	LISP_VALUE * array = createArray();
+
+	printf("testArray() : END\n");
+} */
 
 static void testAssociativeArray() {
 	printf("testAssociativeArray() : BEGIN\n");
@@ -406,6 +417,45 @@ test('LL(1) Scheme let* non-recursive test', () => {
 
 	multitest(inputsGlobalVsLocalVar, expectedResultsGlobalVsLocalVar);
 
+	/* array test */
+
+	char * inputsArray[] = {
+		"(set! a [])",
+		"a",
+		"(alength a)",
+
+		"(apush a 1)",
+		"(apush a 2)",
+		"(apush a 3)",
+		"a",
+		"(alength a)",
+
+		"(apop a)",
+		"a",
+		"(alength a)",
+
+		NULL
+	};
+	char * expectedResultsArray[] = {
+		"[]",
+		"[]",
+		"0",
+
+		"1",
+		"2",
+		"3",
+		"[1, 2, 3]",
+		"3",
+
+		"3",
+		"[1, 2]",
+		"2",
+
+		NULL
+	};
+
+	multitest(inputsArray, expectedResultsArray);
+
 	/* macro test */
 	/* From Kamin pages 56-57, and Exercise 12, from pages 62-63 (in the LISP chapter) */
 
@@ -431,6 +481,9 @@ test('LL(1) Scheme let* non-recursive test', () => {
 	};
 
 	multitest(inputsMacro, expectedResultsMacro);
+
+	/* BUG: Any tests placed after the macro test will seg fault.
+	Do we need to clear the list of macros? */
 
 	printf("\nDone.\n");
 }

@@ -78,7 +78,30 @@ STRING_BUILDER_TYPE * appendCharsToStringBuilder(STRING_BUILDER_TYPE * sb, char 
 	return sb;
 }
 
-/* TODO:
-STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {} */
+/* TODO: Use this in input-output.c:
+STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {
+
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
+
+	for (;;) {
+		const int cn = fgetc(fp);
+
+		if (cn == EOF) {
+			break;
+		}
+
+		const char c = (char)cn;
+
+		if (c == '\n') {
+			break;
+		}
+
+		appendCharToStringBuilder(sb, c);
+	}
+
+	return sb;
+} */
 
 /* **** The End **** */

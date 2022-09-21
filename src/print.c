@@ -103,6 +103,8 @@ void printValue(LISP_VALUE * value) {
 }
 
 STRING_BUILDER_TYPE * printValueToStringEx(STRING_BUILDER_TYPE * sb, LISP_VALUE * value, char * separatorBetweenListItems, BOOL printBracketsAroundList) {
+	SCHEME_UNIVERSAL_TYPE * ptr = NULL;
+	char * separatorStr = "";
 
 	if (sb == NULL) {
 		sb = createStringBuilder(0);
@@ -177,7 +179,17 @@ STRING_BUILDER_TYPE * printValueToStringEx(STRING_BUILDER_TYPE * sb, LISP_VALUE 
 			break;
 
 		case lispValueType_Array:
-			appendToStringBuilder(sb, "<array>");
+			/* appendToStringBuilder(sb, "<array>"); */
+			appendToStringBuilder(sb, "[");
+
+			for (ptr = getHeadInArray(value); ptr != NULL; ptr = ptr->next) {
+				appendToStringBuilder(sb, separatorStr);
+				/* printValue(getValueInArrayListElement(ptr)); */
+				printValueToStringEx(sb, getValueInArrayListElement(ptr), separatorBetweenListItems, printBracketsAroundList);
+				separatorStr = ", ";
+			}
+
+			appendToStringBuilder(sb, "]");
 			break;
 
 		case lispPseudoValueType_Continuation:
