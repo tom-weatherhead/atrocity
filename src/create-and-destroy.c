@@ -227,6 +227,30 @@ LISP_VALUE * createNull() {
 	);
 }
 
+LISP_VALUE * createApostropheQuotedValueFromValue(LISP_VALUE * value) {
+	return createUniversalStruct(
+		lispValueType_QuotedConstantWithApostrophe,
+		0,
+		0,
+		NULL,
+		value,
+		NULL,
+		NULL
+	);
+}
+
+LISP_VALUE * createQuoteQuotedValueFromValue(LISP_VALUE * value) {
+	return createUniversalStruct(
+		lispValueType_QuotedConstantWithQuoteKeyword,
+		0,
+		0,
+		NULL,
+		value,
+		NULL,
+		NULL
+	);
+}
+
 /* TODO:
 A thunk is a suspended computation; used to implement lazy evaluation in SASL.
 A thunk is implemented as a closure thqt takes no arguments.
@@ -456,18 +480,6 @@ LISP_ENV * createEnvironment(LISP_ENV * next) {
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value) {
 	return createUniversalStruct(
 		lispExpressionType_Value,
-		0,
-		0,
-		NULL,
-		value,
-		NULL,
-		NULL
-	);
-}
-
-LISP_EXPR * createApostropheQuotedExpressionFromValue(LISP_VALUE * value) {
-	return createUniversalStruct(
-		lispExpressionType_QuotedConstantWithApostrophe,
 		0,
 		0,
 		NULL,

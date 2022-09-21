@@ -101,9 +101,12 @@ void printValue(LISP_VALUE * value) {
 	}
 }
 
-/* TODO: Add params:
-- char * separatorBetweenListItems
-- BOOL printBracketsAroundList */
+/* TODO:
+Rename printValueToString to printValueToStringEx; then:
+
+STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
+	return printValueToStringEx(sb, value, NULL, FALSE);
+} */
 STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value, char * separatorBetweenListItems, BOOL printBracketsAroundList) {
 	/* Returns FALSE iff there is no more room to print in buf. */
 	/* TODO: Use a StringBuilder */
@@ -238,14 +241,14 @@ STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_E
 			appendToStringBuilder(sb, ")");
 			break;
 
-		case lispExpressionType_QuotedConstantWithApostrophe:
+		case lispValueType_QuotedConstantWithApostrophe:
 			appendToStringBuilder(sb, "'");
-			printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr), fnHandler);
+			printExpressionToStringEx(sb, getValueInApostropheQuotedValue(expr), fnHandler);
 			break;
 
-		case lispExpressionType_QuotedConstantWithQuoteKeyword:
+		case lispValueType_QuotedConstantWithQuoteKeyword:
 			appendToStringBuilder(sb, "(quote ");
-			printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr), fnHandler);
+			printExpressionToStringEx(sb, getValueInQuoteQuotedValue(expr), fnHandler);
 			appendToStringBuilder(sb, ")");
 			break;
 

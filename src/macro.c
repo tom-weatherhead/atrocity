@@ -22,14 +22,14 @@ static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE *
 /* Functions */
 
 static BOOL isQuotedConstantWithApostrophe(LISP_EXPR * expr) {
-	return expr->type == lispExpressionType_QuotedConstantWithApostrophe;
+	return expr->type == lispValueType_QuotedConstantWithApostrophe;
 }
 
 static BOOL handlerApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
 
-	if (expr->type == lispExpressionType_QuotedConstantWithApostrophe) {
+	if (expr->type == lispValueType_QuotedConstantWithApostrophe) {
 		appendToStringBuilder(sb, "(quote ");
-		printExpressionToStringEx(sb, getValueInApostropheQuotedExpr(expr), handlerApostrophesToQuoteKeywords);
+		printExpressionToStringEx(sb, getValueInApostropheQuotedValue(expr), handlerApostrophesToQuoteKeywords);
 		appendToStringBuilder(sb, ")");
 
 		return TRUE;

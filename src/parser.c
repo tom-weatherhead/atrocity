@@ -353,7 +353,7 @@ LISP_EXPR * parseExpression(CharSource * cs) {
 
 		/* return createExpressionFromValue(createQuotedValue(cs)); */
 
-		return createApostropheQuotedExpressionFromValue(createQuotedValue(cs));
+		return createApostropheQuotedValueFromValue(createQuotedValue(cs));
 	} else if (strlen(dstBuf) >= 2 && dstBuf[0] == '"' && dstBuf[strlen(dstBuf) - 1] == '"') {
 		return createExpressionFromValue(createStringValue(dstBuf));
 	} else if (isPrimop(dstBuf)) {

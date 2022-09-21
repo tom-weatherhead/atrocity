@@ -16,6 +16,10 @@ LISP_VALUE * createPair(LISP_VALUE * head, LISP_VALUE * tail);
 LISP_VALUE * createPrimitiveOperator(char * value);
 LISP_VALUE * createStringValue(char * value);
 LISP_VALUE * createSymbolValue(char * value);
+
+LISP_VALUE * createApostropheQuotedValueFromValue(LISP_VALUE * value);
+LISP_VALUE * createQuoteQuotedValueFromValue(LISP_VALUE * value);
+
 /* LISP_VALUE * createThunk(LISP_EXPR * body, LISP_ENV * env); */
 
 /* LISP_VALUE * cloneValue(LISP_VALUE * value); */
@@ -31,7 +35,6 @@ LISP_EXPR * createSetExpression(LISP_VAR * var, LISP_EXPR * expr);
 LISP_VAR * createVariable(char * name);
 LISP_EXPR * createWhileExpression(LISP_EXPR * condition, LISP_EXPR * body);
 
-LISP_EXPR * createApostropheQuotedExpressionFromValue(LISP_VALUE * value);
 LISP_EXPR * createExpressionFromVariable(LISP_VAR * var);
 LISP_EXPR * createExpressionFromValue(LISP_VALUE * value);
 

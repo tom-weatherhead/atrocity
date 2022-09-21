@@ -116,8 +116,8 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getValueInExpr(e) ((e)->value1)
 #define getVarInExpr(e) ((e)->value1)
 
-#define getValueInApostropheQuotedExpr(e) ((e)->value1)
-#define getValueInQuoteQuotedExpr(e) ((e)->value1)
+#define getValueInApostropheQuotedValue(e) ((e)->value1)
+#define getValueInQuoteQuotedValue(e) ((e)->value1)
 
 /* The NameValueList is a crude dictionary of values. */
 
@@ -130,6 +130,8 @@ enum {
 	lispValueType_Closure,
 	lispValueType_Pair,
 	lispValueType_Null, /* 6 */ /* TODO? Interpret the NULL pointer as a Null value? */
+	lispValueType_QuotedConstantWithApostrophe, /* `'${sexpression}` */
+	lispValueType_QuotedConstantWithQuoteKeyword, /* `(quote ${sexpression})` */
 	lispValueType_Array,
 	lispValueType_AssociativeArray, /* I.e. a Dictionary */
 	lispPseudoValueType_Continuation,
@@ -155,8 +157,6 @@ enum {
 	lispExpressionType_Cdr,
 	lispExpressionType_CallCC, */
 	lispExpressionType_Macro,
-	lispExpressionType_QuotedConstantWithApostrophe, /* `'${sexpression}` */
-	lispExpressionType_QuotedConstantWithQuoteKeyword, /* `(quote ${sexpression})` */
 	/* lispType_LastExpressionType = lispExpressionType_DefineMacro, */
 
 	schemeStructType_ArrayListElement,

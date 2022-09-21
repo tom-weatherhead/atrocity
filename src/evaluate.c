@@ -834,8 +834,12 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 			result = getValueInExpr(expr);
 			break;
 
-		case lispExpressionType_QuotedConstantWithApostrophe:
-			result = getValueInApostropheQuotedExpr(expr);
+		case lispValueType_QuotedConstantWithApostrophe:
+			result = getValueInApostropheQuotedValue(expr);
+			break;
+
+		case lispValueType_QuotedConstantWithQuoteKeyword:
+			result = getValueInQuoteQuotedValue(expr);
 			break;
 
 		case lispExpressionType_Variable:
@@ -890,7 +894,6 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 			result = evaluateDefineMacroExpression(expr, env);
 			break;
 
-		case lispExpressionType_QuotedConstantWithQuoteKeyword:
 		default:
 			fatalError("evaluate() : Unrecognized expression type");
 			return NULL;
