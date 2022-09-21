@@ -324,7 +324,7 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				fatalError("evaluatePrimitiveOperatorCall() : listtostring : Operand is not a list");
 			}
 
-			STRING_BUILDER_TYPE * sb = printValueToString(NULL, operand1Value, NULL, FALSE);
+			STRING_BUILDER_TYPE * sb = printValueToString(NULL, operand1Value);
 
 			return createStringValue(sb->name);
 		} else if (!strcmp(op, "throw")) {

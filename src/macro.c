@@ -91,14 +91,14 @@ static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE *
 	/* TODO after isQuotedConstantWithQuoteKeyword() has been implemented: */
 	/* if (sexpression->type == lispValueType_QuotedConstantWithQuoteKeyword) {
 		appendToStringBuilder(sb, "'");
-		printValueToString(sb, getValueInQuoteQuotedExpr(sexpression), NULL, FALSE);
+		printValueToString(sb, getValueInQuoteQuotedExpr(sexpression));
 	} else */ /* if (isList(sexpression)) { */
 	if (sexpression->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
 		sExpressionListToStringWithoutBracketsForReparse(sb, sexpression);
 		appendToStringBuilder(sb, ")");
 	} else {
-		printValueToString(sb, sexpression, NULL, FALSE);
+		printValueToString(sb, sexpression);
 	}
 }
 

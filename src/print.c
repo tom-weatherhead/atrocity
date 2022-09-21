@@ -101,13 +101,7 @@ void printValue(LISP_VALUE * value) {
 	}
 }
 
-/* TODO:
-Rename printValueToString to printValueToStringEx; then:
-
-STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
-	return printValueToStringEx(sb, value, NULL, FALSE);
-} */
-STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value, char * separatorBetweenListItems, BOOL printBracketsAroundList) {
+STRING_BUILDER_TYPE * printValueToStringEx(STRING_BUILDER_TYPE * sb, LISP_VALUE * value, char * separatorBetweenListItems, BOOL printBracketsAroundList) {
 	/* Returns FALSE iff there is no more room to print in buf. */
 	/* TODO: Use a StringBuilder */
 
@@ -132,7 +126,7 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		while (value->type != lispValueType_Null) {
 			appendToStringBuilder(sb, separator);
 
-			printValueToString(sb, getHeadInPair(value), separatorBetweenListItems, TRUE);
+			printValueToStringEx(sb, getHeadInPair(value), separatorBetweenListItems, TRUE);
 
 			separator = separatorBetweenListItems;
 			value = getTailInPair(value);
@@ -145,9 +139,9 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 		return sb;
 	} else if (value->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
-		printValueToString(sb, getHeadInPair(value), separatorBetweenListItems, printBracketsAroundList);
+		printValueToStringEx(sb, getHeadInPair(value), separatorBetweenListItems, printBracketsAroundList);
 		appendToStringBuilder(sb, " . ");
-		printValueToString(sb, getTailInPair(value), separatorBetweenListItems, printBracketsAroundList);
+		printValueToStringEx(sb, getTailInPair(value), separatorBetweenListItems, printBracketsAroundList);
 		appendToStringBuilder(sb, ")");
 
 		return sb;
@@ -206,6 +200,10 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 	return sb;
 }
 
+STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
+	return printValueToStringEx(sb, value, NULL, FALSE);
+}
+
 STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)) {
 	LISP_EXPR_LIST_ELEMENT * exprList;
 
@@ -261,7 +259,7 @@ STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_E
 			break;
 
 		case lispExpressionType_Value:
-			printValueToString(sb, getValueInExpr(expr), NULL, FALSE);
+			printValueToString(sb, getValueInExpr(expr));
 			break;
 
 		case lispExpressionType_Variable:

@@ -1,14 +1,8 @@
 /* atrocity/src/tests.c */
 
-/* TODO:
-- Test the parsing (without evaluation) of a macro
-*/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h" /* Needed to provide BOOL */
 
@@ -57,7 +51,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		}
 
 		LISP_VALUE * value = parseStringAndEvaluate(input, globalEnv);
-		STRING_BUILDER_TYPE * sb = printValueToString(NULL, value, NULL, TRUE);
+		STRING_BUILDER_TYPE * sb = printValueToStringEx(NULL, value, NULL, TRUE);
 
 		actualOutput = sb->name;
 
