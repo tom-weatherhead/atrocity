@@ -105,4 +105,13 @@ BOOL isList(LISP_VALUE * value) {
 	return FALSE;
 }
 
+/* int getLinkedListLength(SCHEME_UNIVERSAL_TYPE * ptr) {
+
+	if (ptr == NULL) {
+		return 0;
+	}
+
+	return getLinkedListLength(ptr->next) + 1;
+} */
+
 /* **** The End **** */

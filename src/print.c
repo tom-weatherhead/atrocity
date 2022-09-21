@@ -7,6 +7,7 @@
 #include "types.h"
 
 #include "create-and-destroy.h"
+#include "print.h"
 #include "string-builder.h"
 #include "utilities.h"
 
@@ -102,11 +103,6 @@ void printValue(LISP_VALUE * value) {
 }
 
 STRING_BUILDER_TYPE * printValueToStringEx(STRING_BUILDER_TYPE * sb, LISP_VALUE * value, char * separatorBetweenListItems, BOOL printBracketsAroundList) {
-	/* Returns FALSE iff there is no more room to print in buf. */
-	/* TODO: Use a StringBuilder */
-
-	/* (?) It is assumed that the caller will zero-fill buf before calling this function. Or else:
-	memset(buf, 0, bufsize * sizeof(char)); */
 
 	if (sb == NULL) {
 		sb = createStringBuilder(0);
@@ -204,6 +200,29 @@ STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * 
 	return printValueToStringEx(sb, value, NULL, FALSE);
 }
 
+static void printLetExpressionToString(STRING_BUILDER_TYPE * sb, char * letKeyword, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)) {
+	char * separator = "";
+	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * varExprPairList;
+
+	appendToStringBuilder(sb, "(");
+	appendToStringBuilder(sb, letKeyword);
+	appendToStringBuilder(sb, " (");
+
+	for (varExprPairList = getVarExprPairListInExpr(expr); varExprPairList != NULL; varExprPairList = varExprPairList->next) {
+		appendToStringBuilder(sb, separator);
+		appendToStringBuilder(sb, "(");
+		appendToStringBuilder(sb, varExprPairList->name);
+		appendToStringBuilder(sb, " ");
+		printExpressionToStringEx(sb, getExprInVarExprPairListElement(varExprPairList), fnHandler);
+		appendToStringBuilder(sb, ")");
+		separator = " ";
+	}
+
+	appendToStringBuilder(sb, ") ");
+	printExpressionToStringEx(sb, getExprInExpr(expr), fnHandler);
+	appendToStringBuilder(sb, ")");
+}
+
 STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)) {
 	LISP_EXPR_LIST_ELEMENT * exprList;
 
@@ -237,6 +256,18 @@ STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_E
 			}
 
 			appendToStringBuilder(sb, ")");
+			break;
+
+		case lispExpressionType_Let:
+			printLetExpressionToString(sb, "let", expr, fnHandler);
+			break;
+
+		case lispExpressionType_LetStar:
+			printLetExpressionToString(sb, "let*", expr, fnHandler);
+			break;
+
+		case lispExpressionType_Letrec:
+			printLetExpressionToString(sb, "letrec", expr, fnHandler);
 			break;
 
 		case lispValueType_QuotedConstantWithApostrophe:
@@ -274,11 +305,8 @@ STRING_BUILDER_TYPE * printExpressionToStringEx(STRING_BUILDER_TYPE * sb, LISP_E
 			appendToStringBuilder(sb, ")");
 			break;
 
-		case lispExpressionType_LambdaExpr:
-		case lispExpressionType_Let:
-		case lispExpressionType_LetStar:
-		case lispExpressionType_Letrec:
 		case lispExpressionType_Cond:
+		case lispExpressionType_LambdaExpr:
 		case lispExpressionType_Macro:
 		default:
 			fprintf(stderr, "printExpressionToStringEx() : expr type is %d\n", expr->type);

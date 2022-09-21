@@ -55,10 +55,6 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 
 		actualOutput = sb->name;
 
-		/* Note bene: freeClosure is currently mostly disabled to avoid
-		 * double-freeing things. We must fix this. */
-		/* freeValue(value); */
-
 		outputValuesMatch = strlen(expectedOutput) > 0 && !strcmp(actualOutput, expectedOutput);
 	}
 

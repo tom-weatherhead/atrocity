@@ -21,10 +21,6 @@ static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE *
 
 /* Functions */
 
-static BOOL isQuotedConstantWithApostrophe(LISP_EXPR * expr) {
-	return expr->type == lispValueType_QuotedConstantWithApostrophe;
-}
-
 static BOOL handlerApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr) {
 
 	if (expr->type == lispValueType_QuotedConstantWithApostrophe) {
@@ -41,7 +37,7 @@ static BOOL handlerApostrophesToQuoteKeywords(STRING_BUILDER_TYPE * sb, LISP_EXP
 static LISP_VALUE * expressionToSExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	STRING_BUILDER_TYPE * sb = createStringBuilder(0);
 
-	if (isQuotedConstantWithApostrophe(expr)) {
+	if (expr->type == lispValueType_QuotedConstantWithApostrophe) {
 		printExpressionToString(sb, expr);
 	} else {
 		appendToStringBuilder(sb, "'");
@@ -51,7 +47,7 @@ static LISP_VALUE * expressionToSExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	CharSource * cs = createCharSource(getStringInStringBuilder(sb));
 	LISP_EXPR * parserResult = parseExpression(cs);
 
-	failIf(!isQuotedConstantWithApostrophe(parserResult), "MacroDefinition.ExpressionToSExpression() : quotedConstStr did not parse to a quoted constant with apostrophe");
+	failIf(parserResult->type != lispValueType_QuotedConstantWithApostrophe, "MacroDefinition.ExpressionToSExpression() : quotedConstStr did not parse to a quoted constant with apostrophe");
 
 	LISP_VALUE * value = evaluate(parserResult, env);
 
@@ -88,12 +84,10 @@ static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE *
 	// (quote (quote foo)) -> "'(quote foo)"
 	// ((quote foo) (quote bar)) -> "('foo 'bar)"
 
-	/* TODO after isQuotedConstantWithQuoteKeyword() has been implemented: */
-	/* if (sexpression->type == lispValueType_QuotedConstantWithQuoteKeyword) {
+	if (sexpression->type == lispValueType_QuotedConstantWithQuoteKeyword) {
 		appendToStringBuilder(sb, "'");
-		printValueToString(sb, getValueInQuoteQuotedExpr(sexpression));
-	} else */ /* if (isList(sexpression)) { */
-	if (sexpression->type == lispValueType_Pair) {
+		printValueToString(sb, getValueInQuoteQuotedValue(sexpression));
+	} else if (sexpression->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
 		sExpressionListToStringWithoutBracketsForReparse(sb, sexpression);
 		appendToStringBuilder(sb, ")");
@@ -113,15 +107,6 @@ static LISP_VALUE_LIST_ELEMENT * exprListToSExpressionList(LISP_EXPR_LIST_ELEMEN
 
 	return createValueListElement(value, next);
 }
-
-/* static int getLinkedListLength(SCHEME_UNIVERSAL_TYPE * ptr) {
-
-	if (ptr == NULL) {
-		return 0;
-	}
-
-	return getLinkedListLength(ptr->next) + 1;
-} */
 
 LISP_VALUE * invokeMacro(SCHEME_UNIVERSAL_TYPE * macro, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
 	failIf(macro->type != lispExpressionType_Macro, "invokeMacro() : Macro is not a macro");
