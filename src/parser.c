@@ -17,6 +17,7 @@
 #include "create-and-destroy.h"
 #include "memory-manager.h"
 #include "parser.h"
+#include "string-builder.h"
 #include "utilities.h"
 
 /* Function prototypes */
@@ -37,16 +38,20 @@ static LISP_EXPR * parseFunctionCallExpression(CharSource * cs) {
 }
 
 static LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+
+	/* const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseVariableList() : Expected ), found EOF");
-	} else if (!strcmp(dstBuf, ")")) {
+	} else if (!strcmp(sb->name, ")")) {
 		return NULL; /* End of list */
 	}
 
-	LISP_VAR * var = createVariable(dstBuf);
+	LISP_VAR * var = createVariable(sb->name);
 	LISP_VAR_LIST_ELEMENT * next = parseVariableList(cs);
 
 	return createVariableListElement(var, next);
@@ -72,20 +77,24 @@ static LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 }
 
 static LISP_EXPR * parseSetExpression(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+
+	/* const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize]; */
 
 	/* Parse variable */
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseSetExpression() : Expected variable, found EOF");
-	} else if (!strcmp(dstBuf, "(")) {
+	} else if (!strcmp(sb->name, "(")) {
 		fatalError("parseSetExpression() : Expected variable, found '('");
-	} else if (!strcmp(dstBuf, ")")) {
+	} else if (!strcmp(sb->name, ")")) {
 		fatalError("parseSetExpression() : Expected variable, found ')'");
 	}
 
-	LISP_VAR * var = createVariable(dstBuf);
+	LISP_VAR * var = createVariable(sb->name);
 
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
@@ -98,19 +107,27 @@ static LISP_EXPR * parseSetExpression(CharSource * cs) {
 }
 
 static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseVarExpressionPairList() : Expected ( or ), found EOF");
-	} else if (!strcmp(dstBuf, ")")) {
+	} else if (!strcmp(sb->name, ")")) {
 		return NULL; /* The end of the list */
-	} else if (strcmp(dstBuf, "(")) {
-		fprintf(stderr, "parseVarExpressionPairList() : Error : Expected ( or ), found '%s'\n", dstBuf);
+	} else if (strcmp(sb->name, "(")) {
+		fprintf(stderr, "parseVarExpressionPairList() : Error : Expected ( or ), found '%s'\n", sb->name);
 		fatalError("parseVarExpressionPairList() : Expected ( or )");
 	}
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	clearStringBuilder(sb);
+
+	getIdentifier(cs, sb, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseVarExpressionPairList() : Expected variable, found EOF");
 	}
 
@@ -123,7 +140,7 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 
 	LISP_VAR_EXPR_PAIR_LIST_ELEMENT * next = parseVarExpressionPairList(cs);
 
-	return createVariableExpressionPairListElement(dstBuf, expr, next);
+	return createVariableExpressionPairListElement(sb->name, expr, next);
 }
 
 static LISP_EXPR * parseLetExpression(CharSource * cs, int exprType) {
@@ -161,16 +178,19 @@ static LISP_EXPR * parseWhileExpression(CharSource * cs) {
 }
 
 static LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseExpressionPairList() : Error : Expected ( or ), found EOF");
 		return NULL;
-	} else if (!strcmp(dstBuf, ")")) {
+	} else if (!strcmp(sb->name, ")")) {
 		return NULL; /* End of list */
-	} else if (strcmp(dstBuf, "(")) {
-		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found '%s'\n", dstBuf);
+	} else if (strcmp(sb->name, "(")) {
+		fprintf(stderr, "parseExpressionPairList() : Error : Expected ( or ), found '%s'\n", sb->name);
 		fatalError("parseExpressionPairList() : Error : Expected ( or )");
 		return NULL;
 	}
@@ -195,16 +215,19 @@ static LISP_EXPR * parseCondExpression(CharSource * cs) {
 }
 
 static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize]; */
 
 	/* Parse the name of the macro */
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseDefineMacroExpression() : Expected macro name, found EOF");
-	} else if (!strcmp(dstBuf, "(")) {
+	} else if (!strcmp(sb->name, "(")) {
 		fatalError("parseDefineMacroExpression() : Expected macro name, found '('");
-	} else if (!strcmp(dstBuf, ")")) {
+	} else if (!strcmp(sb->name, ")")) {
 		fatalError("parseDefineMacroExpression() : Expected macro name, found ')'");
 	}
 
@@ -224,20 +247,27 @@ static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
 		fatalError("parseLambdaExpression() : Expected )");
 	}
 
-	return createDefineMacroExpression(dstBuf, args, expr);
+	return createDefineMacroExpression(sb->name, args, expr);
 }
 
 static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
+	/* const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize]; */
 	const int csRewindPoint = cs->i;
 
 	/* 'if' is currently handled as a primop */
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseBracketedExpression() : Error : Expected an expression or keyword, found EOF");
 		return NULL;
-	} else if (!strcmp(dstBuf, "lambda")) {
+	}
+
+	char * dstBuf = sb->name;
+
+	if (!strcmp(dstBuf, "lambda")) {
 		return parseLambdaExpression(cs);
 	} else if (!strcmp(dstBuf, "set!") || !strcmp(dstBuf, "set")) {
 		return parseSetExpression(cs);
@@ -290,34 +320,40 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 }
 
 static LISP_VALUE * createQuotedValue(CharSource * cs) {
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
+	/* const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize]; */
 	int dstBufAsInt = 0;
 
 	/* TODO: Use lispExpressionType_QuotedConstantWithApostrophe and
 	(elsewhere) lispExpressionType_QuotedConstantWithQuoteKeyword */
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("createQuotedValue() : Error : Expected a literal value, found EOF");
 		return NULL;
-	} else if (!strcmp(dstBuf, "(")) {
+	} else if (!strcmp(sb->name, "(")) {
 		return createQuotedList(cs);
-	} else if (safeAtoi(dstBuf, &dstBufAsInt)) {
+	} else if (safeAtoi(sb->name, &dstBufAsInt)) {
 		return createNumericValue(dstBufAsInt);
 	} else {
-		return createSymbolValue(dstBuf);
+		return createSymbolValue(sb->name);
 	}
 }
 
 static LISP_VALUE * createQuotedList(CharSource * cs) {
 	const int csRewindPoint = cs->i;
-	const int dstBufSize = maxStringValueLength;
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* const int dstBufSize = maxStringValueLength;
 	char dstBuf[dstBufSize];
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("createQuotedList() : Error : Expected a literal value, found EOF");
 		return NULL;
-	} else if (!strcmp(dstBuf, ")")) {
+	} else if (!strcmp(sb->name, ")")) {
 		return createNull();
 	} else {
 		cs->i = csRewindPoint;
@@ -333,15 +369,20 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 
 LISP_EXPR * parseExpression(CharSource * cs) {
 	/* Be careful to not assume that sizeof(char) is always 1. */
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
+	/* const int dstBufSize = maxStringValueLength;
+	char dstBuf[dstBufSize]; */
 	int dstBufAsInt = 0;
 	BOOL isSingleQuoted = FALSE;
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, &isSingleQuoted) == 0) {
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, &isSingleQuoted);
+
+	if (isStringBuilderEmpty(sb)) {
+	/* if (getIdentifier(cs, dstBuf, dstBufSize, &isSingleQuoted) == 0) { */
 		fatalError("parseExpression() : Expected an expression, found EOF");
 		return NULL;
 	}
+
+	char * dstBuf = sb->name;
 
 	if (safeAtoi(dstBuf, &dstBufAsInt)) {
 		return createExpressionFromValue(createNumericValue(dstBufAsInt));

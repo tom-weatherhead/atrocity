@@ -7,7 +7,9 @@
 #include "types.h"
 
 #include "char-source.h"
+#include "create-and-destroy.h"
 #include "memory-manager.h"
+#include "string-builder.h"
 #include "utilities.h"
 
 /* **** CharSource functions **** */
@@ -72,13 +74,17 @@ static void skipWhiteSpace(CharSource * cs) {
 
 /* TODO: Modify getIdentifier to create or populate a StringBuilder */
 
-int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize, BOOL * pIsSingleQuoted) {
-	memset(dstBuf, 0, dstBufSize);
+STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, BOOL * pIsSingleQuoted) {
+	/* printf("getIdentifier() : Unread string in cs is '%s'\n", cs->str + cs->i); */
+
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
 
 	skipWhiteSpace(cs);
 
 	if (isEOF(cs)) {
-		return 0;
+		return sb;
 	}
 
 	const char firstChar = cs->str[cs->i];
@@ -88,8 +94,10 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize, BOOL * pIsSing
 		case '(':
 		case ')':
 		/* case '\'': */
-			memcpy(dstBuf, cs->str + cs->i++, 1);
-			return 1;
+			/* memcpy(dstBuf, cs->str + cs->i++, 1); */
+			appendCharToStringBuilder(sb, firstChar);
+			cs->i++;
+			return sb;
 
 		case '\'':
 			isSingleQuoted = TRUE;
@@ -99,8 +107,10 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize, BOOL * pIsSing
 			}
 
 			*pIsSingleQuoted = TRUE;
-			memcpy(dstBuf, cs->str + cs->i++, 1);
-			return 1;
+			/* memcpy(dstBuf, cs->str + cs->i++, 1); */
+			appendCharToStringBuilder(sb, firstChar);
+			cs->i++;
+			return sb;
 
 		default:
 			break;
@@ -145,24 +155,25 @@ int getIdentifier(CharSource * cs, char * dstBuf, int dstBufSize, BOOL * pIsSing
 
 	const int end = cs->i;
 	const int len = end - start;
-	const int lenToCopy = (dstBufSize - 1 < len) ? dstBufSize - 1 : len;
+	/* const int lenToCopy = (dstBufSize - 1 < len) ? dstBufSize - 1 : len; */
 
-	memcpy(dstBuf, &cs->str[start], lenToCopy);
+	/* memcpy(dstBuf, &cs->str[start], lenToCopy); */
 	/* Or: memcpy(dstBuf, cs->str + start, lenToCopy); */
 
-	return lenToCopy;
+	return appendCharsToStringBuilder(sb, cs->str + start, len);
 }
 
 BOOL consumeStr(CharSource * cs, char * str) {
-	/* Consume str */
+	/* Consume str * /
 	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
+	char dstBuf[dstBufSize]; */
+	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) {
+	if (isStringBuilderEmpty(sb)) {
 		fprintf(stderr, "consumeStr() : Error : Expected '%s', found EOF\n", str);
 		fatalError("consumeStr() 1");
-	} else if (strcmp(dstBuf, str)) {
-		fprintf(stderr, "consumeStr() : Error : Expected '%s', found '%s'\n", str, dstBuf);
+	} else if (strcmp(sb->name, str)) {
+		fprintf(stderr, "consumeStr() : Error : Expected '%s', found '%s'\n", str, sb->name);
 		fatalError("consumeStr() 2");
 	}
 
