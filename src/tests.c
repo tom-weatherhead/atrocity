@@ -72,6 +72,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 		fprintf(stderr, "  Actual output: %s\n\n", actualOutput);
 	}
 
+	freeGlobalEnvironment();
 	freeAllStructs();
 
 	if (!valuePrintedSuccessfully || !outputValuesMatch) {
@@ -417,45 +418,6 @@ test('LL(1) Scheme let* non-recursive test', () => {
 
 	multitest(inputsGlobalVsLocalVar, expectedResultsGlobalVsLocalVar);
 
-	/* array test */
-
-	char * inputsArray[] = {
-		"(set! a [])",
-		"a",
-		"(alength a)",
-
-		"(apush a 1)",
-		"(apush a 2)",
-		"(apush a 3)",
-		"a",
-		"(alength a)",
-
-		"(apop a)",
-		"a",
-		"(alength a)",
-
-		NULL
-	};
-	char * expectedResultsArray[] = {
-		"[]",
-		"[]",
-		"0",
-
-		"1",
-		"2",
-		"3",
-		"[1, 2, 3]",
-		"3",
-
-		"3",
-		"[1, 2]",
-		"2",
-
-		NULL
-	};
-
-	multitest(inputsArray, expectedResultsArray);
-
 	/* macro test */
 	/* From Kamin pages 56-57, and Exercise 12, from pages 62-63 (in the LISP chapter) */
 
@@ -484,6 +446,61 @@ test('LL(1) Scheme let* non-recursive test', () => {
 
 	/* BUG: Any tests placed after the macro test will seg fault.
 	Do we need to clear the list of macros? */
+
+	/* array test */
+
+	char * inputsArray[] = {
+		"(set! a [])",
+		"a",
+		"(alength a)",
+
+		"(apush a 1)",
+		"(apush a 2)",
+		"(apush a 3)",
+		"a",
+		"(alength a)",
+
+		"(apop a)",
+		"a",
+		"(alength a)",
+
+		"(ashift a)",
+		"a",
+		"(alength a)",
+
+		"(aunshift a 4)",
+		"a",
+		"(alength a)",
+
+		NULL
+	};
+	char * expectedResultsArray[] = {
+		"[]",
+		"[]",
+		"0",
+
+		"1",
+		"2",
+		"3",
+		"[1, 2, 3]",
+		"3",
+
+		"3",
+		"[1, 2]",
+		"2",
+
+		"1",
+		"[2]",
+		"1",
+
+		"4",
+		"[4, 2]",
+		"2",
+
+		NULL
+	};
+
+	multitest(inputsArray, expectedResultsArray);
 
 	printf("\nDone.\n");
 }

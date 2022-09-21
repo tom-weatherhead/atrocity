@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
@@ -16,6 +14,8 @@
 
 LISP_VALUE * globalNullValue = NULL;
 LISP_VALUE * globalTrueValue = NULL;
+
+extern SCHEME_UNIVERSAL_TYPE * macroList;
 
 /* Function prototypes */
 
@@ -183,11 +183,13 @@ LISP_ENV * composeEnvironment(LISP_VAR_LIST_ELEMENT * variableList, LISP_VALUE_L
 } */
 
 LISP_ENV * createGlobalEnvironment() {
-	failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
 	failIf(globalNullValue != NULL, "globalNullValue is already non-NULL");
+	failIf(globalTrueValue != NULL, "globalTrueValue is already non-NULL");
+	failIf(macroList != NULL, "macroList is already non-NULL");
 
 	globalNullValue = createNull();
 	globalTrueValue = createSymbolValue("T"); /* I.e. 'T */
+	macroList = NULL;
 
 	LISP_ENV * globalEnv = createEnvironment(NULL);
 
@@ -313,12 +315,10 @@ LISP_ENV * createGlobalEnvironment() {
 	return globalEnv;
 }
 
-void freeGlobalEnvironment(LISP_ENV * globalEnv) {
-	/* freeEnvironment(globalEnv); */
-	/* freeValue(globalTrueValue); */
+void freeGlobalEnvironment(/* LISP_ENV * globalEnv */) {
 	globalTrueValue = NULL;
-	/* freeValue(globalNullValue); */
 	globalNullValue = NULL;
+	macroList = NULL;
 }
 
 /* **** The End **** */

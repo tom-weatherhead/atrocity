@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
@@ -65,7 +63,7 @@ static char * threArgumentPrimops[] = { "if", "aaset", /* "aslice", */ NULL };
 
 /* Local variables */
 
-static SCHEME_UNIVERSAL_TYPE * macroList = NULL;
+SCHEME_UNIVERSAL_TYPE * macroList = NULL;
 static int nextContinuationId = 0;
 
 /* Function prototypes */

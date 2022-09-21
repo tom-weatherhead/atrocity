@@ -9,6 +9,6 @@ void setValueInEnvironment(LISP_ENV * env, LISP_VAR * var, LISP_VALUE * value);
 LISP_ENV * composeEnvironment(LISP_VAR_LIST_ELEMENT * variableList, LISP_VALUE_LIST_ELEMENT * valueList, LISP_ENV * env);
 /* void printEnvironment(LISP_ENV * env); */
 LISP_ENV * createGlobalEnvironment();
-void freeGlobalEnvironment(LISP_ENV * globalEnv);
+void freeGlobalEnvironment(/* LISP_ENV * globalEnv */);
 
 /* **** The End **** */

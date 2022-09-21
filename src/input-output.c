@@ -138,7 +138,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	fclose(fp);
 
 	if (originalGlobalEnvParam == NULL) {
-		freeGlobalEnvironment(globalEnv);
+		freeGlobalEnvironment(/* globalEnv */);
 	}
 
 	mmFree(str);
@@ -205,7 +205,7 @@ void readEvalPrintLoop() {
 		}
 	}
 
-	freeGlobalEnvironment(globalEnv);
+	freeGlobalEnvironment(/* globalEnv */);
 	mmFree(buf);
 
 	printf("REPL complete.\n");
