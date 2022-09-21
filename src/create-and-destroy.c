@@ -12,6 +12,8 @@
 #include "memory-manager.h"
 #include "utilities.h"
 
+const int defaultStringValueLength = 16;
+
 /* BEGIN SCHEME_UNIVERSAL_TYPE */
 
 static SCHEME_UNIVERSAL_TYPE * createUniversalStruct(
@@ -63,7 +65,7 @@ static SCHEME_UNIVERSAL_TYPE * allocateStringAndCreateUniversalStruct(
 		}
 		/* This allows you to allocate a buffer longer than len + 1 chars if you wish */
 	} else if (maxNameLength <= 0) {
-		maxNameLength = maxStringValueLength;
+		maxNameLength = defaultStringValueLength;
 	}
 
 	char * buf = (char *)mmAlloc(maxNameLength * sizeof(char));
