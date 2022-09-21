@@ -3,8 +3,6 @@
 #include <stdlib.h>
 /* #include <stdio.h> */
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
@@ -19,6 +17,11 @@ static int roundUpStringTypeBufferSize(int n, int bufIncSize) {
 
 BOOL isStringBuilderEmpty(STRING_BUILDER_TYPE * sb) {
 	return sb == NULL || sb->name == NULL || sb->maxNameLength == 0 || strlen(sb->name) == 0;
+}
+
+/* TODO: Use this in parser.c : */
+BOOL stringInBuilderIs(STRING_BUILDER_TYPE * sb, char * str) {
+	return sb != NULL && str != NULL && sb->name != NULL && !strcmp(sb->name, str);
 }
 
 void clearStringBuilder(STRING_BUILDER_TYPE * sb) {

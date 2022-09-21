@@ -72,10 +72,7 @@ static void skipWhiteSpace(CharSource * cs) {
 	}
 }
 
-/* TODO: Modify getIdentifier to create or populate a StringBuilder */
-
 STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, BOOL * pIsSingleQuoted) {
-	/* printf("getIdentifier() : Unread string in cs is '%s'\n", cs->str + cs->i); */
 
 	if (sb == NULL) {
 		sb = createStringBuilder(0);
@@ -94,7 +91,6 @@ STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, B
 		case '(':
 		case ')':
 		/* case '\'': */
-			/* memcpy(dstBuf, cs->str + cs->i++, 1); */
 			appendCharToStringBuilder(sb, firstChar);
 			cs->i++;
 			return sb;
@@ -107,7 +103,6 @@ STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, B
 			}
 
 			*pIsSingleQuoted = TRUE;
-			/* memcpy(dstBuf, cs->str + cs->i++, 1); */
 			appendCharToStringBuilder(sb, firstChar);
 			cs->i++;
 			return sb;
@@ -164,9 +159,6 @@ STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, B
 }
 
 BOOL consumeStr(CharSource * cs, char * str) {
-	/* Consume str * /
-	const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize]; */
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
 	if (isStringBuilderEmpty(sb)) {

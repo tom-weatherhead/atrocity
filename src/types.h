@@ -9,8 +9,6 @@
 #define TRUE 1
 #endif
 
-/* #define maxStringValueLength 128 */
-
 /* Type definitions */
 
 /* Definitions of values and expressions: */

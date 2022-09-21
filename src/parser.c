@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
@@ -41,11 +39,6 @@ static LISP_VAR_LIST_ELEMENT * parseVariableList(CharSource * cs) {
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
 	if (isStringBuilderEmpty(sb)) {
-
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseVariableList() : Expected ), found EOF");
 	} else if (!strcmp(sb->name, ")")) {
 		return NULL; /* End of list */
@@ -79,14 +72,9 @@ static LISP_EXPR * parseLambdaExpression(CharSource * cs) {
 static LISP_EXPR * parseSetExpression(CharSource * cs) {
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
-	if (isStringBuilderEmpty(sb)) {
-
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize]; */
-
 	/* Parse variable */
 
-	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
+	if (isStringBuilderEmpty(sb)) {
 		fatalError("parseSetExpression() : Expected variable, found EOF");
 	} else if (!strcmp(sb->name, "(")) {
 		fatalError("parseSetExpression() : Expected variable, found '('");
@@ -110,10 +98,6 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
 	if (isStringBuilderEmpty(sb)) {
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseVarExpressionPairList() : Expected ( or ), found EOF");
 	} else if (!strcmp(sb->name, ")")) {
 		return NULL; /* The end of the list */
@@ -127,7 +111,6 @@ static LISP_VAR_EXPR_PAIR_LIST_ELEMENT * parseVarExpressionPairList(CharSource *
 	getIdentifier(cs, sb, NULL);
 
 	if (isStringBuilderEmpty(sb)) {
-	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseVarExpressionPairList() : Expected variable, found EOF");
 	}
 
@@ -181,10 +164,6 @@ static LISP_EXPR_PAIR_LIST_ELEMENT * parseExpressionPairList(CharSource * cs) {
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
 	if (isStringBuilderEmpty(sb)) {
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseExpressionPairList() : Error : Expected ( or ), found EOF");
 		return NULL;
 	} else if (!strcmp(sb->name, ")")) {
@@ -217,13 +196,9 @@ static LISP_EXPR * parseCondExpression(CharSource * cs) {
 static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
-	if (isStringBuilderEmpty(sb)) {
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize]; */
-
 	/* Parse the name of the macro */
 
-	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
+	if (isStringBuilderEmpty(sb)) {
 		fatalError("parseDefineMacroExpression() : Expected macro name, found EOF");
 	} else if (!strcmp(sb->name, "(")) {
 		fatalError("parseDefineMacroExpression() : Expected macro name, found '('");
@@ -260,7 +235,6 @@ static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
 	if (isStringBuilderEmpty(sb)) {
-	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("parseBracketedExpression() : Error : Expected an expression or keyword, found EOF");
 		return NULL;
 	}
@@ -320,8 +294,6 @@ static LISP_EXPR_LIST_ELEMENT * parseExpressionList(CharSource * cs) {
 }
 
 static LISP_VALUE * createQuotedValue(CharSource * cs) {
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize]; */
 	int dstBufAsInt = 0;
 
 	/* TODO: Use lispExpressionType_QuotedConstantWithApostrophe and
@@ -330,7 +302,6 @@ static LISP_VALUE * createQuotedValue(CharSource * cs) {
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
 	if (isStringBuilderEmpty(sb)) {
-	/* if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("createQuotedValue() : Error : Expected a literal value, found EOF");
 		return NULL;
 	} else if (!strcmp(sb->name, "(")) {
@@ -347,10 +318,6 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, NULL);
 
 	if (isStringBuilderEmpty(sb)) {
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize];
-
-	if (getIdentifier(cs, dstBuf, dstBufSize, NULL) == 0) { */
 		fatalError("createQuotedList() : Error : Expected a literal value, found EOF");
 		return NULL;
 	} else if (!strcmp(sb->name, ")")) {
@@ -369,15 +336,12 @@ static LISP_VALUE * createQuotedList(CharSource * cs) {
 
 LISP_EXPR * parseExpression(CharSource * cs) {
 	/* Be careful to not assume that sizeof(char) is always 1. */
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize]; */
 	int dstBufAsInt = 0;
 	BOOL isSingleQuoted = FALSE;
 
 	STRING_BUILDER_TYPE * sb = getIdentifier(cs, NULL, &isSingleQuoted);
 
 	if (isStringBuilderEmpty(sb)) {
-	/* if (getIdentifier(cs, dstBuf, dstBufSize, &isSingleQuoted) == 0) { */
 		fatalError("parseExpression() : Expected an expression, found EOF");
 		return NULL;
 	}
