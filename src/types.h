@@ -117,6 +117,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getVarInExpr(e) ((e)->value1)
 
 #define getValueInApostropheQuotedExpr(e) ((e)->value1)
+#define getValueInQuoteQuotedExpr(e) ((e)->value1)
 
 /* The NameValueList is a crude dictionary of values. */
 

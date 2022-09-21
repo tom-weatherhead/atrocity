@@ -60,63 +60,6 @@ static LISP_VALUE * expressionToSExpression(LISP_EXPR * expr, LISP_ENV * env) {
 	return value;
 }
 
-/* private sExpressionListToStringWithoutBracketsForReparse(l: SExpressionList): string {
-	const headAsString = this.sExpressionToStringForReparse(l.head);
-
-	if (isNullSExpression(l.tail)) {
-		return headAsString;
-	}
-	// else if (l.Tail is Thunk)
-	// {
-	// 	return string.Format("{0} {1}", headAsString, this.sExpressionToStringForReparse(l.Tail));
-	// }
-	else if (isSExpressionList(l.tail)) {
-		return `${headAsString} ${this.sExpressionListToStringWithoutBracketsForReparse(
-			l.tail
-		)}`;
-	} else {
-		// Tail is a symbol, an integer literal, a string, a closure, etc.
-		return `${headAsString} . ${this.sExpressionToStringForReparse(l.tail)}`;
-	}
-}
-
-private sExpressionToStringForReparse(sexpression: ISExpression): string {
-	// Convert the first level of quote keywords to apostrophes; e.g.:
-	// (quote foo) -> "'foo"
-	// (quote (quote foo)) -> "'(quote foo)"
-	// ((quote foo) (quote bar)) -> "('foo 'bar)"
-
-	// var qc = sexpression as QuotedConstantWithQuoteKeyword;
-
-	// if (qc != null)
-	if (isQuotedConstantWithQuoteKeyword(sexpression)) {
-		return "'" + sexpression.sexpression.toString();
-	}
-
-	// var l = sexpression as SExpressionList;
-
-	if (!isSExpressionList(sexpression)) {
-		return sexpression.toString();
-	} else {
-		/ *
-	else if (l.Head.ToString() == "quote")
-	{
-		var l2 = l.Tail as SExpressionList;
-
-		if (l2 != null && l2.Length == 1)
-		{
-			return "'" + l2.Head.ToString();
-		}
-		else
-		{
-			return "'" + l.Tail.ToString();
-		}
-	}
-		 * /
-		return `(${this.sExpressionListToStringWithoutBracketsForReparse(sexpression)})`;
-	}
-} */
-
 static void sExpressionListToStringWithoutBracketsForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * l) {
 	/* failIf(l->type != lispValueType_Pair, "macro: sExpressionListToStringWithoutBracketsForReparse() : typeof l is not Pair"); */
 
@@ -140,11 +83,15 @@ static void sExpressionListToStringWithoutBracketsForReparse(STRING_BUILDER_TYPE
 }
 
 static void sExpressionToStringForReparse(STRING_BUILDER_TYPE * sb, LISP_VALUE * sexpression) {
+	// Convert the first level of quote keywords to apostrophes; e.g.:
+	// (quote foo) -> "'foo"
+	// (quote (quote foo)) -> "'(quote foo)"
+	// ((quote foo) (quote bar)) -> "('foo 'bar)"
 
-	/* TODO after isQuotedConstantWithQuoteKeyword() has been implemented:
-	if (isQuotedConstantWithQuoteKeyword(sexpression)) {
+	/* TODO after isQuotedConstantWithQuoteKeyword() has been implemented: */
+	/* if (sexpression->type == lispValueType_QuotedConstantWithQuoteKeyword) {
 		appendToStringBuilder(sb, "'");
-		appendToStringBuilder(sb, sexpression.sexpression);
+		printValueToString(sb, getValueInQuoteQuotedExpr(sexpression), NULL, FALSE);
 	} else */ /* if (isList(sexpression)) { */
 	if (sexpression->type == lispValueType_Pair) {
 		appendToStringBuilder(sb, "(");
