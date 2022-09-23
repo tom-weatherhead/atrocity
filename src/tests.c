@@ -504,6 +504,15 @@ test('LL(1) Scheme let* non-recursive test', () => {
 		"(aaget aa 456)",
 		"(aaset aa \"abc\" 1337)",
 		"(aaget aa \"abc\")",
+		"(aasize aa)",
+
+		"(aaset aa '(7 13) '())",
+		"(aaget aa '(7 13))",
+		"(aasize aa)",
+		"(aaset aa '(7 13) (cons '(2 3) (aaget aa '(7 13))))",
+		"(aaget aa '(7 13))",
+		"(aasize aa)",
+
 		NULL
 	};
 	char * expectedResultsAssociativeArray[] = {
@@ -514,6 +523,15 @@ test('LL(1) Scheme let* non-recursive test', () => {
 		"def",
 		"1337",
 		"1337",
+		"2",
+
+		"()",
+		"()",
+		"3",
+		"((2 3))",
+		"((2 3))",
+		"3",
+
 		NULL
 	};
 
