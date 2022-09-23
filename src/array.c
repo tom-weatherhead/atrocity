@@ -13,7 +13,7 @@
 
 /* Arrays (ordered sequences of values) : */
 
-/* TODO: "alength", "apush", "apop", "apeek", "ashift", "aunshift", "aslice", "a...", */
+/* TODO: "aslice", "a...", */
 
 LISP_VALUE * getArrayLength(LISP_VALUE * array) {
 	failIf(array == NULL, "getArrayLength() : array == NULL");
@@ -121,7 +121,51 @@ LISP_VALUE * shiftArray(LISP_VALUE * array) {
 	return getValueInArrayListElement(ptr);
 }
 
-/* TODO:
-sliceArray */
+static SCHEME_UNIVERSAL_TYPE * createShallowCopyOfValueList(SCHEME_UNIVERSAL_TYPE * srcPtr, int n) {
+
+	if (srcPtr == NULL || n <= 0) {
+		return NULL;
+	} else {
+		/* Create a shallow copy */
+		LISP_VALUE * value = getValueInArrayListElement(srcPtr);
+		SCHEME_UNIVERSAL_TYPE * next = createShallowCopyOfValueList(srcPtr->next, n - 1);
+
+		return createArrayListElement(value, next);
+	}
+}
+
+LISP_VALUE * sliceArray(LISP_VALUE * array, LISP_VALUE * start, LISP_VALUE * end) {
+	/* From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice :
+
+	The slice() method returns a shallow copy of a portion of an array into a new array object selected from start to end (end not included) where start and end represent the index of items in that array. The original array will not be modified.
+	*/
+
+	failIf(array == NULL, "sliceArray() : array == NULL");
+	failIf(array->type != lispValueType_Array, "sliceArray() : array->type != lispValueType_Array");
+
+	failIf(start == NULL, "sliceArray() : start == NULL");
+	failIf(start->type != lispValueType_Number, "sliceArray() : start->type != lispValueType_Number");
+	failIf(getIntegerValueInValue(start) < 0, "sliceArray() : start value < 0");
+
+	failIf(end == NULL, "sliceArray() : end == NULL");
+	failIf(end->type != lispValueType_Number, "sliceArray() : end->type != lispValueType_Number");
+	failIf(getIntegerValueInValue(end) < 0, "sliceArray() : end value < 0");
+
+	/* I.e. Skip ${start} elements, then take ${end - start} elements */
+
+	SCHEME_UNIVERSAL_TYPE * srcPtr = getHeadInArray(array);
+	int n = getIntegerValueInValue(start);
+
+	while (n > 0 && srcPtr != NULL) {
+		srcPtr = srcPtr->next;
+		--n;
+	}
+
+	LISP_VALUE * result = createArray();
+
+	getHeadInArray(result) = createShallowCopyOfValueList(srcPtr, getIntegerValueInValue(end) - getIntegerValueInValue(start));
+
+	return result;
+}
 
 /* **** The End **** */

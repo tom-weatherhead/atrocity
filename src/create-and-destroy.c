@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
@@ -117,12 +115,6 @@ void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr) {
 /* END SCHEME_UNIVERSAL_TYPE */
 
 /* **** Value struct creation functions **** */
-
-/* int getNumCharsAllocatedToNameBufInValue(LISP_VALUE * value) {
-	/ * Return the number of chars, not necessarily the number of bytes. * /
-
-	return value->maxNameLength;
-} */
 
 LISP_VALUE * createNumericValue(int value) {
 	return createUniversalStruct(
@@ -293,43 +285,6 @@ LISP_VALUE * createContinuationReturn(int id, LISP_VALUE * value) {
 		NULL
 	);
 }
-
-/* LISP_VALUE * cloneValue(LISP_VALUE * value) {
-
-	switch (value->type) {
-		case lispValueType_Number:
-			return createNumericValue(getIntegerValueInValue(value));
-
-		case lispValueType_String:
-			return createStringValue(getNameInValue(value));
-
-		case lispValueType_Symbol:
-			return createSymbolValue(getNameInValue(value));
-
-		case lispValueType_PrimitiveOperator:
-			return createPrimitiveOperator(getNameInValue(value));
-
-		case lispValueType_Closure:
-			return createClosure(getArgsInClosure(value), getBodyInClosure(value), getEnvInClosure(value));
-
-		case lispValueType_Pair:
-			return createPair(getHeadInPair(value), getTailInPair(value));
-
-		case lispValueType_Null:
-			return createNull();
-
-		case lispPseudoValueType_Continuation:
-		case lispPseudoValueType_ContinuationReturn:
-			/ * fprintf(stderr, "Warning: cloneValue() returning the original value for Continuation or ContinuationReturn\n"); * /
-			return value;
-
-		default:
-			fprintf(stderr, "Failed to clone value of type %d\n", value->type);
-			fatalError("cloneValue() : Bad value type");
-	}
-
-	return NULL;
-} */
 
 // **** Expression struct creation functions ****
 
@@ -552,9 +507,6 @@ LISP_EXPR * createCondExpression(LISP_EXPR_PAIR_LIST_ELEMENT * exprPairList) {
 }
 
 LISP_EXPR * createDefineMacroExpression(char * dstBuf, LISP_VAR_LIST_ELEMENT * args, LISP_EXPR * expr) {
-	/* printf("createDefineMacroExpression() : macro name is %s\n", dstBuf);
-	printf("createDefineMacroExpression() : args ptr is %ld\n", args); */
-
 	return allocateStringAndCreateUniversalStruct(
 		lispExpressionType_Macro,
 		0,

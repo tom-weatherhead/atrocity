@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
@@ -66,16 +64,6 @@ void mmPrintReport() {
 void addItemToMemMgrRecords(SCHEME_UNIVERSAL_TYPE * item) {
 	MEMMGR_RECORD * mmRec = NULL;
 
-	/* for (mmRec = memmgrRecords; mmRec != NULL; mmRec = mmRec->next) {
-		/ * TODO: Speed this search up by using a tree instead of a list. * /
-
-		if (mmRec->item == item) {
-			/ * The item is already in the list. * /
-			fprintf(stderr, "addItemToMemMgrRecords() : Attempted duplication of item of type %d\n", item->type);
-			return;
-		}
-	} */
-
 	mmRec = (MEMMGR_RECORD *)mmAlloc(sizeof(MEMMGR_RECORD));
 
 	mmRec->item = item;
@@ -117,8 +105,6 @@ static void setMarksInExprTree(SCHEME_UNIVERSAL_TYPE * expr) {
 		printf("mm error: expr->mark is %d\n", expr->mark);
 		exit(1);
 	}
-
-	/* Do this recursively */
 
 	expr->mark = 1;
 

@@ -102,8 +102,8 @@ static void testAssociativeArray() {
 
 	failIf(getResult0 != NULL, "testAssociativeArray() : getResult0 != NULL");
 
-	/* LISP_VALUE * setResult1 = */ aaSet(associativeArray, keyAbc, value123);
-	/* LISP_VALUE * setResult2 = */ aaSet(associativeArray, key456, valueDef);
+	aaSet(associativeArray, keyAbc, value123);
+	aaSet(associativeArray, key456, valueDef);
 
 	LISP_VALUE * getResult1 = aaGet(associativeArray, keyAbc);
 	LISP_VALUE * getResult2 = aaGet(associativeArray, key456);
@@ -121,7 +121,7 @@ static void testAssociativeArray() {
 	/* Update a key's value */
 	LISP_VALUE * value1337 = createNumericValue(1337);
 
-	/* LISP_VALUE * setResult3 = */ aaSet(associativeArray, keyAbc, value1337);
+	aaSet(associativeArray, keyAbc, value1337);
 
 	LISP_VALUE * getResult3 = aaGet(associativeArray, keyAbc);
 
@@ -322,26 +322,6 @@ void runTests() {
 
 	multitest(inputsLengthV2, expectedResultsLengthV2);
 
-	/* Tests from thaw-grammar:
-test('LL(1) Scheme let* non-recursive test', () => {
-	// 2014/02/17 : Derived from Kamin page 126.
-
-	// Assert that let* is not a clone of letrec.
-
-	expect(() =>
-		evaluateToISExpression(
-			[
-				'(let*',
-				'((countones (lambda (l)',
-				'(if (null? l) 0',
-				'	(if (= (car l) 1) (+ 1 (countones (cdr l)))',
-				'	(countones (cdr l)))))))',
-				"(countones '(1 2 3 1 0 1 1 5)))"
-			].join('\n')
-		)
-	).toThrow();
-}); */
-
 	/* Call/cc test - From Kamin page 128 */
 
 	char * inputsCallCC[] = {
@@ -463,6 +443,8 @@ test('LL(1) Scheme let* non-recursive test', () => {
 		"(aunshift a 4)",
 		"a",
 		"(alength a)",
+
+		/* TODO: Test aslice */
 
 		NULL
 	};

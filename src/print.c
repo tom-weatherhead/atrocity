@@ -184,7 +184,6 @@ STRING_BUILDER_TYPE * printValueToStringEx(STRING_BUILDER_TYPE * sb, LISP_VALUE 
 
 			for (ptr = getHeadInArray(value); ptr != NULL; ptr = ptr->next) {
 				appendToStringBuilder(sb, separatorStr);
-				/* printValue(getValueInArrayListElement(ptr)); */
 				printValueToStringEx(sb, getValueInArrayListElement(ptr), separatorBetweenListItems, printBracketsAroundList);
 				separatorStr = ", ";
 			}

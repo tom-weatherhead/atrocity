@@ -14,6 +14,7 @@
 
 LISP_VALUE * globalNullValue = NULL;
 LISP_VALUE * globalTrueValue = NULL;
+/* TODO? : LISP_ENV * globalEnvironment = NULL; */
 
 extern SCHEME_UNIVERSAL_TYPE * macroList;
 
@@ -127,16 +128,6 @@ LISP_ENV * composeEnvironment(LISP_VAR_LIST_ELEMENT * variableList, LISP_VALUE_L
 
 	while (variableList != NULL || valueList != NULL) {
 
-		/* if (variableList != NULL) {
-			printf("composeEnvironment() : Variable is '%s'\n", variableList->name);
-		}
-
-		if (valueList != NULL) {
-			printf("composeEnvironment() : Value is: ");
-			printValue(getValueInValueListElement(valueList));
-			printf("\n");
-		} */
-
 		if (variableList == NULL || valueList == NULL) {
 			fatalError("composeEnvironment() : The formal and actual parameter lists have different lengths.");
 			return NULL;
@@ -145,10 +136,6 @@ LISP_ENV * composeEnvironment(LISP_VAR_LIST_ELEMENT * variableList, LISP_VALUE_L
 		failIf(variableList->type != schemeStructType_VariableListElement, "composeEnvironment() : variableList->type != schemeStructType_VariableListElement");
 
 		LISP_VALUE * value = getValueInValueListElement(valueList);
-
-		/* if (value->type == lispPseudoValueType_ContinuationReturn) {
-			return value;
-		} */
 
 		addNameToEnvironment(newEnv, variableList->name, value);
 		variableList = variableList->next;
@@ -319,6 +306,8 @@ void freeGlobalEnvironment(/* LISP_ENV * globalEnv */) {
 	globalTrueValue = NULL;
 	globalNullValue = NULL;
 	macroList = NULL;
+
+	/* TODO? Free all allocated memory: return freeAllStructs(); */
 }
 
 /* **** The End **** */

@@ -33,8 +33,6 @@ nothing would be gained by suspending a computation that is just an identity fn
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-/* #include <ctype.h> */
-/* #include <assert.h> */
 #include <time.h>
 
 #include "types.h"

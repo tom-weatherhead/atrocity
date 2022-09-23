@@ -59,7 +59,7 @@ static char * twoArgumentPrimops[] = {
 	"ref=",
 	NULL
 };
-static char * threeArgumentPrimops[] = { "if", "aaset", /* "aslice", */ NULL };
+static char * threeArgumentPrimops[] = { "if", "aaset", "aslice", NULL };
 
 /* Local variables */
 
@@ -212,12 +212,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 	/* if (actualParamExprs == NULL) {
 		/ * These primops take exactly zero arguments * /
-
-		if (!strcmp(op, "mkaa")) {
-			return createAssociativeArray();
-		} else if (!strcmp(op, "mkarray")) {
-			return createArray();
-		}
 	} else */
 	if (actualParamExprs != NULL) {
 		LISP_EXPR * operand1Expr = getExprInExprList(actualParamExprs);
@@ -261,8 +255,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		}
 		/* END : Value type predicates */
 		else if (!strcmp(op, "print")) {
-			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
-
 			printValue(operand1Value);
 			printf("\n");
 
@@ -270,7 +262,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			return operand1Value;
 		} else if (!strcmp(op, "random")) {
-			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
@@ -285,7 +276,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			return createNumericValue(rand() % getIntegerValueInValue(operand1Value));
 		} else if (!strcmp(op, "car")) {
-			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
@@ -298,7 +288,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 			return getHeadInPair(operand1Value);
 		} else if (!strcmp(op, "cdr")) {
-			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
@@ -313,7 +302,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			- The list
 			- separatorBetweenListItems (string)
 			- printBracketsAroundList (Boolean) */
-			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
@@ -328,8 +316,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		} else if (!strcmp(op, "throw")) {
 			fprintf(stderr, "An exception has been thrown.\n");
 
-			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
-
 			if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 				return operand1Value;
 			} else if (operand1Value->type == lispValueType_String || operand1Value->type == lispValueType_Symbol) {
@@ -340,7 +326,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		} else if (!strcmp(op, "call/cc")) {
 			/* Call with current continuation */
 			/* The arg must be a lambda expr that takes exactly one arg. */
-			/* LISP_VALUE * operand1Value = evaluate(operand1Expr, env); */
 
 			/* Remember: Evaluating a lambda expression results in a closure.
 			This is different from calling a closure. */
@@ -380,7 +365,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 		} else if (!strcmp(op, "aasize")) {
 			return aaSize(operand1Value);
 		}
-
 
 		if (actualParamExprs->next != NULL) {
 			LISP_EXPR * operand2Expr = getExprInExprList(actualParamExprs->next);
@@ -520,13 +504,22 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 
 				failIf(operand3Expr == NULL, "evaluatePrimitiveOperatorCall() : operand3Expr == NULL");
 
+				LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
+				LISP_VALUE * operand2Value = NULL;
+				LISP_VALUE * operand3Value = NULL;
+
+				if (strcmp(op, "if")) {
+					/* If the primop is not "if"... */
+					operand2Value = evaluate(operand2Expr, env);
+					operand3Value = evaluate(operand3Expr, env);
+				}
+
 				/* These primops take exactly three arguments */
 
 				if (!strcmp(op, "if")) {
 					/* There must be 3 operands. First, evaluate the first operand. */
 					/* If it is non-null, then evaluate and return the second operand. */
 					/* Else evaluate and return the third operand. */
-					LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
 
 					if (operand1Value->type == lispPseudoValueType_ContinuationReturn) {
 						return operand1Value;
@@ -535,10 +528,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					/* Only one of [operand2Expr, operand3Expr] will be evaluated */
 					result = evaluate(operand1Value->type != lispValueType_Null ? operand2Expr : operand3Expr, env);
 				} else if (!strcmp(op, "aaset")) {
-					LISP_VALUE * operand1Value = evaluate(operand1Expr, env);
-					LISP_VALUE * operand2Value = evaluate(operand2Expr, env);
-					LISP_VALUE * operand3Value = evaluate(operand3Expr, env);
-
 					failIf(operand1Value == NULL, "evaluatePrimitiveOperatorCall() : aaset : operand1Value == NULL");
 					failIf(operand2Value == NULL, "evaluatePrimitiveOperatorCall() : aaset : operand2Value == NULL");
 					failIf(operand3Value == NULL, "evaluatePrimitiveOperatorCall() : aaset : operand3Value == NULL");
@@ -546,6 +535,8 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					result = aaSet(operand1Value, operand2Value, operand3Value);
 
 					failIf(result == NULL, "evaluatePrimitiveOperatorCall() : aaset : result == NULL");
+				} else if (!strcmp(op, "aslice")) {
+					result = sliceArray(operand1Value, operand2Value, operand3Value);
 				}
 			}
 		}

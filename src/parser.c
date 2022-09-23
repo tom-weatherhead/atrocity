@@ -213,8 +213,6 @@ static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
 	/* Parse variable list and consume ) */
 	LISP_VAR_LIST_ELEMENT * args = parseVariableList(cs);
 
-	/* printf("parseDefineMacroExpression() : args ptr is %ld\n", args); */
-
 	/* Parse expression */
 	LISP_EXPR * expr = parseExpression(cs);
 
@@ -226,8 +224,6 @@ static LISP_EXPR * parseDefineMacroExpression(CharSource * cs) {
 }
 
 static LISP_EXPR * parseBracketedExpression(CharSource * cs) {
-	/* const int dstBufSize = maxStringValueLength;
-	char dstBuf[dstBufSize]; */
 	const int csRewindPoint = cs->i;
 
 	/* 'if' is currently handled as a primop */

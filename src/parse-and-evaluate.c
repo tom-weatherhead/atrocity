@@ -2,16 +2,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-/* #include <string.h> */
-/* #include <ctype.h> */
-/* #include <assert.h> */
 
 #include "types.h"
 
 #include "char-source.h"
 
 #include "create-and-destroy.h"
-/* #include "environment.h" */
 #include "parser.h"
 #include "evaluate.h"
 #include "print.h"
@@ -22,8 +18,6 @@ extern LISP_VALUE * globalNullValue;
 extern LISP_VALUE * globalTrueValue;
 
 /* Functions */
-
-/* TODO: Try to eliminate code duplication in this file. */
 
 LISP_VALUE * parseStringAndEvaluate(char * str, LISP_ENV * globalEnv) {
 	CharSource * cs = createCharSource(str);
@@ -53,10 +47,6 @@ void parseAndEvaluateEx(char * str, LISP_ENV * globalEnv, BOOL verbose) {
 		printValue(value);
 		printf("\n");
 	}
-
-	/* Note bene: freeClosure is currently mostly disabled to avoid
-	 * double-freeing things. We must fix this. */
-	/* freeValue(value); */
 }
 
 /* **** The End **** */

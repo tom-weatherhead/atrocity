@@ -6,5 +6,6 @@ LISP_VALUE * pop(LISP_VALUE * array);
 LISP_VALUE * peek(LISP_VALUE * array);
 LISP_VALUE * unshiftArray(LISP_VALUE * array, LISP_VALUE * value);
 LISP_VALUE * shiftArray(LISP_VALUE * array);
+LISP_VALUE * sliceArray(LISP_VALUE * array, LISP_VALUE * start, LISP_VALUE * end);
 
 /* **** The End **** */

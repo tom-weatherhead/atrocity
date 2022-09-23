@@ -113,9 +113,6 @@ LISP_VALUE * invokeMacro(SCHEME_UNIVERSAL_TYPE * macro, LISP_EXPR_LIST_ELEMENT *
 
 	LISP_VALUE_LIST_ELEMENT * valueList = exprListToSExpressionList(actualParamExprs, env);
 
-	/* printf("invokeMacro() : Num formal params: %d\n", getLinkedListLength(getArgsInMacro(macro)));
-	printf("invokeMacro() : Num actual params: %d\n", getLinkedListLength(valueList)); */
-
 	LISP_ENV * rhoPrime = composeEnvironment(getArgsInMacro(macro), valueList, env);
 
 	LISP_VALUE * substitutedBody = evaluate(getBodyInMacro(macro), rhoPrime);
