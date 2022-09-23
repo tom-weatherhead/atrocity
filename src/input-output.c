@@ -11,6 +11,7 @@
 #include "memory-manager.h"
 #include "parse-and-evaluate.h"
 #include "print.h"
+#include "string-builder.h"
 #include "utilities.h"
 
 /* External constants / variables */
@@ -22,9 +23,34 @@ extern LISP_VALUE * globalTrueValue;
 
 static char commentChar = ';';
 static int readScriptBufSize = 4096;
-static int replBufSize = 1024;
+/* static int replBufSize = 1024; */
 
 /* Functions */
+
+STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {
+
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
+
+	for (;;) {
+		const int cn = fgetc(file);
+
+		if (cn == EOF) {
+			break;
+		}
+
+		const char c = (char)cn;
+
+		if (c == '\n') {
+			break;
+		}
+
+		appendCharToStringBuilder(sb, c);
+	}
+
+	return sb;
+}
 
 void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	FILE * fp = fopen(filename, "r");
@@ -153,26 +179,32 @@ of code (or NULL for EOF) as it needs them. */
 /* Output to string (or a list of strings) (or a list of Scheme values?) */
 
 void readEvalPrintLoop() {
-	const int bufsize = replBufSize;
+	/* const int bufsize = replBufSize;
 	const int bufsizeInBytes = bufsize * sizeof(char);
-	char * buf = (char *)mmAlloc(bufsizeInBytes);
+	char * buf = (char *)mmAlloc(bufsizeInBytes); */
 	int i;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
-	SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, NULL };
+	SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, NULL, NULL };
+	STRING_BUILDER_TYPE * sb = NULL;
 
 	printf("\nStarting the read-eval-print loop...\n\n");
 
 	for (i = 0; ; ++i) {
-		memset(buf, 0, bufsizeInBytes);
+		/* memset(buf, 0, bufsizeInBytes); */
 		printf("%d > ", i);
 
 		/* TODO: Use appendLineFromFileToStringBuilder(sb, stdin); */
 
 		/* scanf("%s", buf); */ /* No. */
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
-		fgets_wrapper(buf, bufsize, stdin);
+		/* fgets_wrapper(buf, bufsize, stdin); */
 
-		int len = strlen(buf);
+		clearStringBuilder(sb);
+		sb = appendLineFromFileToStringBuilder(sb, stdin);
+
+		char * buf = sb->name;
+
+		const int len = strlen(buf);
 
 		if (len > 0 && buf[len - 1] == '\n') {
 			printf("Trimming newline...\n");
@@ -199,6 +231,8 @@ void readEvalPrintLoop() {
 			printValue(value);
 			printf("\n\n");
 
+			exprTreesToMark[3] = sb;
+
 			const int numFreed = collectGarbage(exprTreesToMark);
 
 			printf("gc: %d block(s) of memory freed.\n", numFreed);
@@ -206,7 +240,7 @@ void readEvalPrintLoop() {
 	}
 
 	freeGlobalEnvironment(/* globalEnv */);
-	mmFree(buf);
+	/* mmFree(buf); */
 
 	printf("REPL complete.\n");
 }

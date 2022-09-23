@@ -1,6 +1,7 @@
 /* atrocity/src/string-builder.c */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "types.h"
@@ -21,6 +22,7 @@ BOOL isStringBuilderEmpty(STRING_BUILDER_TYPE * sb) {
 }
 
 /* TODO: Use this in parser.c : */
+
 BOOL stringInBuilderIs(STRING_BUILDER_TYPE * sb, char * str) {
 	return sb != NULL && str != NULL && sb->name != NULL && !strcmp(sb->name, str);
 }
@@ -80,51 +82,45 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 }
 
 STRING_BUILDER_TYPE * appendCharToStringBuilder(STRING_BUILDER_TYPE * sb, char c) {
-	char twoChars[2];
+	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
+
+	ensureStringBuilderSize(sb, oldStrLen + 2);
+
+	failIf(sb->name == NULL, "appendCharToStringBuilder() : sb->name == NULL");
+
+	sb->name[oldStrLen] = c;
+	sb->name[oldStrLen + 1] = '\0';
+
+	return sb;
+
+	/* char twoChars[2];
 
 	twoChars[0] = c;
 	twoChars[1] = '\0';
 
-	return appendToStringBuilder(sb, twoChars);
+	return appendToStringBuilder(sb, twoChars); */
 }
 
 STRING_BUILDER_TYPE * appendCharsToStringBuilder(STRING_BUILDER_TYPE * sb, char * src, int numChars) {
-	char * buf = (char *)mmAlloc((numChars + 1) * sizeof(char));
+	/* char * buf = (char *)mmAlloc((numChars + 1) * sizeof(char));
 
 	memcpy(buf, src, numChars * sizeof(char));
 	buf[numChars] = '\0';
 
 	appendToStringBuilder(sb, buf);
 
-	mmFree(buf);
+	mmFree(buf); */
+
+	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
+
+	ensureStringBuilderSize(sb, oldStrLen + numChars + 1);
+
+	failIf(sb->name == NULL, "appendCharToStringBuilder() : sb->name == NULL");
+
+	memcpy(sb->name + oldStrLen, src, numChars * sizeof(char));
+	sb->name[oldStrLen + numChars] = '\0';
 
 	return sb;
 }
-
-/* TODO: Use this in input-output.c:
-STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {
-
-	if (sb == NULL) {
-		sb = createStringBuilder(0);
-	}
-
-	for (;;) {
-		const int cn = fgetc(fp);
-
-		if (cn == EOF) {
-			break;
-		}
-
-		const char c = (char)cn;
-
-		if (c == '\n') {
-			break;
-		}
-
-		appendCharToStringBuilder(sb, c);
-	}
-
-	return sb;
-} */
 
 /* **** The End **** */
