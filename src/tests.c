@@ -87,14 +87,6 @@ static void test(char * input, char * expectedOutput) {
 	multitest(inputs, expectedOutputs);
 }
 
-/* static void testArray() {
-	printf("testArray() : BEGIN\n");
-
-	LISP_VALUE * array = createArray();
-
-	printf("testArray() : END\n");
-} */
-
 static void testAssociativeArray() {
 	printf("testAssociativeArray() : BEGIN\n");
 
@@ -501,6 +493,31 @@ test('LL(1) Scheme let* non-recursive test', () => {
 	};
 
 	multitest(inputsArray, expectedResultsArray);
+
+	/* associative array test */
+
+	char * inputsAssociativeArray[] = {
+		"(set! aa {})",
+		"(aaset aa \"abc\" 123)",
+		"(aaset aa 456 \"def\")",
+		"(aaget aa \"abc\")",
+		"(aaget aa 456)",
+		"(aaset aa \"abc\" 1337)",
+		"(aaget aa \"abc\")",
+		NULL
+	};
+	char * expectedResultsAssociativeArray[] = {
+		"<associative array>",
+		"123",
+		"def",
+		"123",
+		"def",
+		"1337",
+		"1337",
+		NULL
+	};
+
+	multitest(inputsAssociativeArray, expectedResultsAssociativeArray);
 
 	printf("\nDone.\n");
 }

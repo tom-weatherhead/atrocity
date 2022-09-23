@@ -59,7 +59,7 @@ static char * twoArgumentPrimops[] = {
 	"ref=",
 	NULL
 };
-static char * threArgumentPrimops[] = { "if", "aaset", /* "aslice", */ NULL };
+static char * threeArgumentPrimops[] = { "if", "aaset", /* "aslice", */ NULL };
 
 /* Local variables */
 
@@ -75,7 +75,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 /* Functions */
 
 BOOL isPrimop(char * str) {
-	return isStringInList(str, oneArgumentPrimops) || isStringInList(str, twoArgumentPrimops) || isStringInList(str, threArgumentPrimops);
+	return isStringInList(str, oneArgumentPrimops) || isStringInList(str, twoArgumentPrimops) || isStringInList(str, threeArgumentPrimops);
 }
 
 static LISP_VALUE * booleanToSchemeValue(int b) {
@@ -539,10 +539,20 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 					LISP_VALUE * operand2Value = evaluate(operand2Expr, env);
 					LISP_VALUE * operand3Value = evaluate(operand3Expr, env);
 
-					return aaSet(operand1Value, operand2Value, operand3Value);
+					failIf(operand1Value == NULL, "evaluatePrimitiveOperatorCall() : aaset : operand1Value == NULL");
+					failIf(operand2Value == NULL, "evaluatePrimitiveOperatorCall() : aaset : operand2Value == NULL");
+					failIf(operand3Value == NULL, "evaluatePrimitiveOperatorCall() : aaset : operand3Value == NULL");
+
+					result = aaSet(operand1Value, operand2Value, operand3Value);
+
+					failIf(result == NULL, "evaluatePrimitiveOperatorCall() : aaset : result == NULL");
 				}
 			}
 		}
+	}
+
+	if (result == NULL) {
+		fprintf(stderr, "evaluatePrimitiveOperatorCall() : result == NULL; op is '%s'\n", op);
 	}
 
 	return result;
@@ -895,6 +905,10 @@ LISP_VALUE * evaluate(LISP_EXPR * expr, LISP_ENV * env) {
 		default:
 			fatalError("evaluate() : Unrecognized expression type");
 			return NULL;
+	}
+
+	if (result == NULL) {
+		fprintf(stderr, "evaluate() : result == NULL : expr type is %d\n", expr->type);
 	}
 
 	failIf(result == NULL, "evaluate() : result == NULL");
