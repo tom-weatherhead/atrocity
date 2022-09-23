@@ -85,7 +85,7 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 		sb->maxNameLength = newbufsize;
 	} */
 
-	printf("appendToStringBuilder() : ensureStringBuilderSize...\n");
+	/* printf("appendToStringBuilder() : ensureStringBuilderSize...\n"); */
 
 	ensureStringBuilderSize(sb, oldStrLen + strlen(strToAppend) + 1);
 
@@ -101,7 +101,7 @@ STRING_BUILDER_TYPE * appendCharToStringBuilder(STRING_BUILDER_TYPE * sb, char c
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
 
-	printf("appendCharToStringBuilder() : ensureStringBuilderSize...\n");
+	/* printf("appendCharToStringBuilder() : ensureStringBuilderSize...\n"); */
 
 	ensureStringBuilderSize(sb, oldStrLen + 2);
 
@@ -135,13 +135,13 @@ STRING_BUILDER_TYPE * appendCharsToStringBuilder(STRING_BUILDER_TYPE * sb, char 
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
 
-	printf("appendCharsToStringBuilder() : ensureStringBuilderSize...\n");
+	/* printf("appendCharsToStringBuilder() : ensureStringBuilderSize...\n"); */
 
 	ensureStringBuilderSize(sb, oldStrLen + numChars + 1);
 
 	failIf(sb->name == NULL, "appendCharToStringBuilder() : sb->name == NULL");
 
-	printf("appendCharsToStringBuilder() : memcpy...\n");
+	/* printf("appendCharsToStringBuilder() : memcpy...\n"); */
 
 	memcpy(sb->name + oldStrLen, src, numChars * sizeof(char));
 	sb->name[oldStrLen + numChars] = '\0';

@@ -22,8 +22,8 @@ extern LISP_VALUE * globalTrueValue;
 /* Local constants */
 
 static char commentChar = ';';
-static int readScriptBufSize = 4096;
-/* static int replBufSize = 1024; */
+/* static int readScriptBufSize = 4096;
+static int replBufSize = 1024; */
 
 /* Functions */
 
@@ -52,7 +52,7 @@ STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb
 			break;
 		}
 
-		printf("appendLineFromFileToStringBuilder() : appendCharToStringBuilder...\n");
+		/* printf("appendLineFromFileToStringBuilder() : appendCharToStringBuilder...\n"); */
 
 		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (3)");
 
@@ -124,7 +124,7 @@ static int charStateMachine(char * str, int len, int * pBracketDepth, BOOL * pIs
 }
 
 /* Version 1 */
-void execScriptInFileV1(char * filename, LISP_ENV * globalEnv) {
+/* void execScriptInFileV1(char * filename, LISP_ENV * globalEnv) {
 	FILE * fp = fopen(filename, "r");
 
 	if (fp == NULL) {
@@ -227,7 +227,6 @@ void execScriptInFileV1(char * filename, LISP_ENV * globalEnv) {
 			str[i++] = c;
 
 			if (i >= bufSize) {
-				/* TODO: Use a StringBuilder */
 				fprintf(stderr, "execScriptInFile: Text buffer overflow\n");
 				break;
 			}
@@ -237,13 +236,13 @@ void execScriptInFileV1(char * filename, LISP_ENV * globalEnv) {
 	fclose(fp);
 
 	if (originalGlobalEnvParam == NULL) {
-		freeGlobalEnvironment(/* globalEnv */);
+		freeGlobalEnvironment(/ * globalEnv * /);
 	}
 
 	mmFree(str);
 
 	printf("\nScript execution complete.\n");
-}
+} */
 
 void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	FILE * file = fopen(filename, "r");
@@ -290,11 +289,11 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 		char * buf = sb->name;
 		BOOL isACompleteExpression = FALSE;
 
-		printf("sb contains '%s'\n", sb->name);
+		/* printf("sb contains '%s'\n", sb->name); */
 
 		const int len = charStateMachine(buf, -1, &bracketDepth, &isACompleteExpression);
 
-		printf("charStateMachine() returned len = %d\n", len);
+		/* printf("charStateMachine() returned len = %d\n", len); */
 
 		const int isEof = feof(file);
 
@@ -317,11 +316,11 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
 		}
 
-		printf("appendCharsToStringBuilder()...\n");
+		/* printf("appendCharsToStringBuilder()...\n"); */
 
 		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, len);
 
-		printf("Done appendCharsToStringBuilder()\n");
+		/* printf("Done appendCharsToStringBuilder()\n"); */
 
 		/* int cn = fgetc(fp);
 
@@ -364,13 +363,13 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 
 		/* if (bracketDepth > 0) { */
 		if (!isACompleteExpression) {
-			printf("Not a complete expression.\n");
+			/* printf("Not a complete expression.\n"); */
 			continue;
 		}
 
 		char * str = sbAccumulator->name;
 
-		printf("parseStringAndEvaluate() : str is '%s'\n", str);
+		/* printf("parseStringAndEvaluate() : str is '%s'\n", str); */
 
 		LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
 
@@ -432,7 +431,7 @@ void readEvalPrintLoop() {
 	char * buf = (char *)mmAlloc(bufsizeInBytes); */
 	int i;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
-	STRING_BUILDER_TYPE * sb = NULL;
+	/* STRING_BUILDER_TYPE * sb = NULL; */
 
 	printf("\nStarting the read-eval-print loop...\n\n");
 
@@ -446,8 +445,6 @@ void readEvalPrintLoop() {
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
 		/* fgets_wrapper(buf, bufsize, stdin); */
 
-		sb = NULL;
-
 		/* if (sb != NULL) {
 			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "readEvalPrintLoop() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
 		}
@@ -458,10 +455,9 @@ void readEvalPrintLoop() {
 			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "readEvalPrintLoop() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
 		} */
 
-		sb = appendLineFromFileToStringBuilder(sb, stdin);
+		STRING_BUILDER_TYPE * sb = appendLineFromFileToStringBuilder(NULL, stdin);
 
 		char * buf = sb->name;
-
 		const int len = strlen(buf);
 
 		if (len > 0 && buf[len - 1] == '\n') {
