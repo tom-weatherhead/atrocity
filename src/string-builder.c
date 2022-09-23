@@ -29,8 +29,16 @@ BOOL stringInBuilderIs(STRING_BUILDER_TYPE * sb, char * str) {
 
 void clearStringBuilder(STRING_BUILDER_TYPE * sb) {
 
+	if (sb != NULL) {
+		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "clearStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
+	}
+
 	if (sb != NULL && sb->name != NULL && sb->maxNameLength > 0) {
 		memset(sb->name, 0, sb->maxNameLength * sizeof(char));
+	}
+
+	if (sb != NULL) {
+		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "clearStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
 	}
 }
 
@@ -56,7 +64,11 @@ static void ensureStringBuilderSize(STRING_BUILDER_TYPE * sb, int newMinimumSize
 }
 
 STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * strToAppend) {
+	failIf(sb == NULL, "appendToStringBuilder() : sb == NULL");
+	failIf(strToAppend == NULL, "appendToStringBuilder() : strToAppend == NULL");
+
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
+
 	/* const int newbufsize = roundUpStringTypeBufferSize(oldStrLen + strlen(strToAppend) + 1, getBufferSizeIncrementInStringBuilder(sb));
 
 	if (newbufsize > sb->maxNameLength) {
@@ -72,6 +84,9 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 		sb->name = newBuf;
 		sb->maxNameLength = newbufsize;
 	} */
+
+	printf("appendToStringBuilder() : ensureStringBuilderSize...\n");
+
 	ensureStringBuilderSize(sb, oldStrLen + strlen(strToAppend) + 1);
 
 	if (sb->name != NULL) {
@@ -82,7 +97,11 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 }
 
 STRING_BUILDER_TYPE * appendCharToStringBuilder(STRING_BUILDER_TYPE * sb, char c) {
+	failIf(sb == NULL, "appendCharToStringBuilder() : sb == NULL");
+
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
+
+	printf("appendCharToStringBuilder() : ensureStringBuilderSize...\n");
 
 	ensureStringBuilderSize(sb, oldStrLen + 2);
 
@@ -111,11 +130,18 @@ STRING_BUILDER_TYPE * appendCharsToStringBuilder(STRING_BUILDER_TYPE * sb, char 
 
 	mmFree(buf); */
 
+	failIf(sb == NULL, "appendCharsToStringBuilder() : sb == NULL");
+	failIf(src == NULL, "appendCharsToStringBuilder() : src == NULL");
+
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
+
+	printf("appendCharsToStringBuilder() : ensureStringBuilderSize...\n");
 
 	ensureStringBuilderSize(sb, oldStrLen + numChars + 1);
 
 	failIf(sb->name == NULL, "appendCharToStringBuilder() : sb->name == NULL");
+
+	printf("appendCharsToStringBuilder() : memcpy...\n");
 
 	memcpy(sb->name + oldStrLen, src, numChars * sizeof(char));
 	sb->name[oldStrLen + numChars] = '\0';

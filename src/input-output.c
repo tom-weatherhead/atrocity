@@ -29,9 +29,15 @@ static int readScriptBufSize = 4096;
 
 STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {
 
+	if (sb != NULL) {
+		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
+	}
+
 	if (sb == NULL) {
 		sb = createStringBuilder(0);
 	}
+
+	failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
 
 	for (;;) {
 		const int cn = fgetc(file);
@@ -46,13 +52,79 @@ STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb
 			break;
 		}
 
+		printf("appendLineFromFileToStringBuilder() : appendCharToStringBuilder...\n");
+
+		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (3)");
+
 		appendCharToStringBuilder(sb, c);
 	}
 
 	return sb;
 }
 
-void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
+static int charStateMachine(char * str, int len, int * pBracketDepth, BOOL * pIsACompleteExpression) {
+	failIf(pBracketDepth == NULL, "charStateMachine() : pBracketDepth == NULL");
+	failIf(pIsACompleteExpression == NULL, "charStateMachine() : pIsACompleteExpression == NULL");
+
+	int bracketDepth = *pBracketDepth;
+	int isDoubleQuoted = 0;
+	int i;
+
+	*pIsACompleteExpression = FALSE;
+
+	if (len < 0) {
+		len = strlen(str);
+	}
+
+	for (i = 0; i < len; ++i) {
+
+		if (str[i] == commentChar) {
+
+			if (!isDoubleQuoted) {
+				/* This commentChar is not inside a string */
+				/* If bracketDepth > 0 then the comment is inside an expr */
+				break;
+			} else {
+				continue;
+			}
+		}
+
+		switch (str[i]) {
+			case '"':
+				isDoubleQuoted = 1 - isDoubleQuoted; /* Toggle this state */
+				break;
+
+			case '(':
+				++bracketDepth;
+				break;
+
+			case ')':
+				--bracketDepth;
+				failIf(bracketDepth < 0, "charStateMachine: More ) than (");
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/* Return the length of the part of the string before any comment starts */
+
+	/* TODO: Trim any trailing whitespace. Is the string all whitespace? */
+
+	/* TODO: Have we reached the EOF? */
+
+	if (!isDoubleQuoted && bracketDepth == 0) {
+		*pIsACompleteExpression = TRUE;
+	}
+
+	*pBracketDepth = bracketDepth;
+
+	return i;
+}
+
+/* Version 1 */
+void execScriptInFileV1(char * filename, LISP_ENV * globalEnv) {
 	FILE * fp = fopen(filename, "r");
 
 	if (fp == NULL) {
@@ -72,10 +144,10 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 		fatalError("mmAlloc() failed in execScriptInFile()");
 	}
 
+	memset(str, 0, bufSizeInBytes);
+
 	int i = 0;
 	int bracketDepth = 0;
-
-	memset(str, 0, bufSizeInBytes);
 
 	if (globalEnv == NULL) {
 		globalEnv = createGlobalEnvironment();
@@ -84,10 +156,9 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
 	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
-	SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, NULL };
+	STRING_BUILDER_TYPE * sb = NULL;
 
 	for (;;) {
-		/* TODO: Use appendLineFromFileToStringBuilder(sb, fp); */
 		int cn = fgetc(fp);
 
 		if (cn == EOF) {
@@ -132,6 +203,8 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 			printValue(value);
 			printf("\n");
 
+			SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, sb, NULL };
+
 			const int numFreed = collectGarbage(exprTreesToMark);
 
 			printf("gc: %d block(s) of memory freed.\n", numFreed);
@@ -172,6 +245,181 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	printf("\nScript execution complete.\n");
 }
 
+void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
+	FILE * file = fopen(filename, "r");
+
+	if (file == NULL) {
+		fprintf(stderr, "execScriptInFile: Failed to open the file '%s'\n", filename);
+		return;
+	}
+
+	printf("\nExecuting script...\n\n");
+
+	LISP_ENV * originalGlobalEnvParam = globalEnv;
+
+	/* int i = 0; */
+	int bracketDepth = 0;
+
+	if (globalEnv == NULL) {
+		globalEnv = createGlobalEnvironment();
+	}
+
+	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
+	failIf(globalNullValue == NULL, "globalNullValue is NULL");
+
+	STRING_BUILDER_TYPE * sb = NULL;
+	STRING_BUILDER_TYPE * sbAccumulator = createStringBuilder(0);
+
+	for (;;) {
+		/* TODO: Use appendLineFromFileToStringBuilder(sb, file);
+
+		I.e. : */
+
+		if (sb != NULL) {
+			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
+		}
+
+		clearStringBuilder(sb);
+
+		if (sb != NULL) {
+			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
+		}
+
+		sb = appendLineFromFileToStringBuilder(sb, file);
+
+		char * buf = sb->name;
+		BOOL isACompleteExpression = FALSE;
+
+		printf("sb contains '%s'\n", sb->name);
+
+		const int len = charStateMachine(buf, -1, &bracketDepth, &isACompleteExpression);
+
+		printf("charStateMachine() returned len = %d\n", len);
+
+		const int isEof = feof(file);
+
+		if (len == 0) {
+
+			if (isEof) {
+				/* We have finished reading and interpreting the file. */
+				break;
+			} else {
+				/* The current line contains nothing to interpret. */
+				continue;
+			}
+		}
+
+		/* Are we appending the current line onto (a) previous line(s)
+		in order to complete an expression? If so, append a space to
+		the previous text before appending the current line. */
+
+		if (!isStringBuilderEmpty(sbAccumulator)) {
+			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
+		}
+
+		printf("appendCharsToStringBuilder()...\n");
+
+		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, len);
+
+		printf("Done appendCharsToStringBuilder()\n");
+
+		/* int cn = fgetc(fp);
+
+		if (cn == EOF) {
+			break;
+		}
+
+		char c = (char)cn;
+
+		if (c == commentChar) {
+
+			do {
+				cn = fgetc(fp);
+
+				if (cn == EOF) {
+					break;
+				}
+
+				c = (char)cn;
+			} while (c != '\n');
+
+			if (cn == EOF) {
+				break;
+			}
+		}
+
+		if (c == '\n' && bracketDepth != 0) {
+			c = ' ';
+		}
+
+		if (c == '\n') {
+
+			if (strlen(str) == 0) {
+				continue;
+			} else if (isStringAllWhitespace(str)) {
+				memset(str, 0, bufSizeInBytes);
+				i = 0;
+				continue;
+			} */
+
+		/* if (bracketDepth > 0) { */
+		if (!isACompleteExpression) {
+			printf("Not a complete expression.\n");
+			continue;
+		}
+
+		char * str = sbAccumulator->name;
+
+		printf("parseStringAndEvaluate() : str is '%s'\n", str);
+
+		LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
+
+		printValue(value);
+		printf("\n");
+
+		clearStringBuilder(sbAccumulator);
+
+		SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, sb, sbAccumulator, NULL };
+
+		const int numFreed = collectGarbage(exprTreesToMark);
+
+		printf("gc: %d block(s) of memory freed.\n", numFreed);
+
+		/*	memset(str, 0, bufSizeInBytes);
+			i = 0;
+		} else {
+
+			if (c == '(') {
+				++bracketDepth;
+			} else if (c == ')') {
+				--bracketDepth;
+
+				if (bracketDepth < 0) {
+					fprintf(stderr, "execScriptInFile: More ) than (\n");
+					break;
+				}
+			}
+
+			str[i++] = c;
+
+			if (i >= bufSize) {
+				fprintf(stderr, "execScriptInFile: Text buffer overflow\n");
+				break;
+			}
+		} */
+	}
+
+	fclose(file);
+
+	if (originalGlobalEnvParam == NULL) {
+		freeGlobalEnvironment(/* globalEnv */);
+	}
+
+	/* mmFree(str); */
+
+	printf("\nScript execution complete.\n");
+}
+
 /* TODO: Unify the functions execScriptInFile(), readEvalPrintLoop(), and
 the parseAndEvaluate() that is used in runTests() */
 /* Pass this new function a getLine callback function so it can get lines
@@ -184,7 +432,6 @@ void readEvalPrintLoop() {
 	char * buf = (char *)mmAlloc(bufsizeInBytes); */
 	int i;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
-	SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, NULL, NULL };
 	STRING_BUILDER_TYPE * sb = NULL;
 
 	printf("\nStarting the read-eval-print loop...\n\n");
@@ -199,7 +446,18 @@ void readEvalPrintLoop() {
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
 		/* fgets_wrapper(buf, bufsize, stdin); */
 
+		sb = NULL;
+
+		/* if (sb != NULL) {
+			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "readEvalPrintLoop() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
+		}
+
 		clearStringBuilder(sb);
+
+		if (sb != NULL) {
+			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "readEvalPrintLoop() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
+		} */
+
 		sb = appendLineFromFileToStringBuilder(sb, stdin);
 
 		char * buf = sb->name;
@@ -231,7 +489,7 @@ void readEvalPrintLoop() {
 			printValue(value);
 			printf("\n\n");
 
-			exprTreesToMark[3] = sb;
+			SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, /* sb, */ NULL };
 
 			const int numFreed = collectGarbage(exprTreesToMark);
 

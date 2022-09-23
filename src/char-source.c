@@ -91,6 +91,7 @@ STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, B
 		case '(':
 		case ')':
 		/* case '\'': */
+			printf("getIdentifier() : ( or ) : appendCharToStringBuilder...\n");
 			appendCharToStringBuilder(sb, firstChar);
 			cs->i++;
 			return sb;
@@ -103,6 +104,7 @@ STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, B
 			}
 
 			*pIsSingleQuoted = TRUE;
+			printf("getIdentifier() : ' : appendCharToStringBuilder...\n");
 			appendCharToStringBuilder(sb, firstChar);
 			cs->i++;
 			return sb;

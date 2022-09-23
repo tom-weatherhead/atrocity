@@ -589,7 +589,7 @@ SCHEME_UNIVERSAL_TYPE * createAssociativeArrayListElement(LISP_VALUE * key, LISP
 STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize) {
 	const int defaultBufferIncrementSize = 16;
 
-	return createUniversalStruct(
+	STRING_BUILDER_TYPE * result = createUniversalStruct(
 		stringBuilderType,
 		(bufIncSize > 0) ? bufIncSize : defaultBufferIncrementSize,
 		0,
@@ -598,6 +598,10 @@ STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize) {
 		NULL,
 		NULL
 	);
+
+	failIf(getBufferSizeIncrementInStringBuilder(result) <= 0, "StringBuilder roundUpStringTypeBufferSize() : getBufferSizeIncrementInStringBuilder(result) <= 0");
+
+	return result;
 }
 
 /* **** The End **** */
