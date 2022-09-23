@@ -11,6 +11,8 @@
 /* Functions */
 
 static int roundUpStringTypeBufferSize(int n, int bufIncSize) {
+	failIf(bufIncSize <= 0, "StringBuilder roundUpStringTypeBufferSize() : bufIncSize <= 0");
+
 	return ((n + bufIncSize - 1) / bufIncSize) * bufIncSize;
 }
 
@@ -30,9 +32,30 @@ void clearStringBuilder(STRING_BUILDER_TYPE * sb) {
 	}
 }
 
+/* newMinimumSize must already include one for the terminating null char */
+
+static void ensureStringBuilderSize(STRING_BUILDER_TYPE * sb, int newMinimumSize) {
+	newMinimumSize = roundUpStringTypeBufferSize(newMinimumSize, getBufferSizeIncrementInStringBuilder(sb));
+
+	if (newMinimumSize > sb->maxNameLength) {
+		const int numBytes = newMinimumSize * sizeof(char);
+		char * newBuf = (char *)mmAlloc(numBytes);
+
+		memset(newBuf, 0, numBytes);
+
+		if (sb->name != NULL) {
+			strcpy(newBuf, sb->name);
+			mmFree(sb->name);
+		}
+
+		sb->name = newBuf;
+		sb->maxNameLength = newMinimumSize;
+	}
+}
+
 STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * strToAppend) {
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
-	const int newbufsize = roundUpStringTypeBufferSize(oldStrLen + strlen(strToAppend) + 1, sb->integerValue);
+	/* const int newbufsize = roundUpStringTypeBufferSize(oldStrLen + strlen(strToAppend) + 1, getBufferSizeIncrementInStringBuilder(sb));
 
 	if (newbufsize > sb->maxNameLength) {
 		char * newBuf = (char *)mmAlloc(newbufsize * sizeof(char));
@@ -46,7 +69,8 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 
 		sb->name = newBuf;
 		sb->maxNameLength = newbufsize;
-	}
+	} */
+	ensureStringBuilderSize(sb, oldStrLen + strlen(strToAppend) + 1);
 
 	if (sb->name != NULL) {
 		strcat(sb->name, strToAppend);

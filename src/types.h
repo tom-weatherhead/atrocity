@@ -94,6 +94,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getVarInSetExpr(se) ((se)->value1)
 #define getExprInSetExpr(se) ((se)->value2)
 
+#define getBufferSizeIncrementInStringBuilder(sb) ((sb)->integerValue)
 #define getStringInStringBuilder(sb) ((sb)->name)
 
 #define getValueInValueListElement(vle) ((vle)->value1)
