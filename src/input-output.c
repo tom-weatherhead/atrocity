@@ -30,9 +30,9 @@ STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb
 		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
 	} */
 
-	if (sb == NULL) {
+	/* if (sb == NULL) {
 		sb = createStringBuilder(0);
-	}
+	} */
 
 	/* failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)"); */
 
@@ -51,7 +51,7 @@ STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb
 
 		/* failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (3)"); */
 
-		appendCharToStringBuilder(sb, c);
+		sb = appendCharToStringBuilder(sb, c);
 	}
 
 	return sb;
@@ -142,7 +142,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	failIf(globalNullValue == NULL, "globalNullValue is NULL");
 
 	STRING_BUILDER_TYPE * sb = NULL;
-	STRING_BUILDER_TYPE * sbAccumulator = createStringBuilder(0);
+	STRING_BUILDER_TYPE * sbAccumulator = NULL; /* createStringBuilder(0); */
 
 	for (;;) {
 
