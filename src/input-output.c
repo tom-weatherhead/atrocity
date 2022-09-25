@@ -211,21 +211,59 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 }
 
 void readEvalPrintLoop() {
-	int i;
+	int i = 0;
+	int bracketDepth = 0;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
+	STRING_BUILDER_TYPE * sb = NULL;
+	STRING_BUILDER_TYPE * sbAccumulator = NULL;
 
 	printf("\nStarting the read-eval-print loop...\n\n");
 
-	for (i = 0; ; ++i) {
-		printf("%d > ", i);
+	for (;;) {
+
+		if (isStringBuilderEmpty(sbAccumulator)) {
+			printf("%d > ", i);
+		} else {
+			printf("(%d continued) > ", i);
+		}
 
 		/* scanf("%s", buf); */ /* No. */
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
 		/* fgets_wrapper(buf, bufsize, stdin); */
 
-		STRING_BUILDER_TYPE * sb = appendLineFromFileToStringBuilder(NULL, stdin);
+		clearStringBuilder(sb);
+		sb = appendLineFromFileToStringBuilder(sb, stdin);
 
-		char * buf = sb->name;
+		BOOL isACompleteExpression = FALSE;
+
+		const int lenSb = charStateMachine(sb->name, -1, &bracketDepth, &isACompleteExpression);
+
+		if (lenSb == 0) {
+
+			if (feof(stdin)) {
+				/* We have finished reading and interpreting the file. */
+				break;
+			} else {
+				/* The current line contains nothing to interpret. */
+				continue;
+			}
+		}
+
+		/* Are we appending the current line onto (a) previous line(s)
+		in order to complete an expression? If so, append a space to
+		the previous text before appending the current line. */
+
+		if (!isStringBuilderEmpty(sbAccumulator)) {
+			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
+		}
+
+		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, lenSb);
+
+		if (!isACompleteExpression) {
+			continue;
+		}
+
+		char * buf = sbAccumulator->name;
 		const int len = strlen(buf);
 
 		if (len > 0 && buf[len - 1] == '\n') {
@@ -241,19 +279,28 @@ void readEvalPrintLoop() {
 			printf("\nExiting...\n");
 			break;
 		} else if (!strcmp(buf, "load")) {
+			/* This will call collectGarbage(), which will free our sb and sbAccumulator */
 			execScriptInFile("../scripts/labyrinth.scm", globalEnv);
+			sb = NULL;
+			sbAccumulator = NULL;
 		} else if (!strncmp(buf, "load ", 5)) {
 			/* TODO: Load script from file into REPL environment.
 			E.g. load ../scripts/labyrinth.scm */
 
+			/* This will call collectGarbage(), which will free our sb and sbAccumulator */
 			execScriptInFile(buf + 5, globalEnv);
+			sb = NULL;
+			sbAccumulator = NULL;
 		} else {
 			LISP_VALUE * value = parseStringAndEvaluate(buf, globalEnv);
 
 			printValue(value);
 			printf("\n\n");
+			++i;
 
-			SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, /* sb, */ NULL };
+			clearStringBuilder(sbAccumulator);
+
+			SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, sb, sbAccumulator, NULL };
 
 			const int numFreed = collectGarbage(exprTreesToMark);
 
