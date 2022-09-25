@@ -120,6 +120,44 @@ static int charStateMachine(char * str, int len, int * pBracketDepth, BOOL * pIs
 	return i;
 }
 
+static STRING_BUILDER_TYPE * func1(FILE * file, STRING_BUILDER_TYPE * sbAccumulator, STRING_BUILDER_TYPE ** psb, int * pBracketDepth, BOOL * pBreak, BOOL * pContinue) {
+	*pBreak = FALSE;
+	*pContinue = FALSE;
+
+	clearStringBuilder(*psb);
+	*psb = appendLineFromFileToStringBuilder(*psb, file);
+
+	BOOL isACompleteExpression = FALSE;
+
+	const int len = charStateMachine((*psb)->name, -1, pBracketDepth, &isACompleteExpression);
+
+	if (len == 0) {
+
+		if (feof(file)) {
+			/* We have finished reading and interpreting the file. */
+			*pBreak = TRUE;
+		} else {
+			/* The current line contains nothing to interpret. */
+			*pContinue = TRUE;
+		}
+
+		return sbAccumulator;
+	}
+
+	/* Are we appending the current line onto (a) previous line(s)
+	in order to complete an expression? If so, append a space to
+	the previous text before appending the current line. */
+
+	if (!isStringBuilderEmpty(sbAccumulator)) {
+		sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
+	}
+
+	*pContinue = !isACompleteExpression;
+	sbAccumulator = appendCharsToStringBuilder(sbAccumulator, (*psb)->name, len);
+
+	return sbAccumulator;
+}
+
 void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	FILE * file = fopen(filename, "r");
 
@@ -150,11 +188,11 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
 		} */
 
-		clearStringBuilder(sb);
+		/* clearStringBuilder(sb);
 
-		/* if (sb != NULL) {
+		/ * if (sb != NULL) {
 			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
-		} */
+		} * /
 
 		sb = appendLineFromFileToStringBuilder(sb, file);
 
@@ -165,17 +203,17 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 		if (len == 0) {
 
 			if (feof(file)) {
-				/* We have finished reading and interpreting the file. */
+				/ * We have finished reading and interpreting the file. * /
 				break;
 			} else {
-				/* The current line contains nothing to interpret. */
+				/ * The current line contains nothing to interpret. * /
 				continue;
 			}
 		}
 
-		/* Are we appending the current line onto (a) previous line(s)
+		/ * Are we appending the current line onto (a) previous line(s)
 		in order to complete an expression? If so, append a space to
-		the previous text before appending the current line. */
+		the previous text before appending the current line. * /
 
 		if (!isStringBuilderEmpty(sbAccumulator)) {
 			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
@@ -184,6 +222,17 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, len);
 
 		if (!isACompleteExpression) {
+			continue;
+		} */
+
+		BOOL shouldBreak = FALSE;
+		BOOL shouldContinue = FALSE;
+
+		sbAccumulator = func1(file, sbAccumulator, &sb, &bracketDepth, &shouldBreak, &shouldContinue);
+
+		if (shouldBreak) {
+			break;
+		} else if (shouldContinue) {
 			continue;
 		}
 
