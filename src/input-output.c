@@ -280,7 +280,7 @@ void readEvalPrintLoop() {
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
 		/* fgets_wrapper(buf, bufsize, stdin); */
 
-		clearStringBuilder(sb);
+		/* clearStringBuilder(sb);
 		sb = appendLineFromFileToStringBuilder(sb, stdin);
 
 		BOOL isACompleteExpression = FALSE;
@@ -290,17 +290,17 @@ void readEvalPrintLoop() {
 		if (lenSb == 0) {
 
 			if (feof(stdin)) {
-				/* We have finished reading and interpreting the file. */
+				/ * We have finished reading and interpreting the file. * /
 				break;
 			} else {
-				/* The current line contains nothing to interpret. */
+				/ * The current line contains nothing to interpret. * /
 				continue;
 			}
 		}
 
-		/* Are we appending the current line onto (a) previous line(s)
+		/ * Are we appending the current line onto (a) previous line(s)
 		in order to complete an expression? If so, append a space to
-		the previous text before appending the current line. */
+		the previous text before appending the current line. * /
 
 		if (!isStringBuilderEmpty(sbAccumulator)) {
 			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
@@ -309,6 +309,17 @@ void readEvalPrintLoop() {
 		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, lenSb);
 
 		if (!isACompleteExpression) {
+			continue;
+		} */
+
+		BOOL shouldBreak = FALSE;
+		BOOL shouldContinue = FALSE;
+
+		sbAccumulator = func1(stdin, sbAccumulator, &sb, &bracketDepth, &shouldBreak, &shouldContinue);
+
+		if (shouldBreak) {
+			break;
+		} else if (shouldContinue) {
 			continue;
 		}
 
