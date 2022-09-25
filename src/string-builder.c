@@ -6,6 +6,7 @@
 
 #include "types.h"
 
+#include "create-and-destroy.h"
 #include "memory-manager.h"
 #include "string-builder.h"
 
@@ -29,17 +30,17 @@ BOOL stringInBuilderIs(STRING_BUILDER_TYPE * sb, char * str) {
 
 void clearStringBuilder(STRING_BUILDER_TYPE * sb) {
 
-	if (sb != NULL) {
+	/* if (sb != NULL) {
 		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "clearStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
-	}
+	} */
 
 	if (sb != NULL && sb->name != NULL && sb->maxNameLength > 0) {
 		memset(sb->name, 0, sb->maxNameLength * sizeof(char));
 	}
 
-	if (sb != NULL) {
+	/* if (sb != NULL) {
 		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "clearStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
-	}
+	} */
 }
 
 /* newMinimumSize must already include one for the terminating null char */
@@ -64,7 +65,11 @@ static void ensureStringBuilderSize(STRING_BUILDER_TYPE * sb, int newMinimumSize
 }
 
 STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * strToAppend) {
-	failIf(sb == NULL, "appendToStringBuilder() : sb == NULL");
+
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
+
 	failIf(strToAppend == NULL, "appendToStringBuilder() : strToAppend == NULL");
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
@@ -97,7 +102,10 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 }
 
 STRING_BUILDER_TYPE * appendCharToStringBuilder(STRING_BUILDER_TYPE * sb, char c) {
-	failIf(sb == NULL, "appendCharToStringBuilder() : sb == NULL");
+
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
 
@@ -130,7 +138,10 @@ STRING_BUILDER_TYPE * appendCharsToStringBuilder(STRING_BUILDER_TYPE * sb, char 
 
 	mmFree(buf); */
 
-	failIf(sb == NULL, "appendCharsToStringBuilder() : sb == NULL");
+	if (sb == NULL) {
+		sb = createStringBuilder(0);
+	}
+
 	failIf(src == NULL, "appendCharsToStringBuilder() : src == NULL");
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);

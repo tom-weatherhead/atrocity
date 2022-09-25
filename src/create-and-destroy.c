@@ -599,7 +599,7 @@ STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize) {
 		NULL
 	);
 
-	failIf(getBufferSizeIncrementInStringBuilder(result) <= 0, "StringBuilder roundUpStringTypeBufferSize() : getBufferSizeIncrementInStringBuilder(result) <= 0");
+	/* failIf(getBufferSizeIncrementInStringBuilder(result) <= 0, "StringBuilder roundUpStringTypeBufferSize() : getBufferSizeIncrementInStringBuilder(result) <= 0"); */
 
 	return result;
 }

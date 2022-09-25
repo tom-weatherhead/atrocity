@@ -12,7 +12,6 @@
 #include "parse-and-evaluate.h"
 #include "print.h"
 #include "string-builder.h"
-#include "utilities.h"
 
 /* External constants / variables */
 
@@ -27,15 +26,15 @@ static char commentChar = ';';
 
 STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {
 
-	if (sb != NULL) {
+	/* if (sb != NULL) {
 		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
-	}
+	} */
 
 	if (sb == NULL) {
 		sb = createStringBuilder(0);
 	}
 
-	failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
+	/* failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)"); */
 
 	for (;;) {
 		const int cn = fgetc(file);
@@ -50,7 +49,7 @@ STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb
 			break;
 		}
 
-		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (3)");
+		/* failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (3)"); */
 
 		appendCharToStringBuilder(sb, c);
 	}
@@ -106,9 +105,11 @@ static int charStateMachine(char * str, int len, int * pBracketDepth, BOOL * pIs
 
 	/* Return the length of the part of the string before any comment starts */
 
-	/* TODO: Trim any trailing whitespace. Is the string all whitespace? */
+	/* Trim any trailing whitespace. Is the string all whitespace? */
 
-	/* TODO: Have we reached the EOF? */
+	while (i > 0 && (str[i - 1] == ' ' || str[i - 1] == '\n' || str[i - 1] == '\r' || str[i - 1] == '\t')) {
+		--i;
+	}
 
 	if (!isDoubleQuoted && bracketDepth == 0) {
 		*pIsACompleteExpression = TRUE;
@@ -145,28 +146,25 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 
 	for (;;) {
 
-		if (sb != NULL) {
+		/* if (sb != NULL) {
 			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
-		}
+		} */
 
 		clearStringBuilder(sb);
 
-		if (sb != NULL) {
+		/* if (sb != NULL) {
 			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
-		}
+		} */
 
 		sb = appendLineFromFileToStringBuilder(sb, file);
 
-		char * buf = sb->name;
 		BOOL isACompleteExpression = FALSE;
 
-		const int len = charStateMachine(buf, -1, &bracketDepth, &isACompleteExpression);
-
-		const int isEof = feof(file);
+		const int len = charStateMachine(sb->name, -1, &bracketDepth, &isACompleteExpression);
 
 		if (len == 0) {
 
-			if (isEof) {
+			if (feof(file)) {
 				/* We have finished reading and interpreting the file. */
 				break;
 			} else {
@@ -189,9 +187,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 			continue;
 		}
 
-		char * str = sbAccumulator->name;
-
-		LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
+		LISP_VALUE * value = parseStringAndEvaluate(sbAccumulator->name, globalEnv);
 
 		printValue(value);
 		printf("\n");
@@ -214,41 +210,18 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	printf("\nScript execution complete.\n");
 }
 
-/* TODO: Unify the functions execScriptInFile(), readEvalPrintLoop(), and
-the parseAndEvaluate() that is used in runTests() */
-/* Pass this new function a getLine callback function so it can get lines
-of code (or NULL for EOF) as it needs them. */
-/* Output to string (or a list of strings) (or a list of Scheme values?) */
-
 void readEvalPrintLoop() {
-	/* const int bufsize = replBufSize;
-	const int bufsizeInBytes = bufsize * sizeof(char);
-	char * buf = (char *)mmAlloc(bufsizeInBytes); */
 	int i;
 	LISP_ENV * globalEnv = createGlobalEnvironment();
-	/* STRING_BUILDER_TYPE * sb = NULL; */
 
 	printf("\nStarting the read-eval-print loop...\n\n");
 
 	for (i = 0; ; ++i) {
-		/* memset(buf, 0, bufsizeInBytes); */
 		printf("%d > ", i);
-
-		/* TODO: Use appendLineFromFileToStringBuilder(sb, stdin); */
 
 		/* scanf("%s", buf); */ /* No. */
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
 		/* fgets_wrapper(buf, bufsize, stdin); */
-
-		/* if (sb != NULL) {
-			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "readEvalPrintLoop() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
-		}
-
-		clearStringBuilder(sb);
-
-		if (sb != NULL) {
-			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "readEvalPrintLoop() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
-		} */
 
 		STRING_BUILDER_TYPE * sb = appendLineFromFileToStringBuilder(NULL, stdin);
 
@@ -289,7 +262,6 @@ void readEvalPrintLoop() {
 	}
 
 	freeGlobalEnvironment(/* globalEnv */);
-	/* mmFree(buf); */
 
 	printf("REPL complete.\n");
 }

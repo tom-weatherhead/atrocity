@@ -8,20 +8,20 @@
 
 /* Functions */
 
-BOOL isStringAllWhitespace(char * str) {
+/* BOOL isStringAllWhitespace(char * str) {
 	const int len = strlen(str);
 	int i;
 
 	for (i = 0; i < len; ++i) {
 
-		/* if (isspace(str[i])) {} ? (after #include <ctype.h>) */
+		/ * if (isspace(str[i])) {} ? (after #include <ctype.h>) * /
 		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n') {
 			return FALSE;
 		}
 	}
 
 	return TRUE;
-}
+} */
 
 BOOL safeAtoi(char * str, int * ptrToInt) {
 	const int len = strlen(str);
@@ -47,8 +47,8 @@ BOOL safeAtoi(char * str, int * ptrToInt) {
 	return TRUE;
 }
 
-char * fgets_wrapper(char * buffer, size_t buflen, FILE * fp) {
-	/* From https://stackoverflow.com/questions/1694036/why-is-the-gets-function-so-dangerous-that-it-should-not-be-used */
+/* char * fgets_wrapper(char * buffer, size_t buflen, FILE * fp) {
+	/ * From https://stackoverflow.com/questions/1694036/why-is-the-gets-function-so-dangerous-that-it-should-not-be-used * /
 
 	if (fgets(buffer, buflen, fp) != 0) {
 		size_t len = strlen(buffer);
@@ -61,7 +61,7 @@ char * fgets_wrapper(char * buffer, size_t buflen, FILE * fp) {
 	}
 
 	return 0;
-}
+} */
 
 BOOL isStringInList(char * str, char * list[]) {
 	int i;
