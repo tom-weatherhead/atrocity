@@ -22,8 +22,6 @@ extern LISP_VALUE * globalTrueValue;
 /* Local constants */
 
 static char commentChar = ';';
-/* static int readScriptBufSize = 4096;
-static int replBufSize = 1024; */
 
 /* Functions */
 
@@ -51,8 +49,6 @@ STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb
 		if (c == '\n') {
 			break;
 		}
-
-		/* printf("appendLineFromFileToStringBuilder() : appendCharToStringBuilder...\n"); */
 
 		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (3)");
 
@@ -123,127 +119,6 @@ static int charStateMachine(char * str, int len, int * pBracketDepth, BOOL * pIs
 	return i;
 }
 
-/* Version 1 */
-/* void execScriptInFileV1(char * filename, LISP_ENV * globalEnv) {
-	FILE * fp = fopen(filename, "r");
-
-	if (fp == NULL) {
-		fprintf(stderr, "execScriptInFile: Failed to open the file '%s'\n", filename);
-		return;
-	}
-
-	printf("\nExecuting script...\n\n");
-
-	LISP_ENV * originalGlobalEnvParam = globalEnv;
-
-	const int bufSize = readScriptBufSize;
-	const int bufSizeInBytes = bufSize * sizeof(char);
-	char * str = (char *)mmAlloc(bufSizeInBytes);
-
-	if (str == NULL) {
-		fatalError("mmAlloc() failed in execScriptInFile()");
-	}
-
-	memset(str, 0, bufSizeInBytes);
-
-	int i = 0;
-	int bracketDepth = 0;
-
-	if (globalEnv == NULL) {
-		globalEnv = createGlobalEnvironment();
-	}
-
-	failIf(globalTrueValue == NULL, "globalTrueValue is NULL");
-	failIf(globalNullValue == NULL, "globalNullValue is NULL");
-
-	STRING_BUILDER_TYPE * sb = NULL;
-
-	for (;;) {
-		int cn = fgetc(fp);
-
-		if (cn == EOF) {
-			break;
-		}
-
-		char c = (char)cn;
-
-		if (c == commentChar) {
-
-			do {
-				cn = fgetc(fp);
-
-				if (cn == EOF) {
-					break;
-				}
-
-				c = (char)cn;
-			} while (c != '\n');
-
-			if (cn == EOF) {
-				break;
-			}
-		}
-
-		if (c == '\n' && bracketDepth != 0) {
-			c = ' ';
-		}
-
-		if (c == '\n') {
-
-			if (strlen(str) == 0) {
-				continue;
-			} else if (isStringAllWhitespace(str)) {
-				memset(str, 0, bufSizeInBytes);
-				i = 0;
-				continue;
-			}
-
-			LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
-
-			printValue(value);
-			printf("\n");
-
-			SCHEME_UNIVERSAL_TYPE * exprTreesToMark[] = { globalEnv, globalTrueValue, globalNullValue, sb, NULL };
-
-			const int numFreed = collectGarbage(exprTreesToMark);
-
-			printf("gc: %d block(s) of memory freed.\n", numFreed);
-
-			memset(str, 0, bufSizeInBytes);
-			i = 0;
-		} else {
-
-			if (c == '(') {
-				++bracketDepth;
-			} else if (c == ')') {
-				--bracketDepth;
-
-				if (bracketDepth < 0) {
-					fprintf(stderr, "execScriptInFile: More ) than (\n");
-					break;
-				}
-			}
-
-			str[i++] = c;
-
-			if (i >= bufSize) {
-				fprintf(stderr, "execScriptInFile: Text buffer overflow\n");
-				break;
-			}
-		}
-	}
-
-	fclose(fp);
-
-	if (originalGlobalEnvParam == NULL) {
-		freeGlobalEnvironment(/ * globalEnv * /);
-	}
-
-	mmFree(str);
-
-	printf("\nScript execution complete.\n");
-} */
-
 void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	FILE * file = fopen(filename, "r");
 
@@ -256,7 +131,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 
 	LISP_ENV * originalGlobalEnvParam = globalEnv;
 
-	/* int i = 0; */
 	int bracketDepth = 0;
 
 	if (globalEnv == NULL) {
@@ -270,9 +144,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	STRING_BUILDER_TYPE * sbAccumulator = createStringBuilder(0);
 
 	for (;;) {
-		/* TODO: Use appendLineFromFileToStringBuilder(sb, file);
-
-		I.e. : */
 
 		if (sb != NULL) {
 			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
@@ -289,11 +160,7 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 		char * buf = sb->name;
 		BOOL isACompleteExpression = FALSE;
 
-		/* printf("sb contains '%s'\n", sb->name); */
-
 		const int len = charStateMachine(buf, -1, &bracketDepth, &isACompleteExpression);
-
-		/* printf("charStateMachine() returned len = %d\n", len); */
 
 		const int isEof = feof(file);
 
@@ -316,60 +183,13 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
 		}
 
-		/* printf("appendCharsToStringBuilder()...\n"); */
-
 		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, len);
 
-		/* printf("Done appendCharsToStringBuilder()\n"); */
-
-		/* int cn = fgetc(fp);
-
-		if (cn == EOF) {
-			break;
-		}
-
-		char c = (char)cn;
-
-		if (c == commentChar) {
-
-			do {
-				cn = fgetc(fp);
-
-				if (cn == EOF) {
-					break;
-				}
-
-				c = (char)cn;
-			} while (c != '\n');
-
-			if (cn == EOF) {
-				break;
-			}
-		}
-
-		if (c == '\n' && bracketDepth != 0) {
-			c = ' ';
-		}
-
-		if (c == '\n') {
-
-			if (strlen(str) == 0) {
-				continue;
-			} else if (isStringAllWhitespace(str)) {
-				memset(str, 0, bufSizeInBytes);
-				i = 0;
-				continue;
-			} */
-
-		/* if (bracketDepth > 0) { */
 		if (!isACompleteExpression) {
-			/* printf("Not a complete expression.\n"); */
 			continue;
 		}
 
 		char * str = sbAccumulator->name;
-
-		/* printf("parseStringAndEvaluate() : str is '%s'\n", str); */
 
 		LISP_VALUE * value = parseStringAndEvaluate(str, globalEnv);
 
@@ -383,29 +203,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 		const int numFreed = collectGarbage(exprTreesToMark);
 
 		printf("gc: %d block(s) of memory freed.\n", numFreed);
-
-		/*	memset(str, 0, bufSizeInBytes);
-			i = 0;
-		} else {
-
-			if (c == '(') {
-				++bracketDepth;
-			} else if (c == ')') {
-				--bracketDepth;
-
-				if (bracketDepth < 0) {
-					fprintf(stderr, "execScriptInFile: More ) than (\n");
-					break;
-				}
-			}
-
-			str[i++] = c;
-
-			if (i >= bufSize) {
-				fprintf(stderr, "execScriptInFile: Text buffer overflow\n");
-				break;
-			}
-		} */
 	}
 
 	fclose(file);
@@ -413,8 +210,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	if (originalGlobalEnvParam == NULL) {
 		freeGlobalEnvironment(/* globalEnv */);
 	}
-
-	/* mmFree(str); */
 
 	printf("\nScript execution complete.\n");
 }
