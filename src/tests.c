@@ -477,7 +477,7 @@ void runTests() {
 
 	multitest(inputsMacro, expectedResultsMacro);
 
-	/* let macro test - Part of exercise 15 on page 152*/
+	/* let macro test - Part of exercise 15 on page 152 */
 
 	char * inputsLetMacro[] = {
 		"(set cadr (compose cdr car))",
@@ -497,6 +497,44 @@ void runTests() {
 	};
 
 	multitest(inputsLetMacro, expectedResultsLetMacro);
+
+	/* let* macro test - Part of exercise 15 on page 152 */
+
+	char * inputsLetStarMacro[] = {
+		"(set build-expr \
+			(lambda (declarations body) \
+				(if (null? declarations) body \
+					(list \
+						(list 'lambda \
+							(list (car (car declarations))) \
+							(build-expr (cdr declarations) body)) \
+						(car (cdr (car declarations)))))))",
+		"(define-macro let*m (declarations body) (build-expr declarations body))",
+		"(let*m ((x (+ 2 3)) (y (* x x))) y)",
+		NULL
+	};
+	char * expectedResultsLetStarMacro[] = {
+		"<closure>",
+		"T",
+		"25",
+		NULL
+	};
+
+	multitest(inputsLetStarMacro, expectedResultsLetStarMacro);
+
+	/* compose list test */
+
+	/* general find test */
+
+	/* string< test */
+
+	/* string-sort test */
+
+	/* repeat-list test */
+
+	/* Scheme interpreter in Scheme test */
+
+	/* APL interpreter in Scheme test */
 
 	/* array test */
 
