@@ -589,7 +589,154 @@ void runTests() {
 
 	/* Scheme interpreter in Scheme test - See scheme-eval.test.ts in thaw-grammar */
 
+	/* From section 4.5, on pages 123-124.  Also part of exercise 17 on Kamin page 152 */
+
+	char * inputsSchemeEval[] = {
+		/* Required presets: assoc, select */
+		"(set! cadr (lambda (l) (car (cdr l))))",
+		"(set! caddr (lambda (l) (cadr (cdr l))))",
+
+		/* Functions adapted from page 48 */
+		"(set! apply-binary-op (lambda (f x y) \
+			(cond \
+				((= f 'cons) (cons x y)) \
+				((= f '+) (+ x y)) \
+				((= f '-) (- x y)) \
+				((= f '*) (* x y)) \
+				((= f '/) (/ x y)) \
+				((= f '<) (< x y)) \
+				((= f '>) (> x y)) \
+				((= f '=) (= x y)) \
+				('T 'binary-op-error!) \
+			) \
+		))",
+		"(set! apply-unary-op (lambda (f x) \
+			(cond \
+				((= f 'car) (car x)) \
+				((= f 'cdr) (cdr x)) \
+				((= f 'number?) (number? x)) \
+				((= f 'list?) (list? x)) \
+				((= f 'symbol?) (symbol? x)) \
+				((= f 'null?) (null? x)) \
+				((= f 'closure?) (is-closure? x)) \
+				((= f 'primop?) (is-primop? x)) \
+				('T 'unary-op-error!) \
+			) \
+		))",
+
+		/* From page 123 */
+		"(set! formals (lambda (lamexp) (cadr lamexp)))", /* (set! formals cadr) */
+		"(set! body (lambda (lamexp) (caddr lamexp)))", /* (set! body caddr) */
+		"(set! funpart (lambda (clo) (cadr clo)))", /* (set! funpart cadr) */
+		"(set! envpart (lambda (clo) (caddr clo)))", /* (set! envpart caddr) */
+
+		/* begin */
+		"(set! do-begin (lambda (expr-list rho) \
+			(if (null? (cdr expr-list)) \
+				(eval (car expr-list) rho) \
+				(begin \
+					(eval (car expr-list) rho) \
+					(do-begin (cdr expr-list) rho) \
+				) \
+			) \
+		))",
+
+		/* let */
+		"(set! construct-let-var-list (mapc car))",
+		"(set! construct-let-expr-list (mapc cadr))",
+		"(set! do-let (lambda (var-expr-list expr rho) \
+			(eval \
+				(cons \
+					(list 'lambda (construct-let-var-list var-expr-list) expr) \
+					(construct-let-expr-list var-expr-list) \
+				) \
+				rho \
+			) \
+		))",
+
+		/* let* */
+		"(set! construct-let* (lambda (var-expr-list expr) \
+			(if (null? var-expr-list) expr \
+				(list \
+					(list \
+						'lambda \
+						(list (caar var-expr-list)) \
+						(construct-let* (cdr var-expr-list) expr) \
+					) \
+					(cadar var-expr-list) \
+				) \
+			) \
+		))",
+		"(set! do-let* (lambda (var-expr-list expr rho) \
+			(eval (construct-let* var-expr-list expr) rho) \
+		))"
+
+		/* letrec */
+		"(set! construct-letrec-let-body (lambda (var-expr-list) \
+			(if (null? var-expr-list) '() \
+				(cons \
+					(cons 'set (car var-expr-list)) \
+					(construct-letrec-begin-body (cdr var-expr-list) expr) \
+				) \
+			) \
+		))",
+		"(set! construct-letrec-begin-body (lambda (var-expr-list expr) \
+			(if (null? var-expr-list) (list expr) \
+				(cons \
+					(cons 'set (car var-expr-list)) \
+					(construct-letrec-begin-body (cdr var-expr-list) expr) \
+				) \
+			) \
+		))",
+		"(set! construct-letrec (lambda (var-expr-list expr) \
+			(list 'let (construct-letrec-let-body var-expr-list) \
+				(cons 'begin (construct-letrec-begin-body var-expr-list expr)) \
+			) \
+		))",
+		"(set! do-letrec (lambda (var-expr-list expr rho) \
+			(eval (construct-letrec var-expr-list expr) rho) \
+		))",
+
+		NULL
+	};
+	char * expectedResultsSchemeEval[] = {
+		"<closure>", /* cadr */
+		"<closure>", /* caddr */
+		"<closure>", /* apply-binary-op */
+		"<closure>", /* apply-unary-op */
+		"<closure>", /* formals */
+		"<closure>", /* body */
+		"<closure>", /* funpart */
+		"<closure>", /* envpart */
+		"<closure>", /* do-begin */
+		"<closure>", /* construct-let-var-list */
+		"<closure>", /* construct-let-expr-list */
+		"<closure>", /* do-let */
+		"<closure>", /* construct-let* */
+		"<closure>", /* do-let* */
+		"<closure>", /* construct-letrec-let-body */
+		"<closure>", /* construct-letrec-begin-body */
+		"<closure>", /* construct-letrec */
+		"<closure>", /* do-letrec */
+		/* "<closure>",  */
+		NULL
+	};
+
+	multitest(inputsSchemeEval, expectedResultsSchemeEval);
+
 	/* APL interpreter in Scheme test - See scheme-apl.test.ts in thaw-grammar */
+
+	/* char * inputsAplEval[] = {
+		NULL
+	};
+	char * expectedResultsAplEval[] = {
+		"<closure>",
+		"<closure>",
+		"<closure>",
+		NULL
+	};
+
+	multitest(inputsAplEval, expectedResultsAplEval); */
 
 	/* See also the tests in scheme-exercises.test.ts in thaw-grammar */
 
