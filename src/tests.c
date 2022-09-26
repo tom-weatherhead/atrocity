@@ -477,8 +477,26 @@ void runTests() {
 
 	multitest(inputsMacro, expectedResultsMacro);
 
-	/* BUG: Any tests placed after the macro test will seg fault.
-	Do we need to clear the list of macros? */
+	/* let macro test - Part of exercise 15 on page 152*/
+
+	char * inputsLetMacro[] = {
+		"(set cadr (compose cdr car))",
+		"(set list-of-cars (lambda (l) (mapcar car l)))",
+		"(set list-of-cadrs (lambda (l) (mapcar cadr l)))",
+		"(define-macro letm (declarations body) (cons (list 'lambda (list-of-cars declarations) body) (list-of-cadrs declarations)))",
+		"(letm ((m (* 3 4)) (n (+ 2 3))) (list m n))",
+		NULL
+	};
+	char * expectedResultsLetMacro[] = {
+		"<closure>",
+		"<closure>",
+		"<closure>",
+		"T",
+		"(12 5)",
+		NULL
+	};
+
+	multitest(inputsLetMacro, expectedResultsLetMacro);
 
 	/* array test */
 
