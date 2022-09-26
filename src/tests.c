@@ -522,19 +522,78 @@ void runTests() {
 
 	multitest(inputsLetStarMacro, expectedResultsLetStarMacro);
 
-	/* compose list test */
+	/* compose list test * /
+
+	// 2013/11/30
+	schemeTest([
+		['(set compose-list (combine id compose id))', '<closure>'],
+		['(set cadaddr (compose-list (list cdr cdr car cdr car)))', '<closure>'],
+		["(cadaddr '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 16)))", '10'],
+
+		// 2013/12/02
+		['(set compose-list-reverse (combine id (reverse2args compose) id))', '<closure>'],
+		['(set cadaddr (compose-list-reverse (list car cdr car cdr cdr)))', '<closure>'], // The functions are applied from right to left.
+		["(cadaddr '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 16)))", '10'],
+
+		['(set sumplus3 (compose2args + (compose-list (list +1 +1 +1))))', '<closure>'],
+		['(sumplus3 7 8)', '18']
+	]); */
 
 	/* general find test */
 
-	/* string< test */
+	/* string< test - 2013/12/14 * /
 
-	/* string-sort test */
+	['(primop? string<)', 'T'],
+	['(string< "a" "a")', '()'],
+	['(string< "a" "b")', 'T'],
+	['(string< "b" "a")', '()'],
+	['(string< "abac" "abacus")', 'T'],
+	['(string< "abacab" "abacus")', 'T'] */
 
-	/* repeat-list test */
+	/* string-sort test - 2013/12/14 * /
 
-	/* Scheme interpreter in Scheme test */
+	const strings = ['abbreviate', 'abacab', 'abbot', 'a', 'baa', 'abcess', 'ab', 'abacus'];
+	const stringList = strings.map((s) => '"' + s + '"').join(' ');
+	const expectedResult = '("a" "ab" "abacab" "abacus" "abbot" "abbreviate" "abcess" "baa")';
 
-	/* APL interpreter in Scheme test */
+	schemeTest(
+		[
+			[`((insertion-sort string<) (list ${stringList}))`, expectedResult],
+			[`((quicksort string<) (list ${stringList}))`, expectedResult],
+			[`((merge-sort string<) (list ${stringList}))`, expectedResult]
+		],
+		{ presets: ['sort'] }
+	); */
+
+	/* repeat-list test - 2014/02/15 * /
+
+	This might be useful in "restruct" in our Scheme APL interpreter.
+
+	[
+		[
+			'(set repeat-list (lambda (n master)',
+			'(letrec',
+			'((loop (lambda (n lm)',
+			'    (if (<= n lm)',
+			"        (take n master) ; Verify the order of take's args",
+			'        (append master (loop (- n lm) lm))',
+			'    )',
+			')))',
+			'(loop n (length master))',
+			')',
+			'))'
+		].join('\n'),
+		'<closure>'
+	],
+	["(repeat-list 11 '(2 3 5 7))", '(2 3 5 7 2 3 5 7 2 3 5)'] */
+
+	/* Scheme interpreter in Scheme test - See scheme-eval.test.ts in thaw-grammar */
+
+	/* APL interpreter in Scheme test - See scheme-apl.test.ts in thaw-grammar */
+
+	/* See also the tests in scheme-exercises.test.ts in thaw-grammar */
+
+	/* **** Tests not in inference or  thaw-grammar **** */
 
 	/* array test */
 
