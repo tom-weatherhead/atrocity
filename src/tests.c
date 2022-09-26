@@ -669,7 +669,7 @@ void runTests() {
 		))",
 		"(set! do-let* (lambda (var-expr-list expr rho) \
 			(eval (construct-let* var-expr-list expr) rho) \
-		))"
+		))",
 
 		/* letrec */
 		"(set! construct-letrec-let-body (lambda (var-expr-list) \
@@ -697,6 +697,132 @@ void runTests() {
 			(eval (construct-letrec var-expr-list expr) rho) \
 		))",
 
+		/* cond */
+		"(set! do-cond (lambda (expr-pair-list rho) \
+			(if (null? expr-pair-list) '() \
+				(if (eval (caar expr-pair-list) rho) \
+					(eval (cadar expr-pair-list) rho) \
+					(do-cond (cdr expr-pair-list) rho) \
+				) \
+			) \
+		))",
+
+		/* Functions from Figure 4.6 on page 124 */
+		/* begin, print : Exercise 6a) on page 61 */
+		"(set! eval (lambda (expr env) \
+			(cond \
+				((number? expr) expr) \
+				((symbol? expr) \
+					(if (assoc-contains-key expr env) \
+						(assoc expr env) \
+						(assoc expr global-environment))) \
+				((= (car expr) 'quote) (cadr expr)) \
+				((= (car expr) 'if) \
+					(if (null? (eval (cadr expr) env)) \
+						(eval (cadddr expr) env) \
+						(eval (caddr expr) env))) \
+				((= (car expr) 'begin) (do-begin (cdr expr) env)) \
+				((= (car expr) 'print) \
+					(print (eval (cadr expr) env))) \
+				((= (car expr) 'set) \
+					(let ((evaluated-expression (eval (caddr expr) env))) \
+						(if (assoc-contains-key (cadr expr) env) \
+							(begin \
+								(rplac-assoc (cadr expr) evaluated-expression env) \
+								evaluated-expression) \
+							(begin \
+								(set global-environment (mkassoc (cadr expr) evaluated-expression global-environment)) \
+								evaluated-expression)))) \
+				((= (car expr) 'let) (do-let (cadr expr) (caddr expr) env)) \
+				((= (car expr) 'let*) (do-let* (cadr expr) (caddr expr) env)) \
+				((= (car expr) 'letrec) (do-letrec (cadr expr) (caddr expr) env)) \
+				((= (car expr) 'cond) (do-cond (cdr expr) env)) \
+				((= (car expr) 'lambda) (list 'closure expr env)) \
+				((= (car expr) 'list) (evallist (cdr expr) env)) \
+				('T (apply (evallist expr env) env)) \
+			) \
+		))",
+		"(set! evallist (lambda (el rho) \
+			(if (null? el) '() \
+				(cons \
+					(eval (car el) rho) \
+					(evallist (cdr el) rho) \
+				) \
+			) \
+		))",
+		"(set! mkassoc* (lambda (keys values al) \
+			(if (null? keys) al \
+				(mkassoc* (cdr keys) (cdr values) \
+					(mkassoc (car keys) (car values) al) \
+				) \
+			) \
+		))",
+		"(set! apply (lambda (el env) \
+			(if (is-closure? (car el)) \
+				(apply-closure (car el) (cdr el)) \
+				(apply-value-op (car el) (cdr el)) \
+			) \
+		))",
+		"(set! apply-closure (lambda (clo args) \
+			(eval \
+				(body (funpart clo)) \
+				(mkassoc* (formals (funpart clo)) args (envpart clo)) \
+			) \
+		))",
+		"(set! apply-value-op (lambda (primop args) \
+			(if (= (length args) 1) \
+				(apply-unary-op (cadr primop) (car args)) \
+				(apply-binary-op (cadr primop) (car args) (cadr args)) \
+			) \
+		))",
+		"(set! is-closure? (lambda (f) (= (car f) 'closure)))",
+		"(set! is-primop? (lambda (f) (= (car f) 'primop)))",
+
+		"(set! valueops 'todo)",
+		/*
+		[
+			"(set valueops '(",
+			'(+ (primop +))',
+			'(- (primop -))',
+			'(cons (primop cons))',
+			'(* (primop *))',
+			'(/ (primop /))',
+			'(< (primop <))',
+			'(> (primop >))',
+			'(= (primop =))',
+			'(cdr (primop cdr))',
+			'(car (primop car))',
+			'(number? (primop number?))',
+			'(list? (primop list?))',
+			'(symbol? (primop symbol?))',
+			'(null? (primop null?))',
+			'(closure? (primop closure?))',
+			'(primop? (primop primop?))))'
+		].join('\n')
+		*/
+
+		"(set! r-e-p-loop (lambda (inputs) \
+			(begin \
+				(set global-environment '()) \
+				(r-e-p-loop* inputs) \
+			) \
+		))",
+		"(set! r-e-p-loop* (lambda (inputs) \
+			(if (null? inputs) '() \
+				(process-expr (car inputs) (cdr inputs)) \
+			) \
+		))",
+
+		/* (eval e valueops) ; print value of expression */
+		"(set! process-expr (lambda (e inputs) \
+			(cons \
+				(eval e valueops) \
+				(r-e-p-loop* inputs) \
+			) \
+		))",
+
+		/* "(eval '(+ 2 3) valueops)", */
+
 		NULL
 	};
 	char * expectedResultsSchemeEval[] = {
@@ -718,7 +844,22 @@ void runTests() {
 		"<closure>", /* construct-letrec-begin-body */
 		"<closure>", /* construct-letrec */
 		"<closure>", /* do-letrec */
-		/* "<closure>",  */
+		"<closure>", /* do-cond */
+		"<closure>", /* eval */
+		"<closure>", /* evallist */
+		"<closure>", /* mkassoc* */
+		"<closure>", /* apply */
+		"<closure>", /* apply-closure */
+		"<closure>", /* apply-value-op */
+		"<closure>", /* is-closure? */
+		"<closure>", /* is-primop? */
+		"todo", /* valueops */
+		"<closure>", /* r-e-p-loop */
+		"<closure>", /* r-e-p-loop* */
+		"<closure>", /* process-expr */
+
+		/* "5", */
+
 		NULL
 	};
 
