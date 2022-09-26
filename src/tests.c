@@ -58,7 +58,7 @@ static void multitest(char * inputs[], char * expectedOutputs[]) {
 
 		actualOutput = sb->name;
 
-		outputValuesMatch = strlen(expectedOutput) > 0 && !strcmp(actualOutput, expectedOutput);
+		outputValuesMatch = strlen(expectedOutput) == 0 || !strcmp(actualOutput, expectedOutput);
 	}
 
 	if (!valuePrintedSuccessfully) {
@@ -592,9 +592,50 @@ void runTests() {
 	/* From section 4.5, on pages 123-124.  Also part of exercise 17 on Kamin page 152 */
 
 	char * inputsSchemeEval[] = {
-		/* Required presets: assoc, select */
 		"(set! cadr (lambda (l) (car (cdr l))))",
 		"(set! caddr (lambda (l) (cadr (cdr l))))",
+
+		/* Required presets: assoc, select */
+
+		/* assoc */
+		"(set! caar (compose car car))",
+		"(set! cadar (compose car cadr))",
+		"(set! assoc (lambda (x alist) \
+			(cond \
+				((null? alist) '()) \
+				((= x (caar alist)) (cadar alist)) \
+				('T (assoc x (cdr alist))) \
+			) \
+		))",
+		"(set! find (lambda (pred lis) \
+			(cond \
+				((null? lis) '()) \
+				((pred (car lis)) 'T) \
+				('T (find pred (cdr lis))) \
+			) \
+		))",
+		"(set! assoc-contains-key (lambda (x alist) (find (compose car ((curry =) x)) alist)))",
+		"(set! mkassoc (lambda (x y alist) \
+			(cond \
+				((null? alist) (list (list x y))) \
+				((= x (caar alist)) (cons (list x y) (cdr alist))) \
+				('T (cons (car alist) (mkassoc x y (cdr alist)))) \
+			) \
+		))",
+
+		/* select */
+		"(set select (lambda (indices l) \
+			(letrec ((select* (lambda (n indices l) \
+				(cond \
+					((or (null? indices) (null? l)) '()) \
+					((= n (car indices)) (cons (car l) (select* (+1 n) (cdr indices) (cdr l)))) \
+					('T (select* (+1 n) indices (cdr l))) \
+				)))) \
+				(select* 0 indices l) \
+			) \
+		))",
+
+		/* End of presets */
 
 		/* Functions adapted from page 48 */
 		"(set! apply-binary-op (lambda (f x y) \
@@ -777,30 +818,24 @@ void runTests() {
 		))",
 		"(set! is-closure? (lambda (f) (= (car f) 'closure)))",
 		"(set! is-primop? (lambda (f) (= (car f) 'primop)))",
-
-		"(set! valueops 'todo)",
-		/*
-		[
-			"(set valueops '(",
-			'(+ (primop +))',
-			'(- (primop -))',
-			'(cons (primop cons))',
-			'(* (primop *))',
-			'(/ (primop /))',
-			'(< (primop <))',
-			'(> (primop >))',
-			'(= (primop =))',
-			'(cdr (primop cdr))',
-			'(car (primop car))',
-			'(number? (primop number?))',
-			'(list? (primop list?))',
-			'(symbol? (primop symbol?))',
-			'(null? (primop null?))',
-			'(closure? (primop closure?))',
-			'(primop? (primop primop?))))'
-		].join('\n')
-		*/
-
+		"(set! valueops '( \
+			(+ (primop +)) \
+			(- (primop -)) \
+			(* (primop *)) \
+			(/ (primop /)) \
+			(< (primop <)) \
+			(> (primop >)) \
+			(= (primop =)) \
+			(cons (primop cons)) \
+			(car (primop car)) \
+			(cdr (primop cdr)) \
+			(number? (primop number?)) \
+			(list? (primop list?)) \
+			(symbol? (primop symbol?)) \
+			(null? (primop null?)) \
+			(closure? (primop closure?)) \
+			(primop? (primop primop?)) \
+		))",
 		"(set! r-e-p-loop (lambda (inputs) \
 			(begin \
 				(set global-environment '()) \
@@ -821,13 +856,47 @@ void runTests() {
 			) \
 		))",
 
-		/* "(eval '(+ 2 3) valueops)", */
+		"(eval '(+ 2 3) valueops)",
+
+		/* Test from page 123 */
+		"(set! E (mkassoc 'double (eval '(lambda (a) (+ a a)) valueops) valueops))",
+		"(eval '(double 4) E)",
+
+		/* select test */
+		"(select '(1 3 4) '(10 12 14 16 18 20))",
+
+		/* // Test of "set" to ensure that we have completed the exercise.
+		expect(
+			globalInfo.evaluateToString(
+				[
+					"(select '(1 2 3) (r-e-p-loop '( ; We use 'select' because we don't want to test the value of the closure 'double'.",
+					'(set double (lambda (a) (+ a a)))',
+					'(double 4)',
+					'(primop? double)',
+					'(closure? double)',
+					')))'
+				].join('\n')
+			)
+		).toBe('(8 () T)'); */
+		"(select '(1 2 3) (r-e-p-loop '( \
+			(set double (lambda (a) (+ a a))) \
+			(double 4) \
+			(primop? double) \
+			(closure? double) \
+		)))",
 
 		NULL
 	};
 	char * expectedResultsSchemeEval[] = {
 		"<closure>", /* cadr */
 		"<closure>", /* caddr */
+		"<closure>", /* caar */
+		"<closure>", /* cadar */
+		"<closure>", /* assoc */
+		"<closure>", /* find */
+		"<closure>", /* assoc-contains-key */
+		"<closure>", /* mkassoc */
+		"<closure>", /* select */
 		"<closure>", /* apply-binary-op */
 		"<closure>", /* apply-unary-op */
 		"<closure>", /* formals */
@@ -853,12 +922,19 @@ void runTests() {
 		"<closure>", /* apply-value-op */
 		"<closure>", /* is-closure? */
 		"<closure>", /* is-primop? */
-		"todo", /* valueops */
+		"", /* valueops */
 		"<closure>", /* r-e-p-loop */
 		"<closure>", /* r-e-p-loop* */
 		"<closure>", /* process-expr */
 
-		/* "5", */
+		"5",
+
+		"",
+		"8",
+
+		"(12 16 18)", /* select test */
+
+		"(8 () T)", /* Test of "set" to ensure that we have completed the exercise */
 
 		NULL
 	};
