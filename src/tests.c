@@ -424,6 +424,33 @@ void runTests() {
 
 	multitest(inputsStreams, expectedResultsStreams);
 
+	/* rplaca and rplacd test - See Kamin page 55 */
+
+	char * inputsRplacaRplacd[] = {
+		"(set x '(a b c))",
+		"(set y x)",
+		"(rplaca y 'd)",
+		"y",
+		"x",
+		"(rplacd y 'e)",
+		"y",
+		"x",
+		NULL
+	};
+	char * expectedResultsRplacaRplacd[] = {
+		"(a b c)",
+		"(a b c)",
+		"d",
+		"(d b c)",
+		"(d b c)",
+		"e",
+		"(d . e)",
+		"(d . e)",
+		NULL
+	};
+
+	multitest(inputsRplacaRplacd, expectedResultsRplacaRplacd);
+
 	/* macro test */
 	/* From Kamin pages 56-57, and Exercise 12, from pages 62-63 (in the LISP chapter) */
 
