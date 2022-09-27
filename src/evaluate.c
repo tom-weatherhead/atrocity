@@ -258,8 +258,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 			printValue(operand1Value);
 			printf("\n");
 
-			/* Return without freeing the values */
-
 			return operand1Value;
 		} else if (!strcmp(op, "random")) {
 
@@ -430,7 +428,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 				} else if (!strcmp(op, "!=")) {
 					result = booleanToSchemeValue(!areValuesEqual(operand1Value, operand2Value));
 				} else if (!strcmp(op, "cons")) {
-					/* Return without freeing the values */
 					return createPair(operand1Value, operand2Value);
 				} else if (!strcmp(op, "rplaca")) {
 
@@ -549,7 +546,6 @@ static LISP_VALUE * evaluatePrimitiveOperatorCall(char * op, LISP_EXPR_LIST_ELEM
 	return result;
 }
 
-/* TODO: Use this:
 static LISP_VALUE_LIST_ELEMENT * evaluateExpressionList(LISP_EXPR_LIST_ELEMENT * exprList, LISP_ENV * env) {
 
 	if (exprList == NULL) {
@@ -560,16 +556,16 @@ static LISP_VALUE_LIST_ELEMENT * evaluateExpressionList(LISP_EXPR_LIST_ELEMENT *
 	LISP_VALUE_LIST_ELEMENT * next = evaluateExpressionList(exprList->next, env);
 
 	return createValueListElement(value, next);
-} */
+}
 
 static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	/* TODO: Use composeEnvironment() :
+	/* TODO: Use composeEnvironment() : */
 	LISP_VALUE_LIST_ELEMENT * valueList = evaluateExpressionList(actualParamExprs, env);
-	LISP_ENV * newEnv = composeEnvironment(getArgsInClosure(closure), valueList, env);
-	*/
-	LISP_ENV * newEnv = createEnvironment(getEnvInClosure(closure));
+	LISP_ENV * newEnv = composeEnvironment(getArgsInClosure(closure), valueList, getEnvInClosure(closure));
 
-	LISP_VAR_LIST_ELEMENT * np = getArgsInClosure(closure); /* closure->args; */
+	/* LISP_ENV * newEnv = createEnvironment(getEnvInClosure(closure));
+
+	LISP_VAR_LIST_ELEMENT * np = getArgsInClosure(closure); / * closure->args; * /
 	LISP_EXPR_LIST_ELEMENT * ep = actualParamExprs;
 
 	while (np != NULL || ep != NULL) {
@@ -581,7 +577,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 
 		failIf(np->type != schemeStructType_VariableListElement, "evaluateClosureCall() : np->type != schemeStructType_VariableListElement");
 
-		LISP_VALUE * value = evaluate(getExprInExprList(ep), env); /* TODO: env or closure->env ? */
+		LISP_VALUE * value = evaluate(getExprInExprList(ep), env); / * TODO: env or closure->env ? * /
 
 		if (value->type == lispPseudoValueType_ContinuationReturn) {
 			return value;
@@ -590,7 +586,7 @@ static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_E
 		addNameToEnvironment(newEnv, np->name, value);
 		np = np->next;
 		ep = ep->next;
-	}
+	} */
 
 	return evaluate(getBodyInClosure(closure), newEnv);
 

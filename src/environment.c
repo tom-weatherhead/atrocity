@@ -190,7 +190,14 @@ LISP_ENV * createGlobalEnvironment() {
 
 	/* Version 2 of combine, using letrec: see Kamin page 126 */
 	parseAndEvaluateEx(
-		"(set! combine (lambda (f sum zero) (letrec ((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l))))))) loop)))",
+		"(set! combine (lambda (f sum zero) \
+			(letrec \
+				((loop (lambda (l) \
+					(if (null? l) zero (sum (f (car l)) (loop (cdr l)))) \
+				))) \
+				loop \
+			) \
+		))",
 		globalEnv,
 		FALSE
 	);
@@ -200,17 +207,15 @@ LISP_ENV * createGlobalEnvironment() {
 	/* Curry a function that takes two parameters */
 	parseAndEvaluateEx("(set! curry (lambda (f) (lambda (x) (lambda (y) (f x y)))))", globalEnv, FALSE);
 
+	/* The identity function: */
 	parseAndEvaluateEx("(set! id (lambda (x) x))", globalEnv, FALSE);
-
-	/*
-	*/
 
 	/* TODO? : We could implement Boolean logic functionally:
 	parseAndEvaluateEx("(set! true (lambda (t f) t))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! false (lambda (t f) f))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! if (lambda (b x y) (b x y)))", globalEnv, FALSE);
-	parseAndEvaluateEx("(set! not (lambda (x) (if x false true)))", globalEnv, FALSE);
-	*/
+	parseAndEvaluateEx("(set! not (lambda (x) (if x false true)))", globalEnv, FALSE); */
+
 	parseAndEvaluateEx("(set! and (lambda (x y) (if x y x)))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! or (lambda (x y) (if x x y)))", globalEnv, FALSE);
 
