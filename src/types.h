@@ -150,11 +150,7 @@ enum {
 	lispExpressionType_Letrec,
 	lispExpressionType_Begin,
 	lispExpressionType_While,
-	/* lispExpressionType_Cons, */
 	lispExpressionType_Cond,
-	/* lispExpressionType_Car,
-	lispExpressionType_Cdr,
-	lispExpressionType_CallCC, */
 	lispExpressionType_Macro,
 	/* lispType_LastExpressionType = lispExpressionType_DefineMacro, */
 

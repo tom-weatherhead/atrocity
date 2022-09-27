@@ -96,7 +96,6 @@ static int charStateMachine(char * str, int len, int * pBracketDepth, BOOL * pIs
 
 	/* Trim any trailing whitespace. Is the string all whitespace? */
 
-	/* while (i > 0 && (str[i - 1] == ' ' || str[i - 1] == '\n' || str[i - 1] == '\r' || str[i - 1] == '\t')) { */
 	while (i > 0 && isspace(str[i - 1])) {
 		--i;
 	}
@@ -173,48 +172,6 @@ void execScriptInFile(char * filename, LISP_ENV * globalEnv) {
 	STRING_BUILDER_TYPE * sbAccumulator = NULL; /* createStringBuilder(0); */
 
 	for (;;) {
-
-		/* if (sb != NULL) {
-			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
-		} */
-
-		/* clearStringBuilder(sb);
-
-		/ * if (sb != NULL) {
-			failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "execScriptInFile() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
-		} * /
-
-		sb = appendLineFromFileToStringBuilder(sb, file);
-
-		BOOL isACompleteExpression = FALSE;
-
-		const int len = charStateMachine(sb->name, -1, &bracketDepth, &isACompleteExpression);
-
-		if (len == 0) {
-
-			if (feof(file)) {
-				/ * We have finished reading and interpreting the file. * /
-				break;
-			} else {
-				/ * The current line contains nothing to interpret. * /
-				continue;
-			}
-		}
-
-		/ * Are we appending the current line onto (a) previous line(s)
-		in order to complete an expression? If so, append a space to
-		the previous text before appending the current line. * /
-
-		if (!isStringBuilderEmpty(sbAccumulator)) {
-			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
-		}
-
-		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, len);
-
-		if (!isACompleteExpression) {
-			continue;
-		} */
-
 		BOOL shouldBreak = FALSE;
 		BOOL shouldContinue = FALSE;
 
@@ -269,38 +226,6 @@ void readEvalPrintLoop() {
 		/* scanf("%s", buf); */ /* No. */
 		/* gets(buf); */ /* This is unsafe as fsck. Buffer overflow city. */
 		/* fgets_wrapper(buf, bufsize, stdin); */
-
-		/* clearStringBuilder(sb);
-		sb = appendLineFromFileToStringBuilder(sb, stdin);
-
-		BOOL isACompleteExpression = FALSE;
-
-		const int lenSb = charStateMachine(sb->name, -1, &bracketDepth, &isACompleteExpression);
-
-		if (lenSb == 0) {
-
-			if (feof(stdin)) {
-				/ * We have finished reading and interpreting the file. * /
-				break;
-			} else {
-				/ * The current line contains nothing to interpret. * /
-				continue;
-			}
-		}
-
-		/ * Are we appending the current line onto (a) previous line(s)
-		in order to complete an expression? If so, append a space to
-		the previous text before appending the current line. * /
-
-		if (!isStringBuilderEmpty(sbAccumulator)) {
-			sbAccumulator = appendCharToStringBuilder(sbAccumulator, ' ');
-		}
-
-		sbAccumulator = appendCharsToStringBuilder(sbAccumulator, sb->name, lenSb);
-
-		if (!isACompleteExpression) {
-			continue;
-		} */
 
 		BOOL shouldBreak = FALSE;
 		BOOL shouldContinue = FALSE;

@@ -30,17 +30,9 @@ BOOL stringInBuilderIs(STRING_BUILDER_TYPE * sb, char * str) {
 
 void clearStringBuilder(STRING_BUILDER_TYPE * sb) {
 
-	/* if (sb != NULL) {
-		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "clearStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
-	} */
-
 	if (sb != NULL && sb->name != NULL && sb->maxNameLength > 0) {
 		memset(sb->name, 0, sb->maxNameLength * sizeof(char));
 	}
-
-	/* if (sb != NULL) {
-		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "clearStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)");
-	} */
 }
 
 /* newMinimumSize must already include one for the terminating null char */
@@ -74,24 +66,6 @@ STRING_BUILDER_TYPE * appendToStringBuilder(STRING_BUILDER_TYPE * sb, char * str
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
 
-	/* const int newbufsize = roundUpStringTypeBufferSize(oldStrLen + strlen(strToAppend) + 1, getBufferSizeIncrementInStringBuilder(sb));
-
-	if (newbufsize > sb->maxNameLength) {
-		char * newBuf = (char *)mmAlloc(newbufsize * sizeof(char));
-
-		memset(newBuf, 0, newbufsize * sizeof(char));
-
-		if (sb->name != NULL) {
-			strcpy(newBuf, sb->name);
-			mmFree(sb->name);
-		}
-
-		sb->name = newBuf;
-		sb->maxNameLength = newbufsize;
-	} */
-
-	/* printf("appendToStringBuilder() : ensureStringBuilderSize...\n"); */
-
 	ensureStringBuilderSize(sb, oldStrLen + strlen(strToAppend) + 1);
 
 	if (sb->name != NULL) {
@@ -109,8 +83,6 @@ STRING_BUILDER_TYPE * appendCharToStringBuilder(STRING_BUILDER_TYPE * sb, char c
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
 
-	/* printf("appendCharToStringBuilder() : ensureStringBuilderSize...\n"); */
-
 	ensureStringBuilderSize(sb, oldStrLen + 2);
 
 	failIf(sb->name == NULL, "appendCharToStringBuilder() : sb->name == NULL");
@@ -119,24 +91,9 @@ STRING_BUILDER_TYPE * appendCharToStringBuilder(STRING_BUILDER_TYPE * sb, char c
 	sb->name[oldStrLen + 1] = '\0';
 
 	return sb;
-
-	/* char twoChars[2];
-
-	twoChars[0] = c;
-	twoChars[1] = '\0';
-
-	return appendToStringBuilder(sb, twoChars); */
 }
 
 STRING_BUILDER_TYPE * appendCharsToStringBuilder(STRING_BUILDER_TYPE * sb, char * src, int numChars) {
-	/* char * buf = (char *)mmAlloc((numChars + 1) * sizeof(char));
-
-	memcpy(buf, src, numChars * sizeof(char));
-	buf[numChars] = '\0';
-
-	appendToStringBuilder(sb, buf);
-
-	mmFree(buf); */
 
 	if (sb == NULL) {
 		sb = createStringBuilder(0);
@@ -146,13 +103,9 @@ STRING_BUILDER_TYPE * appendCharsToStringBuilder(STRING_BUILDER_TYPE * sb, char 
 
 	const int oldStrLen = (sb->name == NULL) ? 0 : strlen(sb->name);
 
-	/* printf("appendCharsToStringBuilder() : ensureStringBuilderSize...\n"); */
-
 	ensureStringBuilderSize(sb, oldStrLen + numChars + 1);
 
 	failIf(sb->name == NULL, "appendCharToStringBuilder() : sb->name == NULL");
-
-	/* printf("appendCharsToStringBuilder() : memcpy...\n"); */
 
 	memcpy(sb->name + oldStrLen, src, numChars * sizeof(char));
 	sb->name[oldStrLen + numChars] = '\0';
