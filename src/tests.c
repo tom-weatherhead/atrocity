@@ -285,21 +285,21 @@ void runTests() {
 
 	/* filter */
 	char * inputsFilter[] = {
-		/* "(set! flatten1 (combine id append '()))", */
+		/* Old: "(set! flatten1 (combine id append '()))", */
 
-		"(set! pred2list (lambda (f) (lambda (a) (if (f a) (list a) '()))))",
+		/* New: "(set! pred2list (lambda (f) (lambda (a) (if (f a) (list a) '()))))", */
 
-		/* "(set! filter (lambda (pred l) (flatten1 (mapcar (pred2list pred) l))))", */
-		"(set! filter (lambda (pred l) ((combine (pred2list pred) append '()) l)))",
+		/* Old: "(set! filter (lambda (pred l) (flatten1 (mapcar (pred2list pred) l))))", */
+		/* New: "(set! filter (lambda (pred l) ((combine (pred2list pred) append '()) l)))", */
 
 		"(filter (lambda (n) (= 0 (mod n 2))) '(1 2 3 4 5 6 7 8))",
 
 		NULL
 	};
 	char * expectedResultsFilter[] = {
-		/* "<closure>", */
+		/* "<closure>", * /
 		"<closure>",
-		"<closure>",
+		"<closure>", */
 		"(2 4 6 8)",
 		NULL
 	};
@@ -607,13 +607,18 @@ void runTests() {
 				('T (assoc x (cdr alist))) \
 			) \
 		))",
-		"(set! find (lambda (pred lis) \
+		/* find (a.k.a. 'any' or 'some') :
+		find could be written as:
+		(set! find (lambda (pred lis) ((combine pred or '()) lis)))
+		...but it would not short-circuit, so it would be less efficient.
+		 */
+		/* "(set! find2 (lambda (pred lis) \
 			(cond \
 				((null? lis) '()) \
 				((pred (car lis)) 'T) \
 				('T (find pred (cdr lis))) \
 			) \
-		))",
+		))", */
 		"(set! assoc-contains-key (lambda (x alist) (find (compose car ((curry =) x)) alist)))",
 		"(set! mkassoc (lambda (x y alist) \
 			(cond \
@@ -893,7 +898,7 @@ void runTests() {
 		"<closure>", /* caar */
 		"<closure>", /* cadar */
 		"<closure>", /* assoc */
-		"<closure>", /* find */
+		/* "<closure>", / * find */
 		"<closure>", /* assoc-contains-key */
 		"<closure>", /* mkassoc */
 		"<closure>", /* select */

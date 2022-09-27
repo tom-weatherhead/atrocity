@@ -67,6 +67,7 @@
 ; (set cadr (lambda (l) (car (cdr l)))) ; Version 1
 (set cadr (compose cdr car)) ; Version 2
 
+; find (a.k.a. 'any' or 'some')
 ; (set find (lambda (pred lis) ; From page 104
 ; (if (null? lis) '()
 ; (if (pred (car lis)) 'T (find pred (cdr lis)))))) ; Version 1
@@ -79,6 +80,10 @@
 		('T (find pred (cdr lis)))
 	)
 ))
+
+; find could be written as:
+; (set! find (lambda (pred lis) ((combine pred or '()) lis)))
+; ...but it would not short-circuit, so it would be less efficient.
 
 (set nth (lambda (n l) (if (= n 0) (car l) (nth (- n 1) (cdr l))))) ; Adapted from page 43.
 

@@ -188,13 +188,7 @@ LISP_ENV * createGlobalEnvironment() {
 	/* Combine: In Javascript array terms,
 	((combine f sum zero) lst) := lst.map(f).reduce(sum, zero); */
 
-	/* ; Version 2 of combine, using letrec: see Kamin page 126
-	(set! combine (lambda (f sum zero)
-		(letrec
-			((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l)))))))
-			loop
-		)
-	)) */
+	/* Version 2 of combine, using letrec: see Kamin page 126 */
 	parseAndEvaluateEx(
 		"(set! combine (lambda (f sum zero) (letrec ((loop (lambda (l) (if (null? l) zero (sum (f (car l)) (loop (cdr l))))))) loop)))",
 		globalEnv,
@@ -216,8 +210,6 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set! false (lambda (t f) f))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! if (lambda (b x y) (b x y)))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! not (lambda (x) (if x false true)))", globalEnv, FALSE);
-
-	parseAndEvaluateEx("", globalEnv, FALSE);
 	*/
 	parseAndEvaluateEx("(set! and (lambda (x y) (if x y x)))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! or (lambda (x y) (if x x y)))", globalEnv, FALSE);
@@ -255,42 +247,38 @@ LISP_ENV * createGlobalEnvironment() {
 	parseAndEvaluateEx("(set! append (lambda (l1 l2) ((combine id cons l2) l1)))", globalEnv, FALSE);
 	parseAndEvaluateEx("(set! reverse (lambda (l) (letrec ((rev-aux (lambda (l1 l2) (if (null? l1) l2 (rev-aux (cdr l1) (cons (car l1) l2)))))) (rev-aux l '()))))", globalEnv, FALSE);
 
+	/* +1 Version 2: */
+	parseAndEvaluateEx("(set! +1 ((curry +) 1))", globalEnv, FALSE);
+
 	/* length : Adapted from Kamin page 29 */
 	parseAndEvaluateEx("(set! length (lambda (l) (if (null? l) 0 (+1 (length (cdr l))))))", globalEnv, FALSE);
 
-	/*
-(set! equal (lambda (l1 l2) (cond ((atom? l1) (= l1 l2)) ((atom? l2) '()) ((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) ('T '()) ))) ; Version 2
+	/* (set! equal (lambda (l1 l2) \
+		(cond \
+			((atom? l1) (= l1 l2)) \
+			((atom? l2) '()) \
+			((equal (car l1) (car l2)) (equal (cdr l1) (cdr l2))) \
+			('T '()) \
+		) \
+	)) ; Version 2 */
 
-; Version 2 (or use combine ?)
+	/* Short-circuiting, efficient implementation of find:
 (set find (lambda (pred lis)
 	(cond
 		((null? lis) '())
 		((pred (car lis)) 'T)
 		('T (find pred (cdr lis)))
 	)
-))
+)) */
 
-; TODO: filter : Try using combine and/or flatten1 ?
-; flatten1: (flatten1 '((a) () (b) (c d))) -> '(a b c d)
-(set! flatten1 (combine id append '()))
+	/* Non-short-circuiting, more elegant but less efficient implementation of find: */
+	parseAndEvaluateEx("(set! find (lambda (pred lis) ((combine pred or '()) lis)))", globalEnv, FALSE);
 
-; pred2list :
-(set! pred2list (lambda (f a) (if (f a) (list a) '())))
-; Then:
-(set! filter (lambda (pred l) (combine ...)))
-
-; Original:
-(set filter (lambda (pred l) ; Returns only the elements of l for which pred is true.
-	(cond
-		((null? l) '())
-		((pred (car l)) (cons (car l) (filter pred (cdr l))))
-		('T (filter pred (cdr l)))
-	)
-))
-	*/
-
-	/* Version 2: */
-	parseAndEvaluateEx("(set! +1 ((curry +) 1))", globalEnv, FALSE);
+	parseAndEvaluateEx("(set! filter (lambda (pred l) \
+		(let ((pred2list (lambda (a) (if (pred a) (list a) '())))) \
+			((combine pred2list append '()) l) \
+		) \
+	))", globalEnv, FALSE);
 
 	parseAndEvaluateEx("(set! null '())", globalEnv, FALSE);
 
@@ -303,11 +291,12 @@ LISP_ENV * createGlobalEnvironment() {
 }
 
 void freeGlobalEnvironment(/* LISP_ENV * globalEnv */) {
+	/* TODO? Free all allocated memory: return freeAllStructs(); */
+
 	globalTrueValue = NULL;
 	globalNullValue = NULL;
 	macroList = NULL;
-
-	/* TODO? Free all allocated memory: return freeAllStructs(); */
+	/* globalEnv = NULL; if globalEnv is a global variable */
 }
 
 /* **** The End **** */
