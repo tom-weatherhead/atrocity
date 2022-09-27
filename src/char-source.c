@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "types.h"
 
@@ -35,10 +36,6 @@ void freeCharSource(CharSource * cs) {
 	mmFree(cs);
 }
 
-static BOOL isWhiteSpace(char c) {
-	return c == ' ' || c == '\t' || c == '\n' ? TRUE : FALSE;
-}
-
 int getNextChar(CharSource * cs) {
 
 	while (cs->i < cs->len) {
@@ -46,7 +43,7 @@ int getNextChar(CharSource * cs) {
 
 		++cs->i;
 
-		if (!isWhiteSpace(c)) {
+		if (!isspace(c)) {
 			return (int)c;
 		}
 	}
@@ -67,7 +64,7 @@ static BOOL isEOF(CharSource * cs) {
 
 static void skipWhiteSpace(CharSource * cs) {
 
-	while (cs->i < cs->len && isWhiteSpace(cs->str[cs->i])) {
+	while (cs->i < cs->len && isspace(cs->str[cs->i])) {
 		++cs->i;
 	}
 }
@@ -138,7 +135,7 @@ STRING_BUILDER_TYPE * getIdentifier(CharSource * cs, STRING_BUILDER_TYPE * sb, B
 				++cs->i;
 				break;
 			}
-		} else if (isWhiteSpace(c) || c == '(' || c == ')' /* || c == '\0' */) {
+		} else if (isspace(c) || c == '(' || c == ')' /* || c == '\0' */) {
 			break;
 		}
 

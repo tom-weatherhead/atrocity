@@ -559,34 +559,8 @@ static LISP_VALUE_LIST_ELEMENT * evaluateExpressionList(LISP_EXPR_LIST_ELEMENT *
 }
 
 static LISP_VALUE * evaluateClosureCall(LISP_CLOSURE * closure, LISP_EXPR_LIST_ELEMENT * actualParamExprs, LISP_ENV * env) {
-	/* TODO: Use composeEnvironment() : */
 	LISP_VALUE_LIST_ELEMENT * valueList = evaluateExpressionList(actualParamExprs, env);
 	LISP_ENV * newEnv = composeEnvironment(getArgsInClosure(closure), valueList, getEnvInClosure(closure));
-
-	/* LISP_ENV * newEnv = createEnvironment(getEnvInClosure(closure));
-
-	LISP_VAR_LIST_ELEMENT * np = getArgsInClosure(closure); / * closure->args; * /
-	LISP_EXPR_LIST_ELEMENT * ep = actualParamExprs;
-
-	while (np != NULL || ep != NULL) {
-
-		if (np == NULL || ep == NULL) {
-			fatalError("evaluateClosureCall() : The formal and actual parameter lists have different lengths.");
-			return NULL;
-		}
-
-		failIf(np->type != schemeStructType_VariableListElement, "evaluateClosureCall() : np->type != schemeStructType_VariableListElement");
-
-		LISP_VALUE * value = evaluate(getExprInExprList(ep), env); / * TODO: env or closure->env ? * /
-
-		if (value->type == lispPseudoValueType_ContinuationReturn) {
-			return value;
-		}
-
-		addNameToEnvironment(newEnv, np->name, value);
-		np = np->next;
-		ep = ep->next;
-	} */
 
 	return evaluate(getBodyInClosure(closure), newEnv);
 

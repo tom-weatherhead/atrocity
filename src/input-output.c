@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "types.h"
 
@@ -26,16 +27,6 @@ static char commentChar = ';';
 
 STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb, FILE * file) {
 
-	/* if (sb != NULL) {
-		failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (1)");
-	} */
-
-	/* if (sb == NULL) {
-		sb = createStringBuilder(0);
-	} */
-
-	/* failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (2)"); */
-
 	for (;;) {
 		const int cn = fgetc(file);
 
@@ -48,8 +39,6 @@ STRING_BUILDER_TYPE * appendLineFromFileToStringBuilder(STRING_BUILDER_TYPE * sb
 		if (c == '\n') {
 			break;
 		}
-
-		/* failIf(getBufferSizeIncrementInStringBuilder(sb) <= 0, "appendLineFromFileToStringBuilder() : getBufferSizeIncrementInStringBuilder(sb) <= 0 (3)"); */
 
 		sb = appendCharToStringBuilder(sb, c);
 	}
@@ -107,7 +96,8 @@ static int charStateMachine(char * str, int len, int * pBracketDepth, BOOL * pIs
 
 	/* Trim any trailing whitespace. Is the string all whitespace? */
 
-	while (i > 0 && (str[i - 1] == ' ' || str[i - 1] == '\n' || str[i - 1] == '\r' || str[i - 1] == '\t')) {
+	/* while (i > 0 && (str[i - 1] == ' ' || str[i - 1] == '\n' || str[i - 1] == '\r' || str[i - 1] == '\t')) { */
+	while (i > 0 && isspace(str[i - 1])) {
 		--i;
 	}
 
