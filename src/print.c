@@ -11,7 +11,9 @@
 #include "string-builder.h"
 #include "utilities.h"
 
-void printValue(LISP_VALUE * value) {
+/* **** Print Values **** */
+
+/* void printValue(LISP_VALUE * value) {
 	SCHEME_UNIVERSAL_TYPE * ptr = NULL;
 	char * separatorStr = "";
 
@@ -19,7 +21,7 @@ void printValue(LISP_VALUE * value) {
 		printf("NULL");
 
 		return;
-	} else if (isList(value) /* && value->type != lispValueType_Null */) {
+	} else if (isList(value) / * && value->type != lispValueType_Null * /) {
 		char separator = '\0';
 
 		printf("(");
@@ -65,12 +67,12 @@ void printValue(LISP_VALUE * value) {
 			printf(")");
 			break;
 
-		/* case lispValueType_Null:
+		/ * case lispValueType_Null:
 			printf("()");
-			break; */
+			break; * /
 
 		case lispValueType_Array:
-			/* printf("<array>"); */
+			/ * printf("<array>"); * /
 			printf("[");
 
 			for (ptr = getHeadInArray(value); ptr != NULL; ptr = ptr->next) {
@@ -100,7 +102,7 @@ void printValue(LISP_VALUE * value) {
 			printf("<invalid value>");
 			break;
 	}
-}
+} */
 
 STRING_BUILDER_TYPE * printValueToStringEx(STRING_BUILDER_TYPE * sb, LISP_VALUE * value, char * separatorBetweenListItems, BOOL printBracketsAroundList) {
 	SCHEME_UNIVERSAL_TYPE * ptr = NULL;
@@ -210,6 +212,14 @@ STRING_BUILDER_TYPE * printValueToStringEx(STRING_BUILDER_TYPE * sb, LISP_VALUE 
 STRING_BUILDER_TYPE * printValueToString(STRING_BUILDER_TYPE * sb, LISP_VALUE * value) {
 	return printValueToStringEx(sb, value, NULL, FALSE);
 }
+
+void printValue(LISP_VALUE * value) {
+	STRING_BUILDER_TYPE * sb = printValueToString(NULL, value);
+
+	printf("%s", getStringInStringBuilder(sb));
+}
+
+/* **** Print Expressions **** */
 
 static void printLetExpressionToString(STRING_BUILDER_TYPE * sb, char * letKeyword, LISP_EXPR * expr, BOOL (*fnHandler)(STRING_BUILDER_TYPE * sb, LISP_EXPR * expr)) {
 	char * separator = "";
