@@ -29,3 +29,6 @@ $(MAIN): $(OBJECTS)
 
 clean:
 	@$(RM) $(MAIN) $(OBJECTS)
+
+test:
+	./$(MAIN) -t

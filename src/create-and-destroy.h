@@ -53,11 +53,6 @@ LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_
 
 void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr);
 
-/* DOM functions */
-/* BOOL isList(LISP_VALUE * value);
-void printValue(LISP_VALUE * value);
-BOOL printValueToString(LISP_VALUE * value, char * buf, int bufsize); */
-
 STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize);
 
 /* **** The End **** */

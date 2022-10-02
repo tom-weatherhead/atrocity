@@ -29,7 +29,7 @@ From the src directory, you can do the following:
 To do a full rebuild and run the built-in tests:
 
 ```sh
-$ make clean && make && ./atrocity -t
+$ make clean && make && make test
 ```
 
 To run a script: E.g.:

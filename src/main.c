@@ -2,14 +2,13 @@
 
 /* cd into the src directory. Then: */
 /* To compile and link: $ make */
-/* To run: $ ./atrocity -t */
+/* To run tests: $ make test */
 /* To remove all build products: $ make clean */
-/* To do all of the above: $ make clean && make && ./atrocity -t */
+/* To do all of the above: $ make clean && make && make test */
 /* To run a script: E.g. $ ./atrocity ../scripts/test001.scm */
 /* To enter the read-eval-print loop: $ ./atrocity */
 
 /* TODO: Add this stuff:
-rplaca -> Done?
 Dot (i.e. '.'; e.g. (cons 1 2) -> (1 . 2) : A pair, but not a list.)
 QuoteKeyword (e.g. for (quote 1 2 3))
 Real (i.e. floating-point) numbers? Then sin cos tan atan2 pow ln exp
@@ -21,19 +20,12 @@ stringtosymbol ?
 Default values for formal parameters
 */
 
-/* TODO: Implement lazy evaluation via thunks (suspended computations) :
-
-Expressions that have already been evaluated do not need to be 'thunked';
-nothing would be gained by suspending a computation that is just an identity fn
-
-- createThunk(expr, env) and/or exprToValueOrThunk(expr, env)
-- dethunk(expr)
-*/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+/* #include <ctype.h> */
+/* #include <assert.h> */
 
 #include "types.h"
 
