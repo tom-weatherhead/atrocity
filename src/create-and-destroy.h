@@ -53,6 +53,8 @@ LISP_VAR_LIST_ELEMENT * createVariableListElement(LISP_VAR * var, LISP_VAR_LIST_
 
 void freeUniversalStruct(SCHEME_UNIVERSAL_TYPE * expr);
 
+/* Creation of special types */
+BINARY_TREE_NODE_TYPE * createBinaryTreeNode(char * key, SCHEME_UNIVERSAL_TYPE * value, BINARY_TREE_NODE_TYPE * ltree, BINARY_TREE_NODE_TYPE * rtree);
 STRING_BUILDER_TYPE * createStringBuilder(int bufIncSize);
 
 /* **** The End **** */

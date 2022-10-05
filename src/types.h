@@ -36,6 +36,7 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 	void * aux;
 } SCHEME_UNIVERSAL_TYPE;
 
+#define BINARY_TREE_NODE_TYPE SCHEME_UNIVERSAL_TYPE
 #define LISP_CLOSURE SCHEME_UNIVERSAL_TYPE
 #define LISP_ENV SCHEME_UNIVERSAL_TYPE
 #define LISP_EXPR SCHEME_UNIVERSAL_TYPE
@@ -62,6 +63,12 @@ typedef struct SCHEME_UNIVERSAL_STRUCT {
 #define getValueInAssociativeArrayListElement(aale) ((aale)->value2)
 
 #define getExprListInBeginExpr(be) ((be)->value1)
+
+#define getKeyInBinaryTree(bt) ((bt)->name)
+#define getHeightInBinaryTree(bt) ((bt)->integerValue)
+#define getLeftSubtree(bt) ((bt)->value1)
+#define getValueInBinaryTree(bt) ((bt)->value2) /* For when the binary tree is used as a dictionary */
+#define getRightSubtree(bt) ((bt)->next)
 
 #define getArgsInClosure(c) ((c)->value1)
 #define getBodyInClosure(c) ((c)->value3)
@@ -165,6 +172,7 @@ enum {
 	schemeStructType_VariableListElement,
 	schemeStructType_VariableExpressionPairListElement,
 
+	binaryTreeNodeType,
 	stringBuilderType
 };
 
